@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
@@ -38,7 +39,7 @@ public class ContentWithId extends Content {
     	this._id = _id;
     }
 
-    //TODO - make non serializable OR set the value to null before returning
+    @JsonIgnore
     public String getId() {
       return _id;
     }

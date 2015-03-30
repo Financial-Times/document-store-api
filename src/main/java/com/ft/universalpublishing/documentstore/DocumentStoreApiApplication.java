@@ -9,23 +9,23 @@ import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.universalpublishing.documentstore.health.HelloworldHealthCheck;
 import com.ft.universalpublishing.documentstore.mongo.MongoContentReader;
 import com.ft.universalpublishing.documentstore.mongo.MongoContentWriter;
-import com.ft.universalpublishing.documentstore.resources.JsonApiResource;
+import com.ft.universalpublishing.documentstore.resources.DocumentStoreApiResource;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
-public class JsonApiApplication extends Application<JsonApiConfiguration> {
+public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
     public static void main(final String[] args) throws Exception {
-        new JsonApiApplication().run(args);
+        new DocumentStoreApiApplication().run(args);
     }
 
     @Override
-    public void initialize(final Bootstrap<JsonApiConfiguration> bootstrap) {
+    public void initialize(final Bootstrap<DocumentStoreApiConfiguration> bootstrap) {
         bootstrap.addBundle(new AdvancedHealthCheckBundle());
     }
 
     @Override
-    public void run(final JsonApiConfiguration configuration, final Environment environment) throws Exception {
+    public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
         environment.jersey().register(new BuildInfoResource());
         
         final MongoClient mongoClient = new MongoClient(configuration.getMongo().getHost(), configuration.getMongo().getPort());
@@ -33,7 +33,7 @@ public class JsonApiApplication extends Application<JsonApiConfiguration> {
         final MongoContentWriter contentWriter = new MongoContentWriter(db);
         final MongoContentReader contentReader = new MongoContentReader(db);
 
-        environment.jersey().register(new JsonApiResource(contentWriter, contentReader));
+        environment.jersey().register(new DocumentStoreApiResource(contentWriter, contentReader));
 
         environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
 

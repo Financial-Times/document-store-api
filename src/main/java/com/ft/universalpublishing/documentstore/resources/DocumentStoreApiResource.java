@@ -28,13 +28,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path("/")
-public class JsonApiResource {
+public class DocumentStoreApiResource {
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 	private final MongoContentWriter contentWriter;
 	private final MongoContentReader contentReader;
 
-    public JsonApiResource(MongoContentWriter contentWriter, MongoContentReader contentReader) {
+    public DocumentStoreApiResource(MongoContentWriter contentWriter, MongoContentReader contentReader) {
     	this.contentWriter = contentWriter;
     	this.contentReader = contentReader;
 	}
