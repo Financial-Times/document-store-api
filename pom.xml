@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.ft.universalpublishing</groupId>
-    <artifactId>json-api</artifactId>
+    <artifactId>document-store-api</artifactId>
     <version>0.0.1</version>
     <packaging>jar</packaging>
 
