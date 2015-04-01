@@ -24,6 +24,7 @@
         <jaxrs-build-info-resource.version>1.1</jaxrs-build-info-resource.version>
         <jaxrs.error-handling.version>1.1.1</jaxrs.error-handling.version>
         <jaxrs.transaction-id-handling.version>1.9</jaxrs.transaction-id-handling.version>
+        <jackson.date.serialization.version>0.1.29</jackson.date.serialization.version>
         <junit.version>4.11</junit.version>
         <mockito-core.version>1.9.5</mockito-core.version>
         <jersey-version>1.18.1</jersey-version>
@@ -110,6 +111,11 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.ft.ws.lib</groupId>
+            <artifactId>ft-jackson-date-serialization</artifactId>
+            <version>${jackson.date.serialization.version}</version>
         </dependency>
         <dependency>
             <groupId>com.ft</groupId>

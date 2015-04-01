@@ -7,9 +7,9 @@ import io.dropwizard.setup.Environment;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.universalpublishing.documentstore.health.HelloworldHealthCheck;
-import com.ft.universalpublishing.documentstore.mongo.MongoContentReader;
-import com.ft.universalpublishing.documentstore.mongo.MongoContentWriter;
-import com.ft.universalpublishing.documentstore.resources.DocumentStoreApiResource;
+import com.ft.universalpublishing.documentstore.mongo.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.resources.DocumentResource;
+import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
@@ -30,10 +30,9 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         
         final MongoClient mongoClient = new MongoClient(configuration.getMongo().getHost(), configuration.getMongo().getPort());
         final DB db = mongoClient.getDB(configuration.getMongo().getDb());
-        final MongoContentWriter contentWriter = new MongoContentWriter(db);
-        final MongoContentReader contentReader = new MongoContentReader(db);
 
-        environment.jersey().register(new DocumentStoreApiResource(contentWriter, contentReader));
+        final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db);    
+        environment.jersey().register(new DocumentResource(documentStoreService));
 
         environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
 
