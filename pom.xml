@@ -43,7 +43,7 @@
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <ft-build-info-maven-plugin.version>1.0</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
-        <target-jdk>1.8</target-jdk>
+        <target-jdk>1.7</target-jdk>
     </properties>
 
     <dependencies>
