@@ -1,35 +1,29 @@
 package com.ft.universalpublishing.documentstore.validators;
 
-import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
+import com.ft.universalpublishing.documentstore.model.Document;
 
 public class ContentDocumentValidator implements DocumentValidator {
 
-    @Override
-    public void validate(String uuidString, Object document) {
-        Content content = null;
-
-        if (document == null) {
-            throw ClientError.status(400).error("some content must be submitted").exception();
-        }        
-        if (document instanceof Content) {
-            content = (Content) document;
-        } else {
-            throw ServerError.status(500).error("bad configuration - calling content validator for something that isn't content").exception();
+    public void validate(String uuidString, Document document) {
+        Content content = (Content) document;   
+        
+        if (content == null) {
+            throw new ValidationException("content must be provided in request body");
         }
-        if (content.getUuid() == null) {
-            throw ClientError.status(400).error("submitted content must provide a uuid").exception();
+        if (content.getUuid() == null || content.getUuid().isEmpty()) {
+            throw new ValidationException("submitted content must provide a non-empty uuid");
         }
         if (content.getTitle() == null || content.getTitle().isEmpty()) {
-            throw ClientError.status(400).error("submitted content must provide a non-empty title").exception();
+            throw new ValidationException("submitted content must provide a non-empty title");
         }
-        if (content.getPublishedDate() == null ) {
-            throw ClientError.status(400).error("submitted content must provide a non-empty publishedDate").exception();
+        if (content.getPublishedDate() == null) {
+            throw new ValidationException("submitted content must provide a non-empty publishedDate");
         }
         if (!uuidString.equals(content.getUuid())) {
             String message = String.format("uuid in path %s is not equal to uuid in submitted content %s", uuidString, content.getUuid());
-            throw ClientError.status(400).error(message).exception();
+            throw new ValidationException(message);
 
         }
     }

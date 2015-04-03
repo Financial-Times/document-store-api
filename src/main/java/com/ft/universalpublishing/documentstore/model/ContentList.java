@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "uuid", "requestUrl", "content"})
-public class ContentList {
+public class ContentList implements Document {
 
     private String id;
     private String uuid;

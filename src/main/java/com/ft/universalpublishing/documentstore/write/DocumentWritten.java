@@ -1,19 +1,18 @@
 package com.ft.universalpublishing.documentstore.write;
 
-import java.util.Map;
+import com.ft.universalpublishing.documentstore.model.Document;
 
 public class DocumentWritten {
 
     private final Mode mode;
-    //i.e. Json
-    private final Map<String, Object> written;
+    private final Document written;
 
-    public DocumentWritten(Mode mode, Map<String, Object> written) {
+    public DocumentWritten(Mode mode, Document written) {
         this.mode = mode;
         this.written = written;
     }
 
-    public Map<String, Object> getDocument() {
+    public Document getDocument() {
         return written;
     }
 
@@ -25,16 +24,16 @@ public class DocumentWritten {
         Created, Updated, Deleted
     }
 
-    public static DocumentWritten updated(Map<String, Object> content) {
-        return new DocumentWritten(Mode.Updated, content);
+    public static DocumentWritten updated(Document document) {
+        return new DocumentWritten(Mode.Updated, document);
 
     }
     
-    public static DocumentWritten created(Map<String, Object> content) {
+    public static DocumentWritten created(Document content) {
         return new DocumentWritten(Mode.Created, content);
     }
 
-    public static DocumentWritten deleted(Map<String, Object> content) {
+    public static DocumentWritten deleted(Document content) {
 		return new DocumentWritten(Mode.Deleted, content);
 	}
 }

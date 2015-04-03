@@ -31,6 +31,7 @@
         <ft.content-model.version>0.1.23</ft.content-model.version>
         <mongo.driver.version>2.12.5</mongo.driver.version>
         <jongo.version>1.1</jongo.version>
+        <hamcrest.version>1.2</hamcrest.version>
         <!-- Plugins -->
         <findbugs.version>2.5.2</findbugs.version>
         <surefire.reportplugin.version>2.12.4</surefire.reportplugin.version>
@@ -147,6 +148,12 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
             <version>${dw.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

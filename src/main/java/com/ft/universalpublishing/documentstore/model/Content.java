@@ -12,10 +12,12 @@ import org.joda.time.DateTime;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.validation.constraints.NotNull;
+
 @JsonInclude(Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "contentOrigin", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
 
-public class Content {
+public class Content implements Document {
 
 	private String id;
 	private String uuid;
@@ -44,6 +46,7 @@ public class Content {
 		this.id = id;
 	}
 	
+	@NotNull
 	public String getUuid() {
 	    return uuid;
 	}

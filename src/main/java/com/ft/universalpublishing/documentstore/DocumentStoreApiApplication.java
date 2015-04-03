@@ -10,6 +10,8 @@ import com.ft.universalpublishing.documentstore.health.HelloworldHealthCheck;
 import com.ft.universalpublishing.documentstore.mongo.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
+import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
@@ -31,8 +33,10 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final MongoClient mongoClient = new MongoClient(configuration.getMongo().getHost(), configuration.getMongo().getPort());
         final DB db = mongoClient.getDB(configuration.getMongo().getDb());
 
-        final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db);    
-        environment.jersey().register(new DocumentResource(documentStoreService));
+        final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db); 
+        final ContentDocumentValidator contentDocumentValidator = new ContentDocumentValidator();
+        final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
+        environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator));
 
         environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
 

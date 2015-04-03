@@ -1,7 +1,6 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,13 +18,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
 import com.ft.universalpublishing.documentstore.model.ContentList;
+import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
@@ -34,16 +34,21 @@ import com.google.common.base.Optional;
 @Path("/")
 public class DocumentResource {
 
+    private static final String CONTENT_COLLECTION = "content";
+
+    private static final String LISTS_COLLECTION = "lists";
+
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
     
 	private final DocumentStoreService documentStoreService;
 	
-	private ContentDocumentValidator contentDocumentValidator = new ContentDocumentValidator();
-	private ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
+	private ContentDocumentValidator contentDocumentValidator;
+	private ContentListDocumentValidator contentListDocumentValidator;
 
-    public DocumentResource(DocumentStoreService documentStoreService) {
+    public DocumentResource(DocumentStoreService documentStoreService, ContentDocumentValidator contentDocumentValidator, ContentListDocumentValidator contentListDocumentValidator) {
     	this.documentStoreService = documentStoreService;
-
+    	this.contentDocumentValidator = contentDocumentValidator;
+    	this.contentListDocumentValidator = contentListDocumentValidator;
 	}
 
 	@GET
@@ -51,7 +56,7 @@ public class DocumentResource {
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Map<String, Object> getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-		 return findResourceByUuid("content", uuidString);
+		 return findResourceByUuid(CONTENT_COLLECTION, uuidString);
     }
     
     @GET
@@ -59,7 +64,7 @@ public class DocumentResource {
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Map<String, Object> getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-        return findResourceByUuid("lists", uuidString);
+        return findResourceByUuid(LISTS_COLLECTION, uuidString);
     }
 
     private Map<String, Object> findResourceByUuid(String resourceType, String uuidString) {
@@ -82,8 +87,12 @@ public class DocumentResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeContent(@PathParam("uuidString") String uuidString, Content content, @Context UriInfo uriInfo) {
 
-    	contentDocumentValidator.validate(uuidString, content);
-    	return writeDocument("content", content, uriInfo);
+        try {
+            contentDocumentValidator.validate(uuidString, content);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
+    	return writeDocument(CONTENT_COLLECTION, content, uriInfo);
     
     }
     
@@ -93,17 +102,18 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeLists(@PathParam("uuidString") String uuidString, ContentList contentList, @Context UriInfo uriInfo) {
-
-        contentListDocumentValidator.validate(uuidString, contentList);
-        return writeDocument("lists", contentList, uriInfo);
+        try {
+            contentListDocumentValidator.validate(uuidString, contentList);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
+        return writeDocument(LISTS_COLLECTION, contentList, uriInfo);
     
     }
 
-    private Response writeDocument(String resourceType, Object document, UriInfo uriInfo) {
-        Map<String, Object> documentAsMap = convertToMap(document);
-
+    private Response writeDocument(String resourceType, Document document, UriInfo uriInfo) {
         try {
-            final com.ft.universalpublishing.documentstore.write.DocumentWritten written = documentStoreService.write(resourceType, documentAsMap);
+            final com.ft.universalpublishing.documentstore.write.DocumentWritten written = documentStoreService.write(resourceType, document);
             final Response response;
             switch (written.getMode()) {
                 case Created:
@@ -125,30 +135,24 @@ public class DocumentResource {
     @Timed
     @Path("/content/{uuidString}")
     public Response deleteContent(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
-        return delete("content", uuidString);
+        return delete(CONTENT_COLLECTION, uuidString);
     }
     
     @DELETE
     @Timed
     @Path("/lists/{uuidString}")
     public Response deleteList(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
-        return delete("content", uuidString);
+        return delete(LISTS_COLLECTION, uuidString);
     }
 
     private Response delete(String resourceType, String uuidString) {
         try {
-            documentStoreService.delete(uuidString, UUID.fromString(uuidString));
+            documentStoreService.delete(resourceType, UUID.fromString(uuidString));
             return Response.noContent().build();
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("Service Unavailable").exception(esue);
         } catch (ContentNotFoundException e){
-            return Response.ok().build();
+            return Response.status(404).build();
         }
-    }
-    
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> convertToMap(Object object) {
-        ObjectMapper m = new ObjectMapper();
-        return m.convertValue(object, Map.class);
     }
 }

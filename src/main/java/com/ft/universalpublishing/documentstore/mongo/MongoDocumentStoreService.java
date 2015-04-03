@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.google.common.base.Optional;
@@ -85,22 +88,35 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     }
 
     @Override
-    public void delete(String resourceType, UUID fromString) {
-        // TODO Auto-generated method stub
+    public void delete(String resourceType, UUID uuid) {
+        try {
+
+            DBCollection dbCollection = db.getCollection(resourceType);
+            DBObject query = QueryBuilder.start("uuid").is(uuid).get();
+            DBObject deleted = dbCollection.findAndRemove(query);
+            if (deleted == null) {
+                throw new ContentNotFoundException(uuid);
+            }
+        } catch (MongoSocketException e) {
+            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoTimeoutException e) {
+            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        }
         
     }
 
     @Override
-    public DocumentWritten write(String resourceType, Map<String, Object> document) {
+    public DocumentWritten write(String resourceType, Document document) {
         try {
+            Map<String, Object> documentAsMap = convertToMap(document);
             
             DBCollection dbCollection = db.getCollection(resourceType);
-            final String uuid = (String)document.get("uuid");
+            final String uuid = (String)documentAsMap.get("uuid");
             
             DBObject query = QueryBuilder.start("uuid").is(uuid).get();
             
             com.mongodb.WriteResult writeResult = dbCollection.update(query,
-                    new BasicDBObject(document),
+                    new BasicDBObject(documentAsMap),
                     true,
                     false,
                     WriteConcern.ACKNOWLEDGED);
@@ -117,6 +133,12 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     
     private boolean wasUpdate(WriteResult writeResult) {
         return writeResult.isUpdateOfExisting();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> convertToMap(Document document) {
+        ObjectMapper m = new ObjectMapper();
+        return m.convertValue(document, Map.class);
     }
 
 }
