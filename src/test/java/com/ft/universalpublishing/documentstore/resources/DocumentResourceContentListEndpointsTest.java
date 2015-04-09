@@ -34,7 +34,7 @@ import com.ft.universalpublishing.documentstore.validators.ContentListDocumentVa
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class DocumentResourceContentListEndpointsTest {
@@ -71,7 +71,7 @@ public class DocumentResourceContentListEndpointsTest {
         List<ContentItem> content = ImmutableList.of(contentItem1, contentItem2);
         contentList.setContent(content);
         
-        when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class))).thenReturn(DocumentWritten.created(contentList));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class), any())).thenReturn(DocumentWritten.created(contentList));
     }
     
     //WRITE
@@ -80,12 +80,12 @@ public class DocumentResourceContentListEndpointsTest {
     public void shouldReturn201ForNewContent() {
         ClientResponse clientResponse = writeContentList(writePath, contentList);
         assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
-        verify(documentStoreService).write(eq(RESOURCE_TYPE), any(ContentList.class));
+        verify(documentStoreService).write(eq(RESOURCE_TYPE), any(ContentList.class), any());
     }
 
     @Test
     public void shouldReturn200ForUpdatedContent() {
-        when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class))).thenReturn(DocumentWritten.updated(contentList));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class), any())).thenReturn(DocumentWritten.updated(contentList));
 
         ClientResponse clientResponse = writeContentList(writePath, contentList);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -104,7 +104,7 @@ public class DocumentResourceContentListEndpointsTest {
 
     @Test
     public void shouldReturn503WhenCannotAccessExternalSystem() {   
-        when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class))).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
         
         ClientResponse clientResponse = writeContentList(writePath, contentList);
         
@@ -124,7 +124,7 @@ public class DocumentResourceContentListEndpointsTest {
     
     @Test
     public void shouldReturn404WhenDeletingNonExistentContentList(){
-    	doThrow(new ContentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE),any(UUID.class));
+    	doThrow(new ContentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE),any(UUID.class), any());
     	
     	ClientResponse clientResponse = resources.client().resource(writePath)
     			.delete(ClientResponse.class);
@@ -134,7 +134,7 @@ public class DocumentResourceContentListEndpointsTest {
     
     @Test
     public void shouldReturn503OnDeleteWhenMongoIsntReachable(){
-    	doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE),any(UUID.class));
+    	doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE),any(UUID.class), any());
     	
     	ClientResponse clientResponse = resources.client().resource(writePath)
     			.delete(ClientResponse.class);
@@ -146,19 +146,18 @@ public class DocumentResourceContentListEndpointsTest {
     @Test
     //TODO make sure Date comes back as a Date!
     public void shouldReturn200WhenReadSuccessfully() {
-        Map<String, Object> contentList = ImmutableMap.of("uuid", uuid);
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(Optional.fromNullable(contentList));
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any())).thenReturn(contentList);
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-        final Map<String, Object> retrievedContentList = clientResponse.getEntity(Map.class);
+        final ContentList retrievedContentList = clientResponse.getEntity(ContentList.class);
         assertThat("contentList", retrievedContentList, equalTo(contentList));
     }
     
     @Test
     public void shouldReturn404WhenContentNotFound() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(Optional.fromNullable(null));
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any())).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);
 
@@ -168,7 +167,7 @@ public class DocumentResourceContentListEndpointsTest {
     
     @Test
     public void shouldReturn503OnReadWhenMongoIsntReachable(){
-        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE),any(UUID.class));
+        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE),any(UUID.class), any());
         
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);

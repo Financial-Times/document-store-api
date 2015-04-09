@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ft.ws.lib.serialization.datetime.JsonDateTimeWithMillisSerializer;
+import com.ft.universalpublishing.documentstore.mongo.JsonDateTimeWithMillisDeserializer;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
 import org.joda.time.DateTime;
 
@@ -17,7 +21,7 @@ import javax.validation.constraints.NotNull;
 @JsonInclude(Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "contentOrigin", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
 
-public class Content implements Document {
+public class Content extends Document {
 
 	private String id;
 	private String uuid;
@@ -93,7 +97,8 @@ public class Content implements Document {
 		return publishedDate;
 	}
 
-	public void setPublishedDate(DateTime publishedDate) {
+	@JsonDeserialize(using=JsonDateTimeWithMillisDeserializer.class)
+    public void setPublishedDate(DateTime publishedDate) {
 		this.publishedDate = publishedDate;
 	}
 
@@ -160,4 +165,61 @@ public class Content implements Document {
 	public void setBinaryUrl(String binaryUrl) {
 		this.binaryUrl = binaryUrl;
 	}
+	
+
+    @Override
+    public void addIds() {
+        setId(IDENTIFIER_TEMPLATE + uuid);
+    }
+
+    @Override
+    public void addApiUrls() {
+        setRequestUrl(String.format(API_URL_TEMPLATE, "content", uuid));
+    }
+
+    @Override
+    public void removePrivateFields() {
+        //set to null so they aren't output, there's probably a cleverer way to do this
+        setUuid(null);
+        set_id(null);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("uuid", uuid)
+                .add("type", type)
+                .add("bodyXml", bodyXml)
+                .add("title", title)
+                .add("byline", byline)
+                .add("description", description)
+                .add("publishedDate", publishedDate)
+                .add("contentOrigin", contentOrigin)
+                .add("identifiers", identifiers)
+                .add("members", members)
+                .add("requestUrl", requestUrl)
+                .add("binaryUrl", binaryUrl)
+                .add("brands", brands)
+                .add("annotations", annotations)
+                .toString();
+                
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+ 
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        final Content other = (Content) obj;
+        return Objects.equal(this.id, other.id)
+            && Objects.equal(this.uuid, other.uuid);
+        //TODO - add the rest
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, uuid);
+        //TODO - add the rest
+    }
 }

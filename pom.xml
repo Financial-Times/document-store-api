@@ -32,6 +32,7 @@
         <mongo.driver.version>2.12.5</mongo.driver.version>
         <jongo.version>1.1</jongo.version>
         <hamcrest.version>1.2</hamcrest.version>
+        <guava.version>18.0</guava.version>
         <!-- Plugins -->
         <findbugs.version>2.5.2</findbugs.version>
         <surefire.reportplugin.version>2.12.4</surefire.reportplugin.version>
@@ -44,7 +45,7 @@
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <ft-build-info-maven-plugin.version>1.0</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
-        <target-jdk>1.7</target-jdk>
+        <target-jdk>1.8</target-jdk>
     </properties>
 
     <dependencies>
@@ -132,6 +133,11 @@
             		<groupId>com.fasterxml.jackson.core</groupId>
             	</exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

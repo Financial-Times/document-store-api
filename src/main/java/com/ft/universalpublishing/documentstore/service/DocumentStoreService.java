@@ -1,18 +1,16 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import java.util.Map;
 import java.util.UUID;
 
 import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.base.Optional;
 
 public interface DocumentStoreService {
 
-    Optional<Map<String, Object>> findByUuid(String resourceType, UUID fromString);
+    <T extends Document> T findByUuid(String resourceType, UUID fromString, Class<T> documentClass);
 
-    DocumentWritten write(String resourceType, Document document);
+    <T extends Document> DocumentWritten write(String resourceType, T document, Class<T> documentClass);
 
-    void delete(String resourceType, UUID fromString);
+    <T extends Document> void delete(String resourceType, UUID fromString, Class<T> documentClass);
 
 }

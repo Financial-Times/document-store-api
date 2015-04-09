@@ -32,7 +32,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         
         final MongoClient mongoClient = new MongoClient(configuration.getMongo().getHost(), configuration.getMongo().getPort());
         final DB db = mongoClient.getDB(configuration.getMongo().getDb());
-
+        
         final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db); 
         final ContentDocumentValidator contentDocumentValidator = new ContentDocumentValidator();
         final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();

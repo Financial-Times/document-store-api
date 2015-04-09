@@ -55,23 +55,23 @@ public class DocumentResource {
     @Timed
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final Map<String, Object> getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-		 return findResourceByUuid(CONTENT_COLLECTION, uuidString);
+    public final Document getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+		 return findResourceByUuid(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
     @GET
     @Timed
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final Map<String, Object> getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-        return findResourceByUuid(LISTS_COLLECTION, uuidString);
+    public final Document getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+        return findResourceByUuid(LISTS_COLLECTION, uuidString, ContentList.class);
     }
 
-    private Map<String, Object> findResourceByUuid(String resourceType, String uuidString) {
+    private <T extends Document> T findResourceByUuid(String resourceType, String uuidString, Class<T> documentClass) {
         try {
-            final Optional<Map<String, Object>> foundContent = documentStoreService.findByUuid(resourceType, UUID.fromString(uuidString));
-            if (foundContent.isPresent()) {
-                return foundContent.get();
+            final T foundDocument = documentStoreService.findByUuid(resourceType, UUID.fromString(uuidString), documentClass);
+            if (foundDocument!= null) {
+                return foundDocument;
             } else {
                 throw ClientError.status(404).error("Requested item does not exist").exception();
             }
@@ -92,7 +92,7 @@ public class DocumentResource {
         } catch (ValidationException validationException) {
             throw ClientError.status(400).error(validationException.getMessage()).exception();
         }
-    	return writeDocument(CONTENT_COLLECTION, content, uriInfo);
+    	return writeDocument(CONTENT_COLLECTION, content, uriInfo, Content.class);
     
     }
     
@@ -107,13 +107,14 @@ public class DocumentResource {
         } catch (ValidationException validationException) {
             throw ClientError.status(400).error(validationException.getMessage()).exception();
         }
-        return writeDocument(LISTS_COLLECTION, contentList, uriInfo);
+        return writeDocument(LISTS_COLLECTION, contentList, uriInfo, ContentList.class);
     
     }
 
-    private Response writeDocument(String resourceType, Document document, UriInfo uriInfo) {
+    private <T extends Document> Response writeDocument(String resourceType, T document, UriInfo uriInfo, Class<T> documentClass) {
         try {
-            final com.ft.universalpublishing.documentstore.write.DocumentWritten written = documentStoreService.write(resourceType, document);
+            final com.ft.universalpublishing.documentstore.write.DocumentWritten written = 
+                    documentStoreService.write(resourceType, document, documentClass);
             final Response response;
             switch (written.getMode()) {
                 case Created:
@@ -135,19 +136,19 @@ public class DocumentResource {
     @Timed
     @Path("/content/{uuidString}")
     public Response deleteContent(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
-        return delete(CONTENT_COLLECTION, uuidString);
+        return delete(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
     @DELETE
     @Timed
     @Path("/lists/{uuidString}")
     public Response deleteList(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
-        return delete(LISTS_COLLECTION, uuidString);
+        return delete(LISTS_COLLECTION, uuidString, ContentList.class);
     }
 
-    private Response delete(String resourceType, String uuidString) {
+    private <T extends Document> Response delete(String resourceType, String uuidString, Class<T> documentClass) {
         try {
-            documentStoreService.delete(resourceType, UUID.fromString(uuidString));
+            documentStoreService.delete(resourceType, UUID.fromString(uuidString), documentClass);
             return Response.noContent().build();
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("Service Unavailable").exception(esue);
