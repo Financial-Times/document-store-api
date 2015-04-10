@@ -7,6 +7,7 @@ import java.util.SortedSet;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +18,7 @@ import com.google.common.base.Objects;
 
 @JsonInclude(Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "contentOrigin", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Content extends Document {
 
 	private String id;

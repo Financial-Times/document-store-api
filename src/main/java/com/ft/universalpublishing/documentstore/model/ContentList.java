@@ -2,6 +2,7 @@ package com.ft.universalpublishing.documentstore.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -10,6 +11,7 @@ import com.google.common.base.Objects;
 
 @JsonInclude(Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "uuid", "apiUrl", "items"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentList extends Document {
 
     private String id;
