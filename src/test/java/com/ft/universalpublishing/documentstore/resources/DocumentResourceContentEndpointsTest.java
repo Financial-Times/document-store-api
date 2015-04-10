@@ -12,12 +12,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import io.dropwizard.testing.junit.ResourceTestRule;
 
+import java.util.Date;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class DocumentResourceContentEndpointsTest {
         reset(contentListDocumentValidator);
         uuid = UUID.randomUUID().toString();
         writePath = "/content/" + uuid;
-        DateTime lastPublicationDate = new DateTime(DateTimeZone.UTC);
+        Date lastPublicationDate = new Date();
         content = new Content();
         content.setUuid(uuid);
         content.setTitle("Here's the news");

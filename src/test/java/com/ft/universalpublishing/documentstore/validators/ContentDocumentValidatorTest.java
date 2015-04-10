@@ -1,8 +1,8 @@
 package com.ft.universalpublishing.documentstore.validators;
 
+import java.util.Date;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class ContentDocumentValidatorTest {
     @Before
     public void setup() {
         uuid = UUID.randomUUID().toString();
-        DateTime lastPublicationDate = new DateTime();
+        Date lastPublicationDate = new Date();
         content = new Content();
         content.setUuid(uuid);
         content.setTitle("Here's the news");

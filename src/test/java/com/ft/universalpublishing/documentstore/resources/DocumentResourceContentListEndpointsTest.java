@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import io.dropwizard.testing.junit.ResourceTestRule;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
@@ -32,9 +31,7 @@ import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class DocumentResourceContentListEndpointsTest {
@@ -69,7 +66,7 @@ public class DocumentResourceContentListEndpointsTest {
         ContentItem contentItem2 = new ContentItem();
         contentItem2.setUuid(contentUuid2);
         List<ContentItem> content = ImmutableList.of(contentItem1, contentItem2);
-        contentList.setContent(content);
+        contentList.setItems(content);
         
         when(documentStoreService.write(eq(RESOURCE_TYPE), any(ContentList.class), any())).thenReturn(DocumentWritten.created(contentList));
     }
