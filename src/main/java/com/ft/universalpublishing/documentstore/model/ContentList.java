@@ -14,6 +14,7 @@ public class ContentList extends Document {
 
     private String id;
     private String uuid;
+    private String title;
     private String apiUrl;
     private List<ContentItem> items;
     
@@ -31,6 +32,14 @@ public class ContentList extends Document {
     
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
     }
     
     public String getApiUrl() {

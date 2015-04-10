@@ -56,7 +56,8 @@ public class DocumentResource {
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-		 return findResourceByUuid(CONTENT_COLLECTION, uuidString, Content.class);
+		//TODO validate uuid 
+	    return findResourceByUuid(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
     @GET
@@ -64,6 +65,7 @@ public class DocumentResource {
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+        //TODO validate uuid 
         return findResourceByUuid(LISTS_COLLECTION, uuidString, ContentList.class);
     }
 

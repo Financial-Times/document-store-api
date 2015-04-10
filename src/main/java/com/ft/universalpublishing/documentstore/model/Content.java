@@ -1,22 +1,19 @@
 package com.ft.universalpublishing.documentstore.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ft.ws.lib.serialization.datetime.JsonDateTimeWithMillisSerializer;
-import com.ft.universalpublishing.documentstore.mongo.JsonDateTimeWithMillisDeserializer;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-
-import org.joda.time.DateTime;
-
+import java.util.Date;
 import java.util.Set;
 import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
 @JsonInclude(Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "contentOrigin", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
@@ -30,7 +27,7 @@ public class Content extends Document {
 	private String title;
 	private String byline;
 	private String description;
-	private DateTime publishedDate;
+	private Date publishedDate;
 	private ContentOrigin contentOrigin;
 	private SortedSet<Identifier> identifiers;
 	private SortedSet<String> members;
@@ -92,13 +89,12 @@ public class Content extends Document {
 		this.byline = byline;
 	}
 
-    @JsonSerialize(using = JsonDateTimeWithMillisSerializer.class)
-	public DateTime getPublishedDate() {
+	public Date getPublishedDate() {
 		return publishedDate;
 	}
 
-	@JsonDeserialize(using=JsonDateTimeWithMillisDeserializer.class)
-    public void setPublishedDate(DateTime publishedDate) {
+	@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+	public void setPublishedDate(Date publishedDate) {
 		this.publishedDate = publishedDate;
 	}
 

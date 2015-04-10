@@ -18,9 +18,10 @@ public class ContentDocumentValidator implements DocumentValidator {
         if (content.getTitle() == null || content.getTitle().isEmpty()) {
             throw new ValidationException("submitted content must provide a non-empty title");
         }
-        if (content.getPublishedDate() == null) {
-            throw new ValidationException("submitted content must provide a non-empty publishedDate");
-        }
+        //TODO uncomment when date deserialization is fixed!
+//        if (content.getPublishedDate() == null) {
+//            throw new ValidationException("submitted content must provide a non-empty publishedDate");
+//        }
         if (!uuidString.equals(content.getUuid())) {
             String message = String.format("uuid in path %s is not equal to uuid in submitted content %s", uuidString, content.getUuid());
             throw new ValidationException(message);
