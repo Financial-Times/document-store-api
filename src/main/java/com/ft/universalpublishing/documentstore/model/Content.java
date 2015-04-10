@@ -161,8 +161,8 @@ public class Content extends Document {
     }
 
     @Override
-    public void addApiUrls() {
-        setRequestUrl(String.format(API_URL_TEMPLATE, "content", uuid));
+    public void addApiUrls(String apiPath) {
+        setRequestUrl(String.format(API_URL_TEMPLATE, apiPath, "content", uuid));
     }
 
     @Override

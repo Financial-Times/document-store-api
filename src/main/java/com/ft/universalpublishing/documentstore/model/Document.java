@@ -3,7 +3,7 @@ package com.ft.universalpublishing.documentstore.model;
 public abstract class Document {
     
     protected static final String IDENTIFIER_TEMPLATE = "http://api.ft.com/thing/";
-    protected static final String API_URL_TEMPLATE = "http://api.ft.com/%s/%s";
+    protected static final String API_URL_TEMPLATE = "http://%s/%s/%s";
     
     private String _id;
     private String uuid;
@@ -22,7 +22,7 @@ public abstract class Document {
     
     public abstract void addIds();
     
-    public abstract void addApiUrls();
+    public abstract void addApiUrls(String apiPath);
     
     public abstract void removePrivateFields();
 

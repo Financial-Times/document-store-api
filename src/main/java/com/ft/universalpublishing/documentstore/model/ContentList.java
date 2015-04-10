@@ -75,13 +75,13 @@ public class ContentList extends Document {
     }
 
     @Override
-    public void addApiUrls() {
-        setApiUrl(String.format(API_URL_TEMPLATE, "lists", uuid));
+    public void addApiUrls(String apiPath) {
+        setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "lists", uuid));
         if (items != null) {
             for (ContentItem item: items) {
                 if (item.getUuid() != null) {
                     // for now, assume they're all content
-                    item.setApiUrl(String.format(API_URL_TEMPLATE, "content", item.getUuid()));
+                    item.setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "content", item.getUuid()));
                 }
             }
         }
