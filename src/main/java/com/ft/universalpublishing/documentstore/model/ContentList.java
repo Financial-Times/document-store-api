@@ -65,9 +65,11 @@ public class ContentList extends Document {
     @Override
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
-        for (ContentItem item: items) {
-            if (item.getUuid() != null) {
-                item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
+        if (items != null) {
+            for (ContentItem item: items) {
+                if (item.getUuid() != null) {
+                    item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
+                }
             }
         }
     }
