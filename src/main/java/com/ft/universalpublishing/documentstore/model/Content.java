@@ -17,7 +17,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "contentOrigin", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
+@JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Content extends Document {
 
@@ -29,7 +29,6 @@ public class Content extends Document {
 	private String byline;
 	private String description;
 	private Date publishedDate;
-	private ContentOrigin contentOrigin;
 	private SortedSet<Identifier> identifiers;
 	private SortedSet<String> members;
 	private String requestUrl;
@@ -97,14 +96,6 @@ public class Content extends Document {
 	@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
 	public void setPublishedDate(Date publishedDate) {
 		this.publishedDate = publishedDate;
-	}
-
-	public ContentOrigin getContentOrigin() {
-		return contentOrigin;
-	}
-
-	public void setContentOrigin(ContentOrigin contentOrigin) {
-		this.contentOrigin = contentOrigin;
 	}
 
 	public void setRequestUrl(String requestUrl) {
@@ -192,7 +183,6 @@ public class Content extends Document {
                 .add("byline", byline)
                 .add("description", description)
                 .add("publishedDate", publishedDate)
-                .add("contentOrigin", contentOrigin)
                 .add("identifiers", identifiers)
                 .add("members", members)
                 .add("requestUrl", requestUrl)

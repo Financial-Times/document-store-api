@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "uuid", "apiUrl"})
+@JsonPropertyOrder({"id", "uuid", "apiUrl", "webUrl"})
 public class ContentItem {
     private String id;
     private String uuid;
     private String apiUrl;
+    private String webUrl;
     
     public String getId() {
         return id;
@@ -33,5 +34,13 @@ public class ContentItem {
     
     public void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+    
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
     }
 }

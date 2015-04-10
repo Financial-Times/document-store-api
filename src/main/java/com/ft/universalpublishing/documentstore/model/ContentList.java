@@ -10,7 +10,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "uuid", "apiUrl", "items"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentList extends Document {
 
@@ -66,7 +66,9 @@ public class ContentList extends Document {
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
         for (ContentItem item: items) {
-            item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
+            if (item.getUuid() != null) {
+                item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
+            }
         }
     }
 
