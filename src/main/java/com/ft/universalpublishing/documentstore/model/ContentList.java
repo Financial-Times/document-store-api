@@ -77,10 +77,12 @@ public class ContentList extends Document {
     @Override
     public void addApiUrls() {
         setApiUrl(String.format(API_URL_TEMPLATE, "lists", uuid));
-        for (ContentItem item: items) {
-            if (item.getUuid() != null) {
-                // for now, assume they're all content
-                item.setApiUrl(String.format(API_URL_TEMPLATE, "content", item.getUuid()));
+        if (items != null) {
+            for (ContentItem item: items) {
+                if (item.getUuid() != null) {
+                    // for now, assume they're all content
+                    item.setApiUrl(String.format(API_URL_TEMPLATE, "content", item.getUuid()));
+                }
             }
         }
     }
@@ -90,8 +92,10 @@ public class ContentList extends Document {
         //set to null so they aren't output, there's probably a cleverer way to do this
         setUuid(null);
         set_id(null);
-        for (ContentItem item: items) {
-            item.setUuid(null);
+        if (items != null) {
+            for (ContentItem item: items) {
+                item.setUuid(null);
+            }
         }
     }
     
