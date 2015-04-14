@@ -1,14 +1,11 @@
 package com.ft.universalpublishing.documentstore.mongo;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.model.Document;
@@ -21,9 +18,7 @@ import com.mongodb.MongoTimeoutException;
 import com.mongodb.WriteConcern;
 
 public class MongoDocumentStoreService implements DocumentStoreService {
-    
-    private static final String IDENTIFIER_TEMPLATE = "http://api.ft.com/thing/";
-    private static final String API_URL_TEMPLATE = "http://api.ft.com/%s/%s";
+
     private DB db;
     private String apiPath;
 
