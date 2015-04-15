@@ -1,9 +1,5 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -33,11 +29,11 @@ import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.Document;
-import com.ft.universalpublishing.documentstore.model.Identifier;
 import com.ft.universalpublishing.documentstore.model.MainImage;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 
 @Path("/")
@@ -53,11 +49,17 @@ public class DocumentResource {
 	
 	private ContentDocumentValidator contentDocumentValidator;
 	private ContentListDocumentValidator contentListDocumentValidator;
+	private UuidValidator uuidValidator;
 
-    public DocumentResource(DocumentStoreService documentStoreService, ContentDocumentValidator contentDocumentValidator, ContentListDocumentValidator contentListDocumentValidator) {
+    public DocumentResource(DocumentStoreService documentStoreService,
+                            ContentDocumentValidator contentDocumentValidator,
+                            ContentListDocumentValidator contentListDocumentValidator,
+                            UuidValidator uuidValidator
+                            ) {
     	this.documentStoreService = documentStoreService;
     	this.contentDocumentValidator = contentDocumentValidator;
     	this.contentListDocumentValidator = contentListDocumentValidator;
+        this.uuidValidator = uuidValidator;
 	}
 
 	@GET
@@ -65,7 +67,11 @@ public class DocumentResource {
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-		//TODO validate uuid 
+		try {
+            uuidValidator.validate(uuidString);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
 	    return findResourceByUuid(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
@@ -74,7 +80,11 @@ public class DocumentResource {
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-        //TODO validate uuid 
+        try {
+            uuidValidator.validate(uuidString);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
         return findResourceByUuid(LISTS_COLLECTION, uuidString, ContentList.class);
     }
 
@@ -112,21 +122,32 @@ public class DocumentResource {
     private Content convertMapToContent(Map<String, Object> contentMap) {
         // fix up the mismatches
         // 1) different field name for body
-        contentMap.put("bodyXML", contentMap.get("body"));
+        String body = (String) contentMap.get("body");
+        if (body != null) {
+            contentMap.put("bodyXML", contentMap.get("body"));
+        }
         // 2) mainImage is a String coming in and an object going out
-        String mainImage = (String)contentMap.get("mainImage");
-        if (mainImage != null) {
-            contentMap.put("mainImage", new MainImage(null, mainImage));
+        Object mainImage = contentMap.get("mainImage");
+        if (mainImage != null && mainImage instanceof String) {
+            String mainImageUuid = (String) mainImage;
+            contentMap.put("mainImage", new MainImage(null, mainImageUuid));
         }
         // 3) brands are a list of objects coming in and a list of strings going out (but should be a list of objects going out too)
-        SortedSet<String> brands = new TreeSet<String>();
-        List<Map<String, Object>> rawBrands = (List)contentMap.get("brands");
-        if (rawBrands != null) {
-            for(Map<String, Object> rawBrand: rawBrands) {
-                brands.add((String)rawBrand.get("id"));
+        Object rawBrands = contentMap.get("brands");
+        if (rawBrands != null && rawBrands instanceof List<?>) {
+            List rawList = (List) rawBrands;
+            if (rawList.size() > 0) {
+                Object firstBrand = rawList.get(0);
+                if (firstBrand instanceof Map<?, ?>) {
+                    SortedSet<String> brands = new TreeSet<String>();
+                    List<Map<String, Object>> rawTypedList = (List<Map<String, Object>>) rawList;
+                    for(Map<String, Object> rawBrand: rawTypedList) {
+                        brands.add((String)rawBrand.get("id"));
+                    }
+                    contentMap.put("brands", brands);
+                }
             }
-            contentMap.put("brands", brands);
-        }
+        }   
         
         ObjectMapper m = new ObjectMapper();
         return m.convertValue(contentMap, Content.class);

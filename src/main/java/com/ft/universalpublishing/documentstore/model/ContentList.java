@@ -5,12 +5,12 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import org.joda.time.DateTime;
 
-@JsonInclude(Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items"})
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentList extends Document {
 
@@ -19,6 +19,7 @@ public class ContentList extends Document {
     private String title;
     private String apiUrl;
     private List<ListItem> items;
+    private DateTime publishedDate;
     
     public String getId() {
         return id;
@@ -61,6 +62,13 @@ public class ContentList extends Document {
     }
     
 
+    public DateTime getPublishedDate() {
+        return publishedDate;
+    }
+
+    public void setPublishedDate(DateTime publishedDate) {
+        this.publishedDate = publishedDate;
+    }
 
     @Override
     public void addIds() {
@@ -108,8 +116,9 @@ public class ContentList extends Document {
                 .add("title", title)
                 .add("apiUrl", apiUrl)
                 .add("items", items)
+                .add("publishedDate", publishedDate)
                 .toString();
-                
+
     }
     
     @Override
@@ -122,12 +131,13 @@ public class ContentList extends Document {
             && Objects.equal(this.uuid, other.uuid)
             && Objects.equal(this.title, other.title)
             && Objects.equal(this.apiUrl, other.apiUrl)
-            && Objects.equal(this.items, other.items);
+            && Objects.equal(this.items, other.items)
+            && Objects.equal(this.publishedDate, other.publishedDate);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, items);
+        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate);
     }
     
 }

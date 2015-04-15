@@ -31,6 +31,7 @@ import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.DocumentValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.google.common.collect.ImmutableList;
 import com.sun.jersey.api.client.ClientResponse;
@@ -55,7 +56,8 @@ public class DocumentResourceEndpointsTest {
     private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
     private final static ContentDocumentValidator contentDocumentValidator= mock(ContentDocumentValidator.class);
     private final static ContentListDocumentValidator contentListDocumentValidator= mock(ContentListDocumentValidator.class);
-    
+    private final static UuidValidator uuidValidator= mock(UuidValidator.class);
+
     public DocumentResourceEndpointsTest(String resourceType, Document document, 
             String uuid, Class<? extends Document> documentClass, DocumentValidator documentValidator) {
         this.resourceType = resourceType;
@@ -101,7 +103,7 @@ public class DocumentResourceEndpointsTest {
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-        .addResource(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator))
+        .addResource(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator, uuidValidator))
         .build();
 
     @Before
