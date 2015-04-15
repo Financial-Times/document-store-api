@@ -1,5 +1,6 @@
 package com.ft.universalpublishing.documentstore;
 
+import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -39,6 +40,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator));
 
         environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
+        environment.healthChecks().register("Document Store API Healthcheck", new DocumentStoreHealthCheck(db));
 
     }
 
