@@ -65,11 +65,6 @@
 			<artifactId>mongo-java-driver</artifactId>
 			<version>${mongo.driver.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!--     		<groupId>org.jongo</groupId> -->
-<!--     		<artifactId>jongo</artifactId> -->
-<!--     		<version>${jongo.version}</version> -->
-<!-- 		</dependency> -->
 		<dependency>
     		<groupId>org.mongojack</groupId>
     		<artifactId>mongojack</artifactId>
