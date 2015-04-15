@@ -3,11 +3,11 @@ package com.ft.universalpublishing.documentstore.exception;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public class ContentNotFoundException extends RuntimeException {
+public class DocumentNotFoundException extends RuntimeException {
 	
 	private final UUID uuid; 
 
-	public ContentNotFoundException(UUID uuid) {
+	public DocumentNotFoundException(UUID uuid) {
 		super();
 		this.uuid = uuid;
 	}
@@ -18,7 +18,7 @@ public class ContentNotFoundException extends RuntimeException {
 	
 	@Override
 	public String getMessage(){
-		return String.format("Content with uuid : %s not found!", uuid);  
+		return String.format("Document with uuid : %s not found!", uuid);  
 	}
 
 }

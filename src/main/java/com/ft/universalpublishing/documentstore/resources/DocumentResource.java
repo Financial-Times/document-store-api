@@ -23,7 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
-import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
@@ -210,7 +210,7 @@ public class DocumentResource {
             return Response.noContent().build();
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("Service Unavailable").exception(esue);
-        } catch (ContentNotFoundException e){
+        } catch (DocumentNotFoundException e){
             return Response.status(404).build();
         }
     }

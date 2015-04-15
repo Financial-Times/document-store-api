@@ -20,7 +20,7 @@ import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
@@ -164,7 +164,7 @@ public class DocumentResourceEndpointsTest {
     
     @Test
     public void shouldReturn404WhenDeletingNonExistentContentList(){
-    	doThrow(new ContentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(resourceType),any(UUID.class), any());
+    	doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(resourceType),any(UUID.class), any());
     	
     	ClientResponse clientResponse = resources.client().resource(writePath)
     			.delete(ClientResponse.class);

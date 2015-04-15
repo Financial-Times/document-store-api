@@ -13,7 +13,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.model.Content;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
@@ -119,7 +119,7 @@ public class MongoDocumentStoreContentServiceTest {
     
     @Test
     public void deleteForContentNotInStoreThrowsContentNotFoundException() {
-        exception.expect(ContentNotFoundException.class);
+        exception.expect(DocumentNotFoundException.class);
         exception.expectMessage(String.format("Content with uuid : %s not found!", uuid));
 
         mongoDocumentStoreService.delete("content", uuid, Content.class);

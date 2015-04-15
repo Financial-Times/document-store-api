@@ -6,7 +6,7 @@ import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
-import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -64,7 +64,7 @@ public class MongoDocumentStoreService implements DocumentStoreService {
             WriteResult<T, String> result = coll.remove(DBQuery.is("uuid", uuid.toString()));
 
             if (!wasDelete(result)) {
-                throw new ContentNotFoundException(uuid);
+                throw new DocumentNotFoundException(uuid);
             }
         } catch (MongoSocketException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
