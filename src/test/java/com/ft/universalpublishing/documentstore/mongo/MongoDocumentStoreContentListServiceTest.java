@@ -124,7 +124,7 @@ public class MongoDocumentStoreContentListServiceTest {
     @Test
     public void deleteForContentListNotInStoreThrowsContentNotFoundException() {
         exception.expect(DocumentNotFoundException.class);
-        exception.expectMessage(String.format("Content with uuid : %s not found!", uuid));
+        exception.expectMessage(String.format("Document with uuid : %s not found!", uuid));
 
         mongoDocumentStoreService.delete("lists", uuid, ContentList.class);
     }
