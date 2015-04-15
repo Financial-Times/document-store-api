@@ -1,7 +1,9 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 
+import java.util.Map;
 import java.util.UUID;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,6 +29,7 @@ import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 
 @Path("/")
@@ -127,7 +130,7 @@ public class DocumentResource {
 
     private <T extends Document> Response writeDocument(String resourceType, T document, UriInfo uriInfo, Class<T> documentClass) {
         try {
-            final com.ft.universalpublishing.documentstore.write.DocumentWritten written = 
+            final DocumentWritten written = 
                     documentStoreService.write(resourceType, document, documentClass);
             final Response response;
             switch (written.getMode()) {

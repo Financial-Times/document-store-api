@@ -27,6 +27,7 @@
         <jackson.date.serialization.version>0.1.29</jackson.date.serialization.version>
         <junit.version>4.11</junit.version>
         <mockito-core.version>1.9.5</mockito-core.version>
+        <fongo.version>1.6.1</fongo.version>
         <jersey-version>1.18.1</jersey-version>
         <ft.content-model.version>0.1.23</ft.content-model.version>
         <mongo.driver.version>2.12.5</mongo.driver.version>
@@ -160,6 +161,12 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fakemongo</groupId>
+            <artifactId>fongo</artifactId>
+            <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

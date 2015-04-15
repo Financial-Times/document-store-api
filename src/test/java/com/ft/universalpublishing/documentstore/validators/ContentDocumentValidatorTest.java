@@ -29,7 +29,7 @@ public class ContentDocumentValidatorTest {
         content = new Content();
         content.setUuid(uuid);
         content.setTitle("Here's the news");
-        content.setBodyXml("xmlBody");
+        content.setBodyXML("xmlBody");
         content.setPublishedDate(lastPublicationDate);
     }
     
@@ -48,14 +48,14 @@ public class ContentDocumentValidatorTest {
     
     @Test
     public void shouldPassIfBodyXmlIsNull() {
-        content.setBodyXml(null);
+        content.setBodyXML(null);
         contentDocumentValidator.validate(uuid, content);
         
     }
     
     @Test
     public void shouldPassIfBodyXmlIsEmpty() {
-        content.setBodyXml(null);
+        content.setBodyXML(null);
         contentDocumentValidator.validate(uuid, content);
         
     }

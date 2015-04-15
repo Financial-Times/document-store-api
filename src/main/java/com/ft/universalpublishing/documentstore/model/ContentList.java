@@ -4,12 +4,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import org.joda.time.DateTime;
 
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentList extends Document {
@@ -18,9 +18,9 @@ public class ContentList extends Document {
     private String uuid;
     private String title;
     private String apiUrl;
-    private List<ContentItem> items;
+    private List<ListItem> items;
     private DateTime publishedDate;
-
+    
     public String getId() {
         return id;
     }
@@ -53,13 +53,14 @@ public class ContentList extends Document {
         this.apiUrl = apiUrl;
     }
     
-    public List<ContentItem> getItems() {
+    public List<ListItem> getItems() {
         return items;
     }
     
-    public void setItems(List<ContentItem> items) {
+    public void setItems(List<ListItem> items) {
         this.items = items;
     }
+    
 
     public DateTime getPublishedDate() {
         return publishedDate;
@@ -73,7 +74,7 @@ public class ContentList extends Document {
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
         if (items != null) {
-            for (ContentItem item: items) {
+            for (ListItem item: items) {
                 if (item.getUuid() != null) {
                     item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
                 }
@@ -85,7 +86,7 @@ public class ContentList extends Document {
     public void addApiUrls(String apiPath) {
         setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "lists", uuid));
         if (items != null) {
-            for (ContentItem item: items) {
+            for (ListItem item: items) {
                 if (item.getUuid() != null) {
                     // for now, assume they're all content
                     item.setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "content", item.getUuid()));
@@ -100,13 +101,13 @@ public class ContentList extends Document {
         setUuid(null);
         set_id(null);
         if (items != null) {
-            for (ContentItem item: items) {
+            for (ListItem item: items) {
                 item.setUuid(null);
             }
         }
     }
-
-
+    
+    
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -119,34 +120,24 @@ public class ContentList extends Document {
                 .toString();
 
     }
-
-
+    
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ContentList)) return false;
-
-        ContentList that = (ContentList) o;
-
-        if (apiUrl != null ? !apiUrl.equals(that.apiUrl) : that.apiUrl != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (items != null ? !items.equals(that.items) : that.items != null) return false;
-        if (publishedDate != null ? !publishedDate.equals(that.publishedDate) : that.publishedDate != null)
-            return false;
-        if (title != null ? !title.equals(that.title) : that.title != null) return false;
-        if (!uuid.equals(that.uuid)) return false;
-
-        return true;
+    public boolean equals(Object obj) {
+ 
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        final ContentList other = (ContentList) obj;
+        return Objects.equal(this.id, other.id)
+            && Objects.equal(this.uuid, other.uuid)
+            && Objects.equal(this.title, other.title)
+            && Objects.equal(this.apiUrl, other.apiUrl)
+            && Objects.equal(this.items, other.items)
+            && Objects.equal(this.publishedDate, other.publishedDate);
     }
-
+    
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + uuid.hashCode();
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + (apiUrl != null ? apiUrl.hashCode() : 0);
-        result = 31 * result + (items != null ? items.hashCode() : 0);
-        result = 31 * result + (publishedDate != null ? publishedDate.hashCode() : 0);
-        return result;
+        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate);
     }
+    
 }

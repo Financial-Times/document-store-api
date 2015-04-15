@@ -1,7 +1,6 @@
 package com.ft.universalpublishing.documentstore.model;
 
 import java.util.Date;
-import java.util.Set;
 import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
@@ -10,31 +9,27 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations"})
+@JsonPropertyOrder({"id", "uuid", "type", "bodyXML", "title", "byline", "publishedDate", "identifiers", "requestUrl", "brands", "mainImage"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Content extends Document {
 
 	private String id;
 	private String uuid;
 	private String type;
-	private String bodyXml;
+	private String bodyXML;
 	private String title;
 	private String byline;
-	private String description;
 	private Date publishedDate;
 	private SortedSet<Identifier> identifiers;
-	private SortedSet<String> members;
 	private String requestUrl;
-	private String binaryUrl;
-	private SortedSet<String> brands;
-	private Set<Annotation> annotations;
+	private String webUrl;
+	private SortedSet<String> brands; //TODO - this should actually be output as a list of Brand objects but this is a breaking API change 
+	private MainImage mainImage; 
 
     public Content() {
     }
@@ -64,13 +59,12 @@ public class Content extends Document {
 		this.type = type;
 	}
 
-	@JsonProperty("bodyXML")
-	public String getBodyXml() {
-		return bodyXml;
+	public String getBodyXML() {
+		return bodyXML;
 	}
 
-	public void setBodyXml(String bodyXml) {
-		this.bodyXml = bodyXml;
+	public void setBodyXML(String bodyXML) {
+		this.bodyXML = bodyXML;
 	}
 
 	public String getTitle() {
@@ -106,28 +100,20 @@ public class Content extends Document {
 		return requestUrl;
 	}
 
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
 	public void setBrands(SortedSet<String> brands) {
 		this.brands = brands;
 	}
 
 	public SortedSet<String> getBrands() {
 		return brands;
-	}
-
-    public Set<Annotation> getAnnotations() {
-        return annotations;
-    }
-
-    public void setAnnotations(Set<Annotation> annotations) {
-        this.annotations = annotations;
-    }
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public SortedSet<Identifier> getIdentifiers() {
@@ -138,22 +124,13 @@ public class Content extends Document {
 		this.identifiers = identifiers;
 	}
 
-	public SortedSet<String> getMembers() {
-		return members;
-	}
+    public MainImage getMainImage() {
+        return mainImage;
+    }
 
-	public void setMembers(SortedSet<String> members) {
-		this.members = members;
-	}
-
-	public String getBinaryUrl() {
-		return binaryUrl;
-	}
-
-	public void setBinaryUrl(String binaryUrl) {
-		this.binaryUrl = binaryUrl;
-	}
-	
+    public void setMainImage(MainImage mainImage) {
+        this.mainImage = mainImage;
+    }
 
     @Override
     public void addIds() {
@@ -178,17 +155,15 @@ public class Content extends Document {
                 .add("id", id)
                 .add("uuid", uuid)
                 .add("type", type)
-                .add("bodyXml", bodyXml)
+                .add("bodyXML", bodyXML)
                 .add("title", title)
                 .add("byline", byline)
-                .add("description", description)
                 .add("publishedDate", publishedDate)
                 .add("identifiers", identifiers)
-                .add("members", members)
                 .add("requestUrl", requestUrl)
-                .add("binaryUrl", binaryUrl)
+                .add("webUrl", webUrl)
                 .add("brands", brands)
-                .add("annotations", annotations)
+                .add("mainImage", mainImage)
                 .toString();
                 
     }
@@ -200,13 +175,20 @@ public class Content extends Document {
         if (getClass() != obj.getClass()) return false;
         final Content other = (Content) obj;
         return Objects.equal(this.id, other.id)
-            && Objects.equal(this.uuid, other.uuid);
-        //TODO - add the rest
+            && Objects.equal(this.uuid, other.uuid)
+            && Objects.equal(this.type, other.type)
+            && Objects.equal(this.bodyXML, other.bodyXML)
+            && Objects.equal(this.byline, other.byline)
+            && Objects.equal(this.publishedDate, other.publishedDate)
+            && Objects.equal(this.identifiers, other.identifiers)
+            && Objects.equal(this.requestUrl, other.requestUrl)
+            && Objects.equal(this.webUrl, other.webUrl)
+            && Objects.equal(this.brands, other.brands)
+            && Objects.equal(this.mainImage, other.mainImage);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid);
-        //TODO - add the rest
+        return Objects.hashCode(id, uuid, type, bodyXML, byline, publishedDate, identifiers, requestUrl, webUrl, brands, mainImage);
     }
 }

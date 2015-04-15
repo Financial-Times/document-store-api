@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -23,7 +24,7 @@ import com.ft.universalpublishing.documentstore.exception.ContentNotFoundExcepti
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
-import com.ft.universalpublishing.documentstore.model.ContentItem;
+import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -81,7 +82,7 @@ public class DocumentResourceEndpointsTest {
         Content content = new Content();
         content.setUuid(uuid);
         content.setTitle("Here's the news");
-        content.setBodyXml("xmlBody");
+        content.setBodyXML("xmlBody");
         content.setPublishedDate(lastPublicationDate);
         return content;
     }
@@ -91,11 +92,11 @@ public class DocumentResourceEndpointsTest {
         String contentUuid2 = UUID.randomUUID().toString();
         ContentList contentList = new ContentList();
         contentList.setUuid(uuid);
-        ContentItem contentItem1 = new ContentItem();
+        ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(contentUuid1);
-        ContentItem contentItem2 = new ContentItem();
+        ListItem contentItem2 = new ListItem();
         contentItem2.setUuid(contentUuid2);
-        List<ContentItem> content = ImmutableList.of(contentItem1, contentItem2);
+        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
         contentList.setItems(content);
         return contentList;
     }

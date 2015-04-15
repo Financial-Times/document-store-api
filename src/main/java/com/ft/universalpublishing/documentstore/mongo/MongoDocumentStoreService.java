@@ -37,9 +37,11 @@ public class MongoDocumentStoreService implements DocumentStoreService {
             
             T result = coll.findOne(DBQuery.is("uuid", uuid.toString())); 
             
-            result.addIds();
-            result.addApiUrls(apiPath);
-            result.removePrivateFields();
+            if (result != null) {
+                result.addIds();
+                result.addApiUrls(apiPath);
+                result.removePrivateFields();
+            }
  
             return result;
         } catch (MongoSocketException e) {
@@ -59,9 +61,9 @@ public class MongoDocumentStoreService implements DocumentStoreService {
             final JacksonDBCollection<T, String> coll = JacksonDBCollection.wrap(dbCollection, documentClass,
                     String.class);
             
-            T deleted = coll.findAndRemove(DBQuery.is("uuid", uuid));
+            WriteResult<T, String> result = coll.remove(DBQuery.is("uuid", uuid.toString()));
 
-            if (deleted == null) {
+            if (!wasDelete(result)) {
                 throw new ContentNotFoundException(uuid);
             }
         } catch (MongoSocketException e) {
@@ -101,6 +103,10 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     
     private <T extends Document> boolean wasUpdate(WriteResult<T, String> writeResult) {
         return writeResult.getWriteResult().isUpdateOfExisting();
+    }
+    
+    private <T extends Document> boolean wasDelete(WriteResult<T, String> writeResult) {
+        return writeResult.getN() > 0? true: false;
     }
 
 }
