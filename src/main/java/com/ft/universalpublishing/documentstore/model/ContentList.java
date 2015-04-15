@@ -18,7 +18,7 @@ public class ContentList extends Document {
     private String uuid;
     private String title;
     private String apiUrl;
-    private List<ContentItem> items;
+    private List<ListItem> items;
     
     public String getId() {
         return id;
@@ -52,11 +52,11 @@ public class ContentList extends Document {
         this.apiUrl = apiUrl;
     }
     
-    public List<ContentItem> getItems() {
+    public List<ListItem> getItems() {
         return items;
     }
     
-    public void setItems(List<ContentItem> items) {
+    public void setItems(List<ListItem> items) {
         this.items = items;
     }
     
@@ -66,7 +66,7 @@ public class ContentList extends Document {
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
         if (items != null) {
-            for (ContentItem item: items) {
+            for (ListItem item: items) {
                 if (item.getUuid() != null) {
                     item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
                 }
@@ -78,7 +78,7 @@ public class ContentList extends Document {
     public void addApiUrls(String apiPath) {
         setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "lists", uuid));
         if (items != null) {
-            for (ContentItem item: items) {
+            for (ListItem item: items) {
                 if (item.getUuid() != null) {
                     // for now, assume they're all content
                     item.setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "content", item.getUuid()));
@@ -93,7 +93,7 @@ public class ContentList extends Document {
         setUuid(null);
         set_id(null);
         if (items != null) {
-            for (ContentItem item: items) {
+            for (ListItem item: items) {
                 item.setUuid(null);
             }
         }
@@ -105,8 +105,10 @@ public class ContentList extends Document {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
                 .add("uuid", uuid)
+                .add("title", title)
+                .add("apiUrl", apiUrl)
+                .add("items", items)
                 .toString();
-        //TODO - add the rest
                 
     }
     
@@ -117,14 +119,15 @@ public class ContentList extends Document {
         if (getClass() != obj.getClass()) return false;
         final ContentList other = (ContentList) obj;
         return Objects.equal(this.id, other.id)
-            && Objects.equal(this.uuid, other.uuid);
-        //TODO - add the rest
+            && Objects.equal(this.uuid, other.uuid)
+            && Objects.equal(this.title, other.title)
+            && Objects.equal(this.apiUrl, other.apiUrl)
+            && Objects.equal(this.items, other.items);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid);
-        //TODO - add the rest
+        return Objects.hashCode(id, uuid, title, apiUrl, items);
     }
     
 }
