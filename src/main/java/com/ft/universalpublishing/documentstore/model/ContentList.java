@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import org.joda.time.DateTime;
 
 @JsonInclude(Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContentList extends Document {
 
@@ -19,7 +19,8 @@ public class ContentList extends Document {
     private String title;
     private String apiUrl;
     private List<ContentItem> items;
-    
+    private DateTime publishedDate;
+
     public String getId() {
         return id;
     }
@@ -59,8 +60,14 @@ public class ContentList extends Document {
     public void setItems(List<ContentItem> items) {
         this.items = items;
     }
-    
 
+    public DateTime getPublishedDate() {
+        return publishedDate;
+    }
+
+    public void setPublishedDate(DateTime publishedDate) {
+        this.publishedDate = publishedDate;
+    }
 
     @Override
     public void addIds() {
@@ -98,33 +105,48 @@ public class ContentList extends Document {
             }
         }
     }
-    
-    
+
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
                 .add("uuid", uuid)
+                .add("title", title)
+                .add("apiUrl", apiUrl)
+                .add("items", items)
+                .add("publishedDate", publishedDate)
                 .toString();
-        //TODO - add the rest
-                
+
     }
-    
+
+
     @Override
-    public boolean equals(Object obj) {
- 
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        final ContentList other = (ContentList) obj;
-        return Objects.equal(this.id, other.id)
-            && Objects.equal(this.uuid, other.uuid);
-        //TODO - add the rest
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ContentList)) return false;
+
+        ContentList that = (ContentList) o;
+
+        if (apiUrl != null ? !apiUrl.equals(that.apiUrl) : that.apiUrl != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (items != null ? !items.equals(that.items) : that.items != null) return false;
+        if (publishedDate != null ? !publishedDate.equals(that.publishedDate) : that.publishedDate != null)
+            return false;
+        if (title != null ? !title.equals(that.title) : that.title != null) return false;
+        if (!uuid.equals(that.uuid)) return false;
+
+        return true;
     }
-    
+
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid);
-        //TODO - add the rest
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + uuid.hashCode();
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (apiUrl != null ? apiUrl.hashCode() : 0);
+        result = 31 * result + (items != null ? items.hashCode() : 0);
+        result = 31 * result + (publishedDate != null ? publishedDate.hashCode() : 0);
+        return result;
     }
-    
 }

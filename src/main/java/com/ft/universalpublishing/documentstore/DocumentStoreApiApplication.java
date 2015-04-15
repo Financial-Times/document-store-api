@@ -1,5 +1,6 @@
 package com.ft.universalpublishing.documentstore;
 
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -36,7 +37,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db, configuration.getApiPath()); 
         final ContentDocumentValidator contentDocumentValidator = new ContentDocumentValidator();
         final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
-        environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator));
+        final UuidValidator uuidValidator = new UuidValidator();
+        environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator, uuidValidator));
 
         environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
 

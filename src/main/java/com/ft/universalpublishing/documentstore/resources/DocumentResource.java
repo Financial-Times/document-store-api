@@ -1,9 +1,7 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 
-import java.util.Map;
 import java.util.UUID;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -29,7 +27,7 @@ import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
-import com.google.common.base.Optional;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 
 @Path("/")
 public class DocumentResource {
@@ -44,11 +42,17 @@ public class DocumentResource {
 	
 	private ContentDocumentValidator contentDocumentValidator;
 	private ContentListDocumentValidator contentListDocumentValidator;
+	private UuidValidator uuidValidator;
 
-    public DocumentResource(DocumentStoreService documentStoreService, ContentDocumentValidator contentDocumentValidator, ContentListDocumentValidator contentListDocumentValidator) {
+    public DocumentResource(DocumentStoreService documentStoreService,
+                            ContentDocumentValidator contentDocumentValidator,
+                            ContentListDocumentValidator contentListDocumentValidator,
+                            UuidValidator uuidValidator
+                            ) {
     	this.documentStoreService = documentStoreService;
     	this.contentDocumentValidator = contentDocumentValidator;
     	this.contentListDocumentValidator = contentListDocumentValidator;
+        this.uuidValidator = uuidValidator;
 	}
 
 	@GET
@@ -56,7 +60,11 @@ public class DocumentResource {
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-		//TODO validate uuid 
+		try {
+            uuidValidator.validate(uuidString);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
 	    return findResourceByUuid(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
@@ -65,7 +73,11 @@ public class DocumentResource {
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-        //TODO validate uuid 
+        try {
+            uuidValidator.validate(uuidString);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
         return findResourceByUuid(LISTS_COLLECTION, uuidString, ContentList.class);
     }
 
