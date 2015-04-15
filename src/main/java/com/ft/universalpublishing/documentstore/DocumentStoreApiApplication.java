@@ -7,7 +7,6 @@ import io.dropwizard.setup.Environment;
 
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
-import com.ft.universalpublishing.documentstore.health.HelloworldHealthCheck;
 import com.ft.universalpublishing.documentstore.mongo.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -39,8 +38,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
         environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator));
 
-        environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
-        environment.healthChecks().register("Document Store API Healthcheck", new DocumentStoreHealthCheck(db));
+        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(db, configuration.getHealthcheckParameters()));
 
     }
 

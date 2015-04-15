@@ -4,17 +4,23 @@ import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
 import com.mongodb.DB;
 import com.mongodb.MongoException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DocumentStoreHealthCheck.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentStoreHealthCheck.class);
     private final DB db;
 
-    public DocumentStoreHealthCheck(DB db) {
-        super("mongodb");
+    private HealthcheckParameters healthcheckParameters;
+
+    public DocumentStoreHealthCheck(DB db, HealthcheckParameters healthcheckParameters) {
+        super(healthcheckParameters.getName());
+
         this.db = db;
+        this.healthcheckParameters = healthcheckParameters;
     }
+
     @Override
     protected AdvancedResult checkAdvanced() throws Exception {
 
@@ -27,24 +33,24 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
 
     private boolean mongodbIsAvailable() {
         try {
-            db.getLastError(); // TODO - was noted that there is probably a better way to do this
+            db.command("serverStatus");
         } catch (MongoException e){
-            LOGGER.error("Unable to get connection to Mongo repository.", e);
+            LOGGER.warn("Unable to get connection to Mongo repository.", e);
             return false;
         }
         return true;
     }
 
     @Override
-    protected int severity() { return 2; }
+    protected int severity() { return healthcheckParameters.getSeverity(); }
 
     @Override
-    protected String businessImpact() { return "Content will not be accessible or storable"; }
+    protected String businessImpact() { return healthcheckParameters.getBusinessImpact(); }
 
     @Override
-    protected String technicalSummary() { return "Cannot connect to the MongoDB content store."; }
+    protected String technicalSummary() { return healthcheckParameters.getTechnicalSummary(); }
 
     @Override
-    protected String panicGuideUrl() { return "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/<<!INSERT DOCUMENT WRITER RUNBOOK URL LOCATION HERE!>>"; }
+    protected String panicGuideUrl() { return healthcheckParameters.getPanicGuideUrl(); }
 
 }
