@@ -1,6 +1,13 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.ws.rs.Consumes;
@@ -17,6 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
@@ -25,6 +33,8 @@ import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.Document;
+import com.ft.universalpublishing.documentstore.model.Identifier;
+import com.ft.universalpublishing.documentstore.model.MainImage;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
@@ -86,8 +96,10 @@ public class DocumentResource {
     @Path("/content/{uuidString}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response writeContent(@PathParam("uuidString") String uuidString, Content content, @Context UriInfo uriInfo) {
+    public Response writeContent(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap, @Context UriInfo uriInfo) {
 
+        Content content = convertMapToContent(contentMap); //TODO - remove once we have consistency of content internally and externally
+        
         try {
             contentDocumentValidator.validate(uuidString, content);
         } catch (ValidationException validationException) {
@@ -97,6 +109,30 @@ public class DocumentResource {
     
     }
     
+    private Content convertMapToContent(Map<String, Object> contentMap) {
+        // fix up the mismatches
+        // 1) different field name for body
+        contentMap.put("bodyXML", contentMap.get("body"));
+        // 2) mainImage is a String coming in and an object going out
+        String mainImage = (String)contentMap.get("mainImage");
+        if (mainImage != null) {
+            contentMap.put("mainImage", new MainImage(null, mainImage));
+        }
+        // 3) brands are a list of objects coming in and a list of strings going out (but should be a list of objects going out too)
+        SortedSet<String> brands = new TreeSet<String>();
+        List<Map<String, Object>> rawBrands = (List)contentMap.get("brands");
+        if (rawBrands != null) {
+            for(Map<String, Object> rawBrand: rawBrands) {
+                brands.add((String)rawBrand.get("id"));
+            }
+            contentMap.put("brands", brands);
+        }
+        
+        ObjectMapper m = new ObjectMapper();
+        return m.convertValue(contentMap, Content.class);
+    }
+
+
     @PUT
     @Timed
     @Path("/lists/{uuidString}")
