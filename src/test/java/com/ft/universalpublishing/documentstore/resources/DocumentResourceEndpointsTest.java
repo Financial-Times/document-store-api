@@ -11,22 +11,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import io.dropwizard.testing.junit.ResourceTestRule;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import javax.ws.rs.core.MediaType;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.ContentNotFoundException;
@@ -43,6 +34,13 @@ import com.ft.universalpublishing.documentstore.validators.DocumentValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.google.common.collect.ImmutableList;
 import com.sun.jersey.api.client.ClientResponse;
+import io.dropwizard.testing.junit.ResourceTestRule;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class DocumentResourceEndpointsTest {
