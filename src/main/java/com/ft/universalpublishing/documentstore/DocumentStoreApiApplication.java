@@ -1,13 +1,13 @@
 package com.ft.universalpublishing.documentstore;
 
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
-import com.ft.universalpublishing.documentstore.health.HelloworldHealthCheck;
 import com.ft.universalpublishing.documentstore.mongo.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -40,7 +40,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final UuidValidator uuidValidator = new UuidValidator();
         environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator, uuidValidator));
 
-        environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
+        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(db, configuration.getHealthcheckParameters()));
 
     }
 
