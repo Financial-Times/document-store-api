@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentStoreHealthCheck.class);
-    private final DB db;
 
+    private final DB db;
     private HealthcheckParameters healthcheckParameters;
 
     public DocumentStoreHealthCheck(DB db, HealthcheckParameters healthcheckParameters) {
@@ -27,7 +27,7 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
             if (mongodbIsAvailable()) {
                 return AdvancedResult.healthy("OK");
             } else {
-                return AdvancedResult.error(this, "Failed to connect");
+                return AdvancedResult.error(this, "Error occurred opening the socket, connection refused");
             }
     }
 

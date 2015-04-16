@@ -24,9 +24,7 @@ public class DocumentStoreApiConfiguration extends Configuration {
 		return mongo;
 	}
 	
-	public String getApiPath() {
-	    return apiPath;
-	}
+	public String getApiPath() { return apiPath; }
 
     public HealthcheckParameters getHealthcheckParameters() { return healthcheckParameters; }
 
