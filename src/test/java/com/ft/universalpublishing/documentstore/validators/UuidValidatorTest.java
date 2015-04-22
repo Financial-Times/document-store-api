@@ -19,7 +19,7 @@ public class UuidValidatorTest {
     }
 
     @Test
-    public void shouldNotReturnNothingAsUuidIsValid() throws Exception {
+    public void shouldNotThrowExceptionWhenUuidIsValid() throws Exception {
         String uuid = "3c99c2ba-a6ae-11e2-95b1-00144feabdc0";
         validator.validate(uuid);
         assertTrue("Valid UUID was not accepted", true);
