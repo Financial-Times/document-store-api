@@ -100,7 +100,6 @@ public class DocumentResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeContent(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap, @Context UriInfo uriInfo) {
         validateUuid(uuidString);
-        //TODO add transaction id support everywhere
         Content content = convertMapToContent(contentMap); //TODO - remove once we have consistency of content internally and externally
         
         try {
