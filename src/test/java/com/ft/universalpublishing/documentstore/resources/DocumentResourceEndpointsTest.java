@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -110,7 +111,8 @@ public class DocumentResourceEndpointsTest {
     public void setup() {
         reset(documentStoreService);
         reset(contentDocumentValidator);
-        reset(contentListDocumentValidator);      
+        reset(contentListDocumentValidator); 
+        reset(uuidValidator);
         when(documentStoreService.write(eq(resourceType), any(Document.class), any())).thenReturn(DocumentWritten.created(document));
     }
     
@@ -141,6 +143,15 @@ public class DocumentResourceEndpointsTest {
         validateErrorMessage("Validation failed", clientResponse);
 
     }    
+    
+    @Test
+    public void shouldReturn400OnWriteWhenUuidNotValid() {
+        doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
+        ClientResponse clientResponse = writeDocument(writePath, document);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Invalid Uuid", clientResponse);
+    }
 
     @Test
     public void shouldReturn503WhenCannotAccessExternalSystem() {   
@@ -170,6 +181,16 @@ public class DocumentResourceEndpointsTest {
     			.delete(ClientResponse.class);
     	
     	assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }  
+    
+    @Test
+    public void shouldReturn400OnDeleteWhenUuidNotValid() {
+        doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
+        ClientResponse clientResponse = resources.client().resource(writePath)
+                .delete(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Invalid Uuid", clientResponse);
     }
     
     @Test
@@ -202,6 +223,16 @@ public class DocumentResourceEndpointsTest {
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
         validateErrorMessage("Requested item does not exist", clientResponse);
+    }
+    
+    @Test
+    public void shouldReturn400OnReadWhenUuidNotValid() {
+        doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
+        ClientResponse clientResponse = resources.client().resource(writePath)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Invalid Uuid", clientResponse);
     }
     
     @Test

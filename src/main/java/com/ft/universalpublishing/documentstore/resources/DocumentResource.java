@@ -67,11 +67,7 @@ public class DocumentResource {
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-		try {
-            uuidValidator.validate(uuidString);
-        } catch (ValidationException validationException) {
-            throw ClientError.status(400).error(validationException.getMessage()).exception();
-        }
+		validateUuid(uuidString);
 	    return findResourceByUuid(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
@@ -80,11 +76,7 @@ public class DocumentResource {
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Document getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-        try {
-            uuidValidator.validate(uuidString);
-        } catch (ValidationException validationException) {
-            throw ClientError.status(400).error(validationException.getMessage()).exception();
-        }
+        validateUuid(uuidString);
         return findResourceByUuid(LISTS_COLLECTION, uuidString, ContentList.class);
     }
 
@@ -107,7 +99,8 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeContent(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap, @Context UriInfo uriInfo) {
-
+        validateUuid(uuidString);
+        //TODO add transaction id support everywhere
         Content content = convertMapToContent(contentMap); //TODO - remove once we have consistency of content internally and externally
         
         try {
@@ -160,6 +153,8 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeLists(@PathParam("uuidString") String uuidString, ContentList contentList, @Context UriInfo uriInfo) {
+        validateUuid(uuidString);
+        
         try {
             contentListDocumentValidator.validate(uuidString, contentList);
         } catch (ValidationException validationException) {
@@ -194,6 +189,7 @@ public class DocumentResource {
     @Timed
     @Path("/content/{uuidString}")
     public Response deleteContent(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
+        validateUuid(uuidString);
         return delete(CONTENT_COLLECTION, uuidString, Content.class);
     }
     
@@ -201,7 +197,16 @@ public class DocumentResource {
     @Timed
     @Path("/lists/{uuidString}")
     public Response deleteList(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
+        validateUuid(uuidString);
         return delete(LISTS_COLLECTION, uuidString, ContentList.class);
+    }
+
+    private void validateUuid(String uuidString) {
+        try {
+            uuidValidator.validate(uuidString);
+        } catch (ValidationException validationException) {
+            throw ClientError.status(400).error(validationException.getMessage()).exception();
+        }
     }
 
     private <T extends Document> Response delete(String resourceType, String uuidString, Class<T> documentClass) {
