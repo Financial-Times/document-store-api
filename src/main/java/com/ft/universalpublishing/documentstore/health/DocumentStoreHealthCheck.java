@@ -2,6 +2,7 @@ package com.ft.universalpublishing.documentstore.health;
 
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.MongoException;
 import org.slf4j.Logger;
@@ -11,35 +12,40 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentStoreHealthCheck.class);
 
-    private final DB db;
+    private DB db;
     private HealthcheckParameters healthcheckParameters;
+
 
     public DocumentStoreHealthCheck(DB db, HealthcheckParameters healthcheckParameters) {
         super(healthcheckParameters.getName());
-
         this.db = db;
         this.healthcheckParameters = healthcheckParameters;
+
     }
 
     @Override
     protected AdvancedResult checkAdvanced() throws Exception {
 
-            if (mongodbIsAvailable()) {
+        CommandResult result;
+
+        try {
+
+            result = db.command("serverStatus");
+            boolean isOK = result.ok();
+
+            if (isOK) {
                 return AdvancedResult.healthy("OK");
-            } else {
-                return AdvancedResult.error(this, "Error occurred opening the socket, connection refused");
             }
+
+        }
+        catch (MongoException e) {
+            final String message = "Cannot connect to MongoDB";
+            LOGGER.warn(message, e);
+            return AdvancedResult.error(this, e);
+        }
+        return AdvancedResult.error(this, "Unable to connect to MongoDB");
     }
 
-    private boolean mongodbIsAvailable() {
-        try {
-            db.command("serverStatus");
-        } catch (MongoException e){
-            LOGGER.warn("Unable to get connection to Mongo repository.", e);
-            return false;
-        }
-        return true;
-    }
 
     @Override
     protected int severity() { return healthcheckParameters.getSeverity(); }
