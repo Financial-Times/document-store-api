@@ -54,6 +54,9 @@ Any fields that aren't supported will be ignored. NB: this response body is the 
 ## Content GET
 Make a GET request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
 
+## Content DELETE
+Make a DELETE request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
+
 ## List PUT
 Make a PUT request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
 
@@ -80,8 +83,10 @@ Any fields that aren't supported will be ignored. NB: this response body is the 
 ## List GET
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
 
+## List DELETE
+Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
+
 ## Adding support for a new resource type
 Currently you need to:
 1. Add a new model class or classes, extending Document
 2. Add new resource endpoints in DocumentResource, for PUT, GET and DELETE. Call the helper methods.
-
