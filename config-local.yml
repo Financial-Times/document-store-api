@@ -10,7 +10,7 @@ healthcheckParameters:
     severity: 1
     businessImpact: "Editorially curated lists won't be available for use on Next."
     technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the new content platform and affect a variety of products."
-    panicGuideUrl: "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/<INSERT DOCUMENT WRITER RUNBOOK URL LOCATION HERE>"
+    panicGuideUrl: "https://sites.google.com/a/ft.com/dynamic-publishing-team/home/run-book-library/INSERT DOCUMENT WRITER RUNBOOK URL LOCATION HERE"
 
 server:
 

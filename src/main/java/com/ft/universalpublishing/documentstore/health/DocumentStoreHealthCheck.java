@@ -20,30 +20,27 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
         super(healthcheckParameters.getName());
         this.db = db;
         this.healthcheckParameters = healthcheckParameters;
-
     }
 
     @Override
     protected AdvancedResult checkAdvanced() throws Exception {
 
         CommandResult result;
+        final String message = "Cannot connect to MongoDB";
 
         try {
-
             result = db.command("serverStatus");
             boolean isOK = result.ok();
 
             if (isOK) {
                 return AdvancedResult.healthy("OK");
             }
-
         }
         catch (MongoException e) {
-            final String message = "Cannot connect to MongoDB";
             LOGGER.warn(message, e);
             return AdvancedResult.error(this, e);
         }
-        return AdvancedResult.error(this, "Unable to connect to MongoDB");
+        return AdvancedResult.error(this, message);
     }
 
 

@@ -32,7 +32,7 @@ public class DocumentStoreHealthCheckTest {
     }
 
     @Test
-    public void shouldReturnOKStatusWhenConnectionToMongoDBIsSuccessful() throws Exception{
+    public void shouldReturnOKStatusWhenCommandResultIsTrue() throws Exception {
         when(commandResult.ok()).thenReturn(true);
         when(db.command("serverStatus")).thenReturn(commandResult);
 
@@ -42,7 +42,17 @@ public class DocumentStoreHealthCheckTest {
     }
 
     @Test
-    public void shouldReturnErrorStatusWhenConnectionToMongoDBIsUnsuccessful() throws Exception {
+    public void shouldReturnErrorStatusWhenCommandResultIsFalse() throws Exception {
+        when(commandResult.ok()).thenReturn(false);
+        when(db.command("serverStatus")).thenReturn(commandResult);
+
+        AdvancedResult result = healthcheck.checkAdvanced();
+
+        assertThat(result.status(), is(AdvancedResult.Status.ERROR));
+    }
+
+    @Test
+    public void shouldReturnErrorWhenConnectionToMongoDBIsUnsuccessful()  throws Exception {
         when(db.command(anyString())).thenThrow(MongoException.class);
 
         AdvancedResult result = healthcheck.checkAdvanced();
