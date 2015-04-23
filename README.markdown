@@ -8,7 +8,7 @@ To compile, run tests and build jar
 
 To run locally, run:
     
-    java -jar target/document-store-api.jar server config-local.yml
+    java -jar target/document-store-api-0.0.1-SNAPSHOT.jar server config-local.yml
 
 ## Building/deploying
 Check in, push, and wait three minutes: [this Jenkins job](http://ftjen06609-lvpr-uk-p:8181/job/document-store-api/) will build and package the application. 
