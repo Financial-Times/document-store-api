@@ -1,0 +1,92 @@
+package com.ft.universalpublishing.documentstore;
+
+import com.mongodb.ServerAddress;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+/**
+ * MongoConfigTest
+ *
+ * @author Simon.Gibbs
+ */
+public class MongoConfigTest {
+    
+    @Test
+    public void shouldConvertSingularHostFieldToServerAddress() {
+        MongoConfig config = new MongoConfig();
+        config.setHost("a.example.com");
+
+        List<ServerAddress> result = config.toServerAddresses();
+        
+        assertThat(result.get(0).getHost(),is("a.example.com"));
+    }
+
+    @Test
+      public void shouldConvertPluralHostsFieldToServerAddresses() {
+        MongoConfig config = new MongoConfig();
+        config.setHosts(Arrays.asList("a.example.com","b.example.com"));
+
+        List<ServerAddress> result = config.toServerAddresses();
+
+        assertThat(result.get(0).getHost(),is("a.example.com"));
+        assertThat(result.get(1).getHost(),is("b.example.com"));
+    }
+
+    @Test
+    public void shouldCombineSingularAndPluralHostFields() {
+        MongoConfig config = new MongoConfig();
+        config.setHosts(Arrays.asList("a.example.com","b.example.com"));
+        config.setHost("c.example.com");
+
+        List<ServerAddress> result = config.toServerAddresses();
+
+        assertThat(result.get(0).getHost(),is("a.example.com"));
+        assertThat(result.get(1).getHost(),is("b.example.com"));
+        assertThat(result.get(2).getHost(),is("c.example.com"));
+    }
+
+    @Test
+    public void shouldDedupeSingularAndPluralHostFields() {
+        MongoConfig config = new MongoConfig();
+        config.setHosts(Arrays.asList("a.example.com","b.example.com"));
+        config.setHost("a.example.com");
+
+        List<ServerAddress> result = config.toServerAddresses();
+
+        assertThat(result.get(0).getHost(),is("a.example.com"));
+        assertThat(result.get(1).getHost(),is("b.example.com"));
+        assertThat(result.size(),is(2));
+    }
+
+
+    @Test
+    public void shouldUsePortFieldWithSingularHostField() {
+        MongoConfig config = new MongoConfig();
+        config.setHost("a.example.com");
+        config.setPort(999);
+
+        List<ServerAddress> result = config.toServerAddresses();
+
+        assertThat(result.get(0).getPort(),is(999));
+    }
+
+
+    @Test
+    public void shouldUsePortFieldWithPluralHostField() {
+        MongoConfig config = new MongoConfig();
+        config.setHosts(Arrays.asList("a.example.com","b.example.com"));
+        config.setPort(999);
+
+        List<ServerAddress> result = config.toServerAddresses();
+
+        assertThat(result.get(0).getPort(),is(999));
+        assertThat(result.get(1).getPort(),is(999));
+    }
+
+}
+

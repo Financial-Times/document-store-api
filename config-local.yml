@@ -1,5 +1,5 @@
 mongo:
-  host: localhost 
+  hosts: ["localhost"]
   port: 27017
   db: upp-store
   

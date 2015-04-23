@@ -1,6 +1,8 @@
 package com.ft.universalpublishing.documentstore;
 
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.google.common.collect.Lists;
+import com.mongodb.ServerAddress;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -15,6 +17,8 @@ import com.ft.universalpublishing.documentstore.validators.ContentDocumentValida
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+
+import java.util.List;
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
@@ -31,7 +35,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
         environment.jersey().register(new BuildInfoResource());
         
-        final MongoClient mongoClient = new MongoClient(configuration.getMongo().getHost(), configuration.getMongo().getPort());
+        final MongoClient mongoClient = getMongoClient(configuration.getMongo());
         final DB db = mongoClient.getDB(configuration.getMongo().getDb());
         
         final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db, configuration.getApiPath()); 
@@ -42,6 +46,18 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
 
+    }
+
+    private MongoClient getMongoClient(MongoConfig config) {
+        List<ServerAddress> mongoServers = config.toServerAddresses();
+        if (mongoServers.size() == 1) {
+            // singleton configuration
+            ServerAddress mongoServer = mongoServers.get(0);
+            return new MongoClient(mongoServer);
+        } else {
+            // cluster configuration
+            return new MongoClient(mongoServers);
+        }
     }
 
 }
