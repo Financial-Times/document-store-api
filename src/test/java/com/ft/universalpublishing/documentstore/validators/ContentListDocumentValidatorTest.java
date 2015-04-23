@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableList;
 
 public class ContentListDocumentValidatorTest {
 
-    private ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
+    private ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(new UuidValidator());
     private ContentList contentList;
     private String uuid;
     
@@ -103,6 +103,19 @@ public class ContentListDocumentValidatorTest {
     
     @Test
     public void shouldFailValidationIfItemsHaveNeitherUuidOrWebUrl() {
+        ListItem listItemWithInvalidUuid = new ListItem();
+        listItemWithInvalidUuid.setUuid("invalid");
+        List<ListItem> contentItems = ImmutableList.of(listItemWithInvalidUuid);
+        contentList.setItems(contentItems);
+        
+        expectedException.expect(ValidationException.class);
+        expectedException.expectMessage("invalid UUID: invalid, does not conform to RFC 4122");
+        
+        contentListDocumentValidator.validate(uuid, contentList);
+    }
+    
+    @Test
+    public void shouldFailValidationIfItemsHaveInvalidUuid() {
         List<ListItem> contentItems = ImmutableList.of(new ListItem());
         contentList.setItems(contentItems);
         

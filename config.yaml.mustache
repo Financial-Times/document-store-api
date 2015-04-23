@@ -19,11 +19,6 @@ server:
 
     appenders:
 
-      - type: console
-
-        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
-        timeZone: UTC
-
       - type: file
 
         # The file to which current statements will be logged.
@@ -49,9 +44,8 @@ logging:
 
   appenders:
 
-    - type: console
-
     - type: file
+      logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
       # Do not write log statements below this threshold to the file.
       threshold: ALL
 
