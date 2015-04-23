@@ -1,32 +1,41 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import io.dropwizard.testing.junit.ResourceTestRule;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import javax.ws.rs.core.MediaType;
+
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.Content;
-import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.Document;
+import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
@@ -35,13 +44,6 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.google.common.collect.ImmutableList;
 import com.sun.jersey.api.client.ClientResponse;
-import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class DocumentResourceEndpointsTest {
@@ -110,21 +112,22 @@ public class DocumentResourceEndpointsTest {
     public void setup() {
         reset(documentStoreService);
         reset(contentDocumentValidator);
-        reset(contentListDocumentValidator);      
+        reset(contentListDocumentValidator); 
+        reset(uuidValidator);
         when(documentStoreService.write(eq(resourceType), any(Document.class), any())).thenReturn(DocumentWritten.created(document));
     }
     
     //WRITE
     
     @Test
-    public void shouldReturn201ForNewContent() {
+    public void shouldReturn201ForNewDocument() {
         ClientResponse clientResponse = writeDocument(writePath, document);
         assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
         verify(documentStoreService).write(eq(resourceType), any(Document.class), any());
     }
 
     @Test
-    public void shouldReturn200ForUpdatedContent() {
+    public void shouldReturn200ForUpdatedDocument() {
         when(documentStoreService.write(eq(resourceType), any(Document.class), any())).thenReturn(DocumentWritten.updated(document));
 
         ClientResponse clientResponse = writeDocument(writePath, document);
@@ -132,7 +135,7 @@ public class DocumentResourceEndpointsTest {
     }
 
     @Test
-    public void shouldReturn400WhenContentDocumentValidationFails() {
+    public void shouldReturn400WhenDocumentValidationFails() {
         doThrow(new ValidationException("Validation failed")).when(documentValidator).validate(eq(uuid), any(Document.class));
 
         ClientResponse clientResponse = writeDocument(writePath, document);
@@ -141,6 +144,15 @@ public class DocumentResourceEndpointsTest {
         validateErrorMessage("Validation failed", clientResponse);
 
     }    
+    
+    @Test
+    public void shouldReturn400OnWriteWhenUuidNotValid() {
+        doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
+        ClientResponse clientResponse = writeDocument(writePath, document);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Invalid Uuid", clientResponse);
+    }
 
     @Test
     public void shouldReturn503WhenCannotAccessExternalSystem() {   
@@ -163,13 +175,23 @@ public class DocumentResourceEndpointsTest {
     }
     
     @Test
-    public void shouldReturn404WhenDeletingNonExistentContentList(){
+    public void shouldReturn404WhenDeletingNonExistentDocument(){
     	doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(resourceType),any(UUID.class), any());
     	
     	ClientResponse clientResponse = resources.client().resource(writePath)
     			.delete(ClientResponse.class);
     	
     	assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }  
+    
+    @Test
+    public void shouldReturn400OnDeleteWhenUuidNotValid() {
+        doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
+        ClientResponse clientResponse = resources.client().resource(writePath)
+                .delete(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Invalid Uuid", clientResponse);
     }
     
     @Test
@@ -195,13 +217,23 @@ public class DocumentResourceEndpointsTest {
     }
     
     @Test
-    public void shouldReturn404WhenContentNotFound() {
+    public void shouldReturn404WhenDocumentNotFound() {
         when(documentStoreService.findByUuid(eq(resourceType), any(UUID.class), any())).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
         validateErrorMessage("Requested item does not exist", clientResponse);
+    }
+    
+    @Test
+    public void shouldReturn400OnReadWhenUuidNotValid() {
+        doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
+        ClientResponse clientResponse = resources.client().resource(writePath)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Invalid Uuid", clientResponse);
     }
     
     @Test
