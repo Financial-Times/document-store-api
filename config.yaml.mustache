@@ -3,7 +3,14 @@ mongo:
   port: {{{mongoport}}}
   db: "{{{mongodb}}}"
   
-apiPath: "{{{apiPath}}}"  
+apiPath: "{{{apiPath}}}"
+
+healthcheckParameters:
+    name: "{{{healthcheckParameterName}}}"
+    severity: "{{{healthcheckParameterSeverity}}}"
+    businessImpact: "{{{healthcheckParameterBusinessImpact}}}"
+    technicalSummary: "{{{healthcheckParameterTechnicalSummary}}}"
+    panicGuideUrl: "{{{healthcheckParameterPanicGuideUrl}}}"
 
 server:
 
