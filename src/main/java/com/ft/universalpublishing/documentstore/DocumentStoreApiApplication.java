@@ -45,8 +45,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         
         final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db, configuration.getApiPath()); 
         final ContentDocumentValidator contentDocumentValidator = new ContentDocumentValidator();
-        final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
         final UuidValidator uuidValidator = new UuidValidator();
+        final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(uuidValidator);
 
         environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator, uuidValidator));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(db, configuration.getHealthcheckParameters()));

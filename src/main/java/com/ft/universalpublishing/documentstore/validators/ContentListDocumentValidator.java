@@ -10,6 +10,12 @@ import com.ft.universalpublishing.documentstore.model.ListItem;
 
 public class ContentListDocumentValidator implements DocumentValidator {
 
+    private UuidValidator uuidValidator;
+
+    public ContentListDocumentValidator(UuidValidator uuidValidator) {
+        this.uuidValidator = uuidValidator;
+    }
+
     @Override
     public void validate(String uuidString, Document document) {
         ContentList contentList = (ContentList) document;
@@ -36,6 +42,10 @@ public class ContentListDocumentValidator implements DocumentValidator {
             if ((item.getUuid() == null || item.getUuid().isEmpty()) 
                     && (item.getWebUrl() == null || item.getWebUrl().isEmpty())) {
                 throw new ValidationException("list items must have a non-empty uuid or a non-empty webUrl");
+            }
+            String itemUuid = item.getUuid();
+            if (itemUuid != null) {
+                uuidValidator.validate(itemUuid);
             }
         }
     }
