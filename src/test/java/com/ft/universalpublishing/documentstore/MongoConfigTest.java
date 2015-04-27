@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore;
 
 import com.mongodb.ServerAddress;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -15,10 +16,17 @@ import static org.junit.Assert.assertThat;
  * @author Simon.Gibbs
  */
 public class MongoConfigTest {
-    
+
+    MongoConfig config;
+
+    @Before
+    public void setUp() {
+        config = new MongoConfig();
+    }
+
     @Test
     public void shouldConvertSingularHostFieldToServerAddress() {
-        MongoConfig config = new MongoConfig();
+
         config.setHost("a.example.com");
 
         List<ServerAddress> result = config.toServerAddresses();
@@ -28,7 +36,7 @@ public class MongoConfigTest {
 
     @Test
       public void shouldConvertPluralHostsFieldToServerAddresses() {
-        MongoConfig config = new MongoConfig();
+
         config.setHosts(Arrays.asList("a.example.com","b.example.com"));
 
         List<ServerAddress> result = config.toServerAddresses();
@@ -39,7 +47,7 @@ public class MongoConfigTest {
 
     @Test
     public void shouldCombineSingularAndPluralHostFields() {
-        MongoConfig config = new MongoConfig();
+
         config.setHosts(Arrays.asList("a.example.com","b.example.com"));
         config.setHost("c.example.com");
 
@@ -52,7 +60,7 @@ public class MongoConfigTest {
 
     @Test
     public void shouldDedupeSingularAndPluralHostFields() {
-        MongoConfig config = new MongoConfig();
+
         config.setHosts(Arrays.asList("a.example.com","b.example.com"));
         config.setHost("a.example.com");
 
@@ -63,10 +71,9 @@ public class MongoConfigTest {
         assertThat(result.size(),is(2));
     }
 
-
     @Test
     public void shouldUsePortFieldWithSingularHostField() {
-        MongoConfig config = new MongoConfig();
+
         config.setHost("a.example.com");
         config.setPort(999);
 
@@ -75,10 +82,9 @@ public class MongoConfigTest {
         assertThat(result.get(0).getPort(),is(999));
     }
 
-
     @Test
     public void shouldUsePortFieldWithPluralHostField() {
-        MongoConfig config = new MongoConfig();
+
         config.setHosts(Arrays.asList("a.example.com","b.example.com"));
         config.setPort(999);
 
