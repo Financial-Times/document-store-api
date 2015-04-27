@@ -5,6 +5,13 @@ mongo:
   
 apiPath: localhost
 
+healthcheckParameters:
+    name: "Connectivity to MongoDB"
+    severity: 1
+    businessImpact: "Editorially curated lists won't be available for use on Next."
+    technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the new content platform and affect a variety of products."
+    panicGuideUrl: "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi"
+
 server:
 
   applicationConnectors:
@@ -27,12 +34,12 @@ server:
       - type: file
 
         # The file to which current statements will be logged.
-        currentLogFilename: /var/log/apps/json-api-dw-access.log
+        currentLogFilename: /var/log/apps/document-store-api-dw-access.log
 
         # When the log file rotates, the archived log will be renamed to this and gzipped. The
         # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
         # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
-        archivedLogFilenamePattern: /var/log/apps/json-api-dw-access-%d.log.gz
+        archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-access-%d.log.gz
 
         # The number of archived files to keep.
         archivedFileCount: 6
@@ -56,12 +63,12 @@ logging:
       threshold: ALL
 
       # The file to which current statements will be logged.
-      currentLogFilename: /var/log/apps/json-api-dw-app.log
+      currentLogFilename: /var/log/apps/document-store-api-dw-app.log
 
       # When the log file rotates, the archived log will be renamed to this and gzipped. The
       # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
       # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
-      archivedLogFilenamePattern: /var/log/apps/json-api-dw-app-%d.log.gz
+      archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-app-%d.log.gz
 
       # The number of archived files to keep.
       archivedFileCount: 5

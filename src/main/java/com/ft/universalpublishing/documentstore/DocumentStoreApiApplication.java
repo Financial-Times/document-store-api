@@ -1,15 +1,21 @@
 package com.ft.universalpublishing.documentstore;
 
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.google.common.collect.Lists;
 import com.mongodb.ServerAddress;
+import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.buildinfo.BuildInfoResource;
+import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
-import com.ft.universalpublishing.documentstore.health.HelloworldHealthCheck;
 import com.ft.universalpublishing.documentstore.mongo.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -33,6 +39,9 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
     @Override
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
+        environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
+            .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/lists/*");
+        
         environment.jersey().register(new BuildInfoResource());
         
         final MongoClient mongoClient = getMongoClient(configuration.getMongo());
@@ -40,11 +49,12 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         
         final DocumentStoreService documentStoreService = new MongoDocumentStoreService(db, configuration.getApiPath()); 
         final ContentDocumentValidator contentDocumentValidator = new ContentDocumentValidator();
-        final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator();
         final UuidValidator uuidValidator = new UuidValidator();
-        environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator, uuidValidator));
+        final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(uuidValidator);
 
-        environment.healthChecks().register("My Health", new HelloworldHealthCheck("replace me"));
+        environment.jersey().register(new DocumentResource(documentStoreService, contentDocumentValidator, contentListDocumentValidator, uuidValidator));
+        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(db, configuration.getHealthcheckParameters()));
+        environment.jersey().register(new RuntimeExceptionMapper());
 
     }
 

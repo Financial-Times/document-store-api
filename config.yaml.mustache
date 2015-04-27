@@ -4,7 +4,14 @@ mongo:
   port: {{{mongoport}}}
   db: "{{{mongodb}}}"
   
-apiPath: "{{{apiPath}}}"  
+apiPath: "{{{apiPath}}}"
+
+healthcheckParameters:
+    name: "{{{healthcheckParameterName}}}"
+    severity: "{{{healthcheckParameterSeverity}}}"
+    businessImpact: "{{{healthcheckParameterBusinessImpact}}}"
+    technicalSummary: "{{{healthcheckParameterTechnicalSummary}}}"
+    panicGuideUrl: "{{{healthcheckParameterPanicGuideUrl}}}"
 
 server:
 
@@ -19,11 +26,6 @@ server:
   requestLog:
 
     appenders:
-
-      - type: console
-
-        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
-        timeZone: UTC
 
       - type: file
 
@@ -50,9 +52,8 @@ logging:
 
   appenders:
 
-    - type: console
-
     - type: file
+      logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
       # Do not write log statements below this threshold to the file.
       threshold: ALL
 
