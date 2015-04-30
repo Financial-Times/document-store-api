@@ -1,13 +1,14 @@
 package com.ft.universalpublishing.documentstore.model;
 
+import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import org.joda.time.DateTime;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
@@ -19,7 +20,7 @@ public class ContentList extends Document {
     private String title;
     private String apiUrl;
     private List<ListItem> items;
-    private DateTime publishedDate;
+    private Date publishedDate;
     
     public String getId() {
         return id;
@@ -60,13 +61,14 @@ public class ContentList extends Document {
     public void setItems(List<ListItem> items) {
         this.items = items;
     }
-    
 
-    public DateTime getPublishedDate() {
+
+    public Date getPublishedDate() {
         return publishedDate;
     }
 
-    public void setPublishedDate(DateTime publishedDate) {
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    public void setPublishedDate(Date publishedDate) {
         this.publishedDate = publishedDate;
     }
 
