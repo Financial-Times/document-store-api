@@ -11,8 +11,10 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavaila
 import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.WriteConcern;
@@ -77,7 +79,10 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     @Override
     public <T extends Document> DocumentWritten write(String resourceType, T document, Class<T> documentClass) {
         try {
+            DBObject uuidIndex = new BasicDBObject("uuid", 1);
             DBCollection dbCollection = db.getCollection(resourceType);
+            
+            dbCollection.createIndex(uuidIndex); //creates the index if it doesn't already exist
             
             final JacksonDBCollection<T, String> coll = JacksonDBCollection.wrap(dbCollection, documentClass,
                     String.class);
