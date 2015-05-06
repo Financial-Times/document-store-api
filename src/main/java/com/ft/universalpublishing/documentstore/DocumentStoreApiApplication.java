@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.google.common.collect.Lists;
 import com.mongodb.ServerAddress;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import io.dropwizard.Application;
