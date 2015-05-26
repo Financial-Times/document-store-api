@@ -2,7 +2,10 @@ FROM coco/javabase
 
 RUN git clone --branch flexibleMongoAddresses http://git.svc.ft.com:8080/scm/cp/document-store-api.git
 
-RUN cd document-store-api && mvn install -Dbuild.number=${BUILD_NUMBER} -Dbuild.url=${BUILD_URL} -Dbuild.git.revision=${GIT_COMMIT}
+ADD buildnum.txt /
+ADD buildurl.txt /
+ADD imageversion.txt /
+RUN cd document-store-api && HASH=$(git log -1 --pretty=format:%H) && mvn install -Dbuild.number=$(echo $(awk '{ print }' /buildnum.txt)) -Dbuild.url=$(echo $(awk '{ print }' /buildurl.txt)) -Dbuild.git.revision=$HASH -Dimage.version=$(echo $(awk '{ print }' /imageversion.txt))
 RUN cp /document-store-api/target/document-store-api-0.0.1-SNAPSHOT.jar /app.jar
 
 ADD config.yaml /
