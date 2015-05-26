@@ -2,7 +2,7 @@ FROM coco/javabase
 
 RUN git clone --branch flexibleMongoAddresses http://git.svc.ft.com:8080/scm/cp/document-store-api.git
 
-RUN cd document-store-api && mvn install
+RUN cd document-store-api && mvn install -Dbuild.number=${BUILD_NUMBER} -Dbuild.url=${BUILD_URL} -Dbuild.git.revision=${GIT_COMMIT}
 RUN cp /document-store-api/target/document-store-api-0.0.1-SNAPSHOT.jar /app.jar
 
 ADD config.yaml /
