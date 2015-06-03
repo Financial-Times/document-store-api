@@ -20,6 +20,9 @@ public class MongoConfig {
 	public MongoConfig(){}
 	
 	@JsonProperty
+	private List<String> addresses = new ArrayList<>();
+	
+	@JsonProperty @Deprecated
 	private List<String> hosts = new ArrayList<>(3);
 
     @JsonProperty @Deprecated
@@ -27,7 +30,7 @@ public class MongoConfig {
 
 	@Min(1)
     @Max(65535)
-    @JsonProperty
+    @JsonProperty @Deprecated
     private int port = 27017;
 	
 	@NotNull
@@ -69,6 +72,10 @@ public class MongoConfig {
     public List<ServerAddress> toServerAddresses() {
         List<ServerAddress> result = new ArrayList<>();
         try {
+        	for(String address : addresses) {
+        		String[] hostAndPort = address.split(":");
+        		result.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
+        	}
             for(String mirror : hosts) {
                result.add(new ServerAddress(mirror,getPort()));
             }
@@ -83,6 +90,15 @@ public class MongoConfig {
         }
     }
 	
+    public List<String> getAddresses() {
+    	return addresses;
+    }
+    
+    public void setAddresses(List<String> addresses) {
+    	this.addresses.clear();
+    	this.addresses.addAll(addresses);
+    }
+    
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this)

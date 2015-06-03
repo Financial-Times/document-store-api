@@ -94,5 +94,18 @@ public class MongoConfigTest {
         assertThat(result.get(1).getPort(),is(999));
     }
 
+    @Test
+    public void shouldParseAddresses() {
+    	config.setAddresses(Arrays.asList("a.example.com:1234", "b.example.com:2345"));
+
+        List<ServerAddress> result = config.toServerAddresses();
+
+        assertThat(result.get(0).getHost(),is("a.example.com"));
+        assertThat(result.get(0).getPort(),is(1234));
+        assertThat(result.get(1).getHost(),is("b.example.com"));
+        assertThat(result.get(1).getPort(),is(2345));
+
+    }
+
 }
 

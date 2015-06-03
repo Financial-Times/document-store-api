@@ -90,3 +90,5 @@ Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type s
 Currently you need to:
 1. Add a new model class or classes, extending Document
 2. Add new resource endpoints in DocumentResource, for PUT, GET and DELETE. Call the helper methods.
+
+## Does this trigger the container?
