@@ -1,4 +1,4 @@
-FROM coco/javabase
+FROM coco/dropwizardbase
 
 RUN git clone --branch flexibleMongoAddresses http://git.svc.ft.com:8080/scm/cp/document-store-api.git
 
