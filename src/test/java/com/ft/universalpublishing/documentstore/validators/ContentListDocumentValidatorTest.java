@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 public class ContentListDocumentValidatorTest {
 
     private ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(new UuidValidator());
-    private ContentList contentList;
+    private ContentList.Builder builder = new ContentList.Builder();
     private String uuid;
     
     @Rule
@@ -27,15 +27,15 @@ public class ContentListDocumentValidatorTest {
     public void setup() {
         uuid = UUID.randomUUID().toString();
         String contentUuid1 = UUID.randomUUID().toString();
-        contentList = new ContentList();
-        contentList.setUuid(uuid);
-        contentList.setTitle("headline");
         ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(contentUuid1);
         ListItem contentItem2 = new ListItem();
         contentItem2.setWebUrl("weburl");
         List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
-        contentList.setItems(content);
+        
+        builder.withUuid(UUID.fromString(uuid))
+               .withTitle("headline")
+               .withItems(content);
     }
     
     @Test
@@ -53,17 +53,7 @@ public class ContentListDocumentValidatorTest {
     
     @Test
     public void shouldFailValidationIfUuidIsNull() {
-        contentList.setUuid(null);
-        
-        expectedException.expect(ValidationException.class);
-        expectedException.expectMessage("submitted list must provide a non-empty uuid");
-        
-        contentListDocumentValidator.validate(uuid, contentList);
-    }
-    
-    @Test
-    public void shouldFailValidationIfUuidIsEmpty() {
-        contentList.setUuid("");
+        ContentList contentList = builder.withUuid(null).build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty uuid");
@@ -73,7 +63,7 @@ public class ContentListDocumentValidatorTest {
     
     @Test
     public void shouldFailValidationIfTitleIsNull() {
-        contentList.setTitle(null);
+        ContentList contentList = builder.withTitle(null).build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty title");
@@ -83,7 +73,7 @@ public class ContentListDocumentValidatorTest {
     
     @Test
     public void shouldFailValidationIfTitleIsEmpty() {
-        contentList.setTitle("");
+        ContentList contentList = builder.withTitle("").build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty title");
@@ -93,7 +83,7 @@ public class ContentListDocumentValidatorTest {
     
     @Test
     public void shouldFailValidationIfItemsIsNull() {
-        contentList.setItems(null);
+        ContentList contentList = builder.withItems(null).build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list should have an 'items' field");
@@ -106,7 +96,7 @@ public class ContentListDocumentValidatorTest {
         ListItem listItemWithInvalidUuid = new ListItem();
         listItemWithInvalidUuid.setUuid("invalid");
         List<ListItem> contentItems = ImmutableList.of(listItemWithInvalidUuid);
-        contentList.setItems(contentItems);
+        ContentList contentList = builder.withItems(contentItems).build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("invalid UUID: invalid, does not conform to RFC 4122");
@@ -117,7 +107,7 @@ public class ContentListDocumentValidatorTest {
     @Test
     public void shouldFailValidationIfItemsHaveInvalidUuid() {
         List<ListItem> contentItems = ImmutableList.of(new ListItem());
-        contentList.setItems(contentItems);
+        ContentList contentList = builder.withItems(contentItems).build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("list items must have a non-empty uuid or a non-empty webUrl");
@@ -131,6 +121,6 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage(String.format("uuid in path %s is not equal to uuid in submitted list %s", mismatchedUuid, uuid));
 
-        contentListDocumentValidator.validate(mismatchedUuid, contentList);
+        contentListDocumentValidator.validate(mismatchedUuid, builder.build());
     }
 }

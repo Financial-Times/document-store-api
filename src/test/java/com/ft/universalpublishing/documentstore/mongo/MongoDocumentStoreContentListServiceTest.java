@@ -59,25 +59,29 @@ public class MongoDocumentStoreContentListServiceTest {
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();
         contentUuid1 = UUID.randomUUID().toString();
-        inboundContentList = new ContentList();
-        inboundContentList.setUuid(uuid.toString());
         ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(contentUuid1);
         ListItem contentItem2 = new ListItem();
         contentItem2.setWebUrl(WEBURL);
         List<ListItem> inboundItems = ImmutableList.of(contentItem1, contentItem2);
-        inboundContentList.setItems(inboundItems);
         
-        outboundContentList = new ContentList();
-        outboundContentList.setId(THING_URL_PREFIX + uuid);
-        outboundContentList.setApiUrl(API_URL_PREFIX_LIST + uuid);
+        inboundContentList = new ContentList.Builder()
+            .withUuid(uuid)
+            .withItems(inboundItems)
+            .build();
+        
         ListItem outboundContentItem1 = new ListItem();
         outboundContentItem1.setId(THING_URL_PREFIX + contentUuid1);
         outboundContentItem1.setApiUrl(API_URL_PREFIX_CONTENT + contentUuid1);
         ListItem outboundContentItem2 = new ListItem();
         outboundContentItem2.setWebUrl(WEBURL);
         List<ListItem> outboundItems = ImmutableList.of(outboundContentItem1, outboundContentItem2);
-        outboundContentList.setItems(outboundItems);
+        
+        outboundContentList = new ContentList.Builder()
+            .withId(THING_URL_PREFIX + uuid)
+            .withApiUrl(API_URL_PREFIX_LIST + uuid)
+            .withItems(outboundItems)
+            .build();
     }
 
     

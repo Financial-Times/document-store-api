@@ -92,14 +92,17 @@ public class DocumentResourceEndpointsTest {
     private static Document getContentList(String uuid) {
         String contentUuid1 = UUID.randomUUID().toString();
         String contentUuid2 = UUID.randomUUID().toString();
-        ContentList contentList = new ContentList();
-        contentList.setUuid(uuid);
         ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(contentUuid1);
         ListItem contentItem2 = new ListItem();
         contentItem2.setUuid(contentUuid2);
         List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
-        contentList.setItems(content);
+        
+        ContentList contentList = new ContentList.Builder()
+                .withUuid(UUID.fromString(uuid))
+                .withItems(content)
+                .build();
+        
         return contentList;
     }
 

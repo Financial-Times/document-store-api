@@ -2,18 +2,70 @@ package com.ft.universalpublishing.documentstore.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList extends Document {
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Builder {
+        private String id;
+        private UUID uuid;
+        private String apiUrl;
+        private String title;
+        private List<ListItem> items;
+        private Date publishedDate;
+        private String layoutHint;
+        
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
+        
+        public Builder withUuid(UUID uuid) {
+            this.uuid = uuid;
+            return this;
+        }
+        
+        public Builder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+        
+        public Builder withApiUrl(String url) {
+            this.apiUrl = url;
+            return this;
+        }
+        
+        public Builder withItems(List<ListItem> items) {
+            this.items = items;
+            return this;
+        }
+        
+        public Builder withPublishedDate(Date publishedDate) {
+            this.publishedDate = publishedDate;
+            return this;
+        }
+        
+        public Builder withLayoutHint(String layoutHint) {
+            this.layoutHint = layoutHint;
+            return this;
+        }
+        
+        public ContentList build() {
+            ContentList list = new ContentList(id, uuid, apiUrl, title, items, publishedDate, layoutHint);
+            return list;
+        }
+    }
 
     private String id;
     private String uuid;
@@ -21,12 +73,27 @@ public class ContentList extends Document {
     private String apiUrl;
     private List<ListItem> items;
     private Date publishedDate;
+    private String layoutHint;
+    
+    private ContentList(String id, UUID uuid, String apiUrl, String title, List<ListItem> items,
+                        Date publishedDate, String layoutHint) {
+        
+        setId(id);
+        if (uuid != null) {
+            setUuid(uuid.toString());
+        }
+        setApiUrl(apiUrl);
+        this.title = title;
+        this.items = items;
+        this.publishedDate = publishedDate;
+        this.layoutHint = layoutHint;
+    }
     
     public String getId() {
         return id;
     }
     
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
     
@@ -34,7 +101,7 @@ public class ContentList extends Document {
         return uuid;
     }
     
-    public void setUuid(String uuid) {
+    private void setUuid(String uuid) {
         this.uuid = uuid;
     }
     
@@ -42,15 +109,11 @@ public class ContentList extends Document {
         return title;
     }
     
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
     public String getApiUrl() {
         return apiUrl;
     }
     
-    public void setApiUrl(String apiUrl) {
+    private void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
     }
     
@@ -58,20 +121,16 @@ public class ContentList extends Document {
         return items;
     }
     
-    public void setItems(List<ListItem> items) {
-        this.items = items;
-    }
-
-
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
     public Date getPublishedDate() {
         return publishedDate;
     }
 
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
-    public void setPublishedDate(Date publishedDate) {
-        this.publishedDate = publishedDate;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public String getLayoutHint() {
+        return layoutHint;
     }
-
+    
     @Override
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
@@ -119,6 +178,7 @@ public class ContentList extends Document {
                 .add("apiUrl", apiUrl)
                 .add("items", items)
                 .add("publishedDate", publishedDate)
+                .add("layoutHint", layoutHint)
                 .toString();
 
     }
@@ -134,12 +194,13 @@ public class ContentList extends Document {
             && Objects.equal(this.title, other.title)
             && Objects.equal(this.apiUrl, other.apiUrl)
             && Objects.equal(this.items, other.items)
-            && Objects.equal(this.publishedDate, other.publishedDate);
+            && Objects.equal(this.publishedDate, other.publishedDate)
+            && Objects.equal(this.layoutHint, other.layoutHint);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate);
+        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate, layoutHint);
     }
     
 }
