@@ -37,10 +37,6 @@ public class MongoDocumentStoreContentListServiceTest {
 
     private static final String WEBURL = "http://www.bbc.co.uk/";
     
-    private ContentList inboundContentList;   
-    private ContentList outboundContentList;
-    private Fongo fongo;
-    
     private MongoDocumentStoreService mongoDocumentStoreService;
 
     private UUID uuid;
@@ -53,37 +49,30 @@ public class MongoDocumentStoreContentListServiceTest {
     
     @Before
     public void setup() {
-        fongo = new Fongo("embedded");
+        Fongo fongo = new Fongo("embedded");
         DB db = fongo.getDB(DBNAME);
         mongoDocumentStoreService = new MongoDocumentStoreService(db, "api.ft.com");
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();
         contentUuid1 = UUID.randomUUID().toString();
+    }
+    
+    private List<ListItem> mockInboundListItems() {
         ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(contentUuid1);
         ListItem contentItem2 = new ListItem();
         contentItem2.setWebUrl(WEBURL);
-        List<ListItem> inboundItems = ImmutableList.of(contentItem1, contentItem2);
-        
-        inboundContentList = new ContentList.Builder()
-            .withUuid(uuid)
-            .withItems(inboundItems)
-            .build();
-        
+        return ImmutableList.of(contentItem1, contentItem2);
+    }
+    
+    private List<ListItem> mockOutboundListItems() {
         ListItem outboundContentItem1 = new ListItem();
         outboundContentItem1.setId(THING_URL_PREFIX + contentUuid1);
         outboundContentItem1.setApiUrl(API_URL_PREFIX_CONTENT + contentUuid1);
         ListItem outboundContentItem2 = new ListItem();
         outboundContentItem2.setWebUrl(WEBURL);
-        List<ListItem> outboundItems = ImmutableList.of(outboundContentItem1, outboundContentItem2);
-        
-        outboundContentList = new ContentList.Builder()
-            .withId(THING_URL_PREFIX + uuid)
-            .withApiUrl(API_URL_PREFIX_LIST + uuid)
-            .withItems(outboundItems)
-            .build();
+        return ImmutableList.of(outboundContentItem1, outboundContentItem2);
     }
-
     
     @Test
     public void contentListInStoreShouldBeRetrievedSuccessfully() {
@@ -95,8 +84,14 @@ public class MongoDocumentStoreContentListServiceTest {
                 .append("items", items); 
         collection.insert(toInsert);
         
+        ContentList expectedList = new ContentList.Builder()
+            .withId(THING_URL_PREFIX + uuid)
+            .withApiUrl(API_URL_PREFIX_LIST + uuid)
+            .withItems(mockOutboundListItems())
+            .build();
+        
         ContentList retrievedContentList = mongoDocumentStoreService.findByUuid("lists", uuid, ContentList.class);
-        assertThat(retrievedContentList, is(outboundContentList));
+        assertThat(retrievedContentList, is(expectedList));
     }
     
     @Test
@@ -107,16 +102,68 @@ public class MongoDocumentStoreContentListServiceTest {
     
     @Test
     public void contentListShouldBePersistedOnWrite() {
-        DocumentWritten result = mongoDocumentStoreService.write("lists", inboundContentList, ContentList.class);
+        ContentList list = new ContentList.Builder()
+            .withUuid(uuid)
+            .withItems(mockInboundListItems())
+            .build();
+        
+        DocumentWritten result = mongoDocumentStoreService.write("lists", list, ContentList.class);
         assertThat(result.getMode(), is(Mode.Created));
         DBObject findOne = collection.findOne(new BasicDBObject("uuid", uuid.toString()));
         assertThat(findOne , notNullValue());
+    }
+    
+    @Test
+    public void thatLayoutHintIsPersisted() {
+        String hint = "junit-layout";
+        ContentList list = new ContentList.Builder()
+            .withUuid(uuid)
+            .withItems(mockInboundListItems())
+            .withLayoutHint(hint)
+            .build();
         
+        DocumentWritten result = mongoDocumentStoreService.write("lists", list, ContentList.class);
+        assertThat(result.getMode(), is(Mode.Created));
+        
+        ContentList actual = (ContentList)result.getDocument();
+        assertThat("list uuid", actual.getUuid(), is(uuid.toString()));
+        assertThat("layout hint", actual.getLayoutHint(), is(hint));
+    }
+    
+    @Test
+    public void thatLayoutHintIsRetrieved() {
+        String hint = "junit-layout";
+        
+        BasicDBList items = new BasicDBList();
+        items.add(new BasicDBObject().append("uuid", contentUuid1));
+        items.add(new BasicDBObject().append("webUrl", WEBURL));
+        
+        final BasicDBObject toInsert = new BasicDBObject()
+                .append("uuid", uuid.toString())
+                .append("layoutHint", hint)
+                .append("items", items);
+        
+        collection.insert(toInsert);
+        
+        ContentList expectedList = new ContentList.Builder()
+            .withId(THING_URL_PREFIX + uuid)
+            .withApiUrl(API_URL_PREFIX_LIST + uuid)
+            .withItems(mockOutboundListItems())
+            .withLayoutHint(hint)
+            .build();
+        
+        ContentList retrievedContentList = mongoDocumentStoreService.findByUuid("lists", uuid, ContentList.class);
+        assertThat(retrievedContentList, is(expectedList));
     }
     
     @Test
     public void contentListShouldBeDeletedOnRemove() {
-        DocumentWritten result = mongoDocumentStoreService.write("lists", inboundContentList, ContentList.class);
+        ContentList list = new ContentList.Builder()
+            .withUuid(uuid)
+            .withItems(mockInboundListItems())
+            .build();
+        
+        DocumentWritten result = mongoDocumentStoreService.write("lists", list, ContentList.class);
         assertThat(result.getMode(), is(Mode.Created));
         DBObject findOne = collection.findOne(new BasicDBObject("uuid", uuid.toString()));
         assertThat(findOne , notNullValue());
