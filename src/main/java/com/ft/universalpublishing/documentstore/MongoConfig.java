@@ -71,23 +71,19 @@ public class MongoConfig {
 
     public List<ServerAddress> toServerAddresses() {
         List<ServerAddress> result = new ArrayList<>();
-        try {
-        	for(String address : addresses) {
-        		String[] hostAndPort = address.split(":");
-        		result.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
-        	}
-            for(String mirror : hosts) {
-               result.add(new ServerAddress(mirror,getPort()));
-            }
-
-            if(!Strings.isNullOrEmpty(this.host) && !hosts.contains(host) ) {
-                result.add(new ServerAddress(this.host,getPort()));
-            }
-
-            return result;
-        } catch (UnknownHostException e) {
-            throw new BadConfigurationException(e);
+        for(String address : addresses) {
+            String[] hostAndPort = address.split(":");
+            result.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
         }
+        for(String mirror : hosts) {
+           result.add(new ServerAddress(mirror,getPort()));
+        }
+
+        if(!Strings.isNullOrEmpty(this.host) && !hosts.contains(host) ) {
+            result.add(new ServerAddress(this.host,getPort()));
+        }
+
+        return result;
     }
 	
     public List<String> getAddresses() {
