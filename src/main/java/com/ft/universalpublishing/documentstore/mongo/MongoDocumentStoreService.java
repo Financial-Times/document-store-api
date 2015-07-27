@@ -1,117 +1,83 @@
 package com.ft.universalpublishing.documentstore.mongo;
 
-import java.util.UUID;
-
-import org.mongojack.DBQuery;
-import org.mongojack.JacksonDBCollection;
-import org.mongojack.WriteResult;
-
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
-import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+import org.bson.Document;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class MongoDocumentStoreService implements DocumentStoreService {
 
-    private DB db;
+    private MongoDatabase db;
     private String apiPath;
 
-    public MongoDocumentStoreService(DB db, String apiPath) {
+    public MongoDocumentStoreService(MongoDatabase db, String apiPath) {
         this.db = db;
         this.apiPath = apiPath;
     }
 
     @Override
-    public <T extends Document> T findByUuid(String resourceType, UUID uuid, Class<T> documentClass) {
+    public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
-            DBCollection dbCollection = db.getCollection(resourceType);
-            
-            final JacksonDBCollection<T, String> coll = JacksonDBCollection.wrap(dbCollection, documentClass,
-                    String.class);
-            
-            T result = coll.findOne(DBQuery.is("uuid", uuid.toString())); 
-            
-            if (result != null) {
-                result.addIds();
-                result.addApiUrls(apiPath);
-                result.removePrivateFields();
-            }
- 
-            return result;
-        } catch (MongoSocketException e) {
-            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
-        } catch (MongoTimeoutException e) {
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            return dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
+        } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         }
     }
 
 
     @Override
-    public <T extends Document> void delete(String resourceType, UUID uuid, Class<T> documentClass) {
+    public void delete(String resourceType, UUID uuid) {
         try {
-            
-            DBCollection dbCollection = db.getCollection(resourceType);
-            
-            final JacksonDBCollection<T, String> coll = JacksonDBCollection.wrap(dbCollection, documentClass,
-                    String.class);
-            
-            WriteResult<T, String> result = coll.remove(DBQuery.is("uuid", uuid.toString()));
 
-            if (!wasDelete(result)) {
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            DeleteResult deleteResult = dbCollection.deleteOne(Filters.eq("uuid", uuid.toString()));
+
+            if (deleteResult.getDeletedCount() == 0) {
                 throw new DocumentNotFoundException(uuid);
             }
-        } catch (MongoSocketException e) {
-            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
-        } catch (MongoTimeoutException e) {
+
+        } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         }
-        
     }
 
     @Override
-    public <T extends Document> DocumentWritten write(String resourceType, T document, Class<T> documentClass) {
+    public DocumentWritten write(String resourceType, Map<String, Object> content) {
         try {
-            DBObject uuidIndex = new BasicDBObject("uuid", 1);
-            DBCollection dbCollection = db.getCollection(resourceType);
-            
-            dbCollection.createIndex(uuidIndex); //creates the index if it doesn't already exist
-            
-            final JacksonDBCollection<T, String> coll = JacksonDBCollection.wrap(dbCollection, documentClass,
-                    String.class);
-            
-            final String uuid = document.getUuid();
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            //TODO do we want here this stuff?
+//            DBObject uuidIndex = new BasicDBObject("uuid", 1);
+//            dbCollection.createIndex(uuidIndex); //creates the index if it doesn't already exist
 
-            WriteResult<T, String> writeResult = coll.update(DBQuery.is("uuid", uuid),
-                    document,
-                    true,
-                    false,
-                    WriteConcern.ACKNOWLEDGED);
-            
+            final String uuid = (String) content.get("uuid");
 
-            return wasUpdate(writeResult) ?
-                    DocumentWritten.updated(document) :
-                    DocumentWritten.created(document);
-        } catch (MongoSocketException e) {
-            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
-        } catch (MongoTimeoutException e) {
+            Document document = new Document(content);
+            UpdateResult updateResult = dbCollection.replaceOne(Filters.eq("uuid", uuid), document, new UpdateOptions().upsert(true));
+            if (updateResult.getUpsertedId() == null) {
+                return DocumentWritten.updated(document);
+            }
+
+            return DocumentWritten.created(document);
+
+        } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         }
     }
-    
-    private <T extends Document> boolean wasUpdate(WriteResult<T, String> writeResult) {
-        return writeResult.getWriteResult().isUpdateOfExisting();
-    }
-    
-    private <T extends Document> boolean wasDelete(WriteResult<T, String> writeResult) {
-        return writeResult.getN() > 0? true: false;
-    }
+
 
 }
