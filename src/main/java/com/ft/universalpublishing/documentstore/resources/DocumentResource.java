@@ -37,29 +37,23 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 
 @Path("/")
-public class DocumentResource {
-
-    private static final String CONTENT_COLLECTION = "content";
+public class DocumentResource extends AbstractResource {
 
     private static final String LISTS_COLLECTION = "lists";
 
-    private static final String CHARSET_UTF_8 = ";charset=utf-8";
-    
 	private final DocumentStoreService documentStoreService;
 	
 	private ContentDocumentValidator contentDocumentValidator;
 	private ContentListDocumentValidator contentListDocumentValidator;
-	private UuidValidator uuidValidator;
 
     public DocumentResource(DocumentStoreService documentStoreService,
                             ContentDocumentValidator contentDocumentValidator,
                             ContentListDocumentValidator contentListDocumentValidator,
-                            UuidValidator uuidValidator
-                            ) {
+                            UuidValidator uuidValidator) {
+        super(documentStoreService, uuidValidator);
     	this.documentStoreService = documentStoreService;
     	this.contentDocumentValidator = contentDocumentValidator;
     	this.contentListDocumentValidator = contentListDocumentValidator;
-        this.uuidValidator = uuidValidator;
 	}
 
 	@GET
@@ -78,19 +72,6 @@ public class DocumentResource {
     public final Document getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
         validateUuid(uuidString);
         return findResourceByUuid(LISTS_COLLECTION, uuidString, ContentList.class);
-    }
-
-    private <T extends Document> T findResourceByUuid(String resourceType, String uuidString, Class<T> documentClass) {
-        try {
-            final T foundDocument = documentStoreService.findByUuid(resourceType, UUID.fromString(uuidString), documentClass);
-            if (foundDocument!= null) {
-                return foundDocument;
-            } else {
-                throw ClientError.status(404).error("Requested item does not exist").exception();
-            }
-        } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(503).error("upstream system unavailable").exception(esue);
-        }
     }
     
     @PUT
@@ -198,14 +179,6 @@ public class DocumentResource {
     public Response deleteList(@PathParam("uuidString") String uuidString, @Context UriInfo uriInfo) {
         validateUuid(uuidString);
         return delete(LISTS_COLLECTION, uuidString, ContentList.class);
-    }
-
-    private void validateUuid(String uuidString) {
-        try {
-            uuidValidator.validate(uuidString);
-        } catch (ValidationException validationException) {
-            throw ClientError.status(400).error(validationException.getMessage()).exception();
-        }
     }
 
     private <T extends Document> Response delete(String resourceType, String uuidString, Class<T> documentClass) {
