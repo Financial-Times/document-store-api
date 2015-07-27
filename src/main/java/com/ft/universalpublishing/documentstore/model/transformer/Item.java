@@ -1,13 +1,16 @@
 package com.ft.universalpublishing.documentstore.model.transformer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+
+import javax.validation.constraints.NotNull;
 
 public class Item {
 
     private String uuid;
 
-    public Item(String uuid) {
+    public Item(@JsonProperty("uuid") String uuid) {
         this.uuid = uuid;
     }
 
@@ -15,6 +18,7 @@ public class Item {
         this.uuid = uuid;
     }
 
+    @NotNull
     public String getUuid() {
         return uuid;
     }
