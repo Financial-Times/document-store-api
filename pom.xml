@@ -29,7 +29,6 @@
         <mockito-core.version>1.9.5</mockito-core.version>
         <fongo.version>1.6.1</fongo.version>
         <jersey-version>1.18.1</jersey-version>
-        <ft.content-model.version>0.1.23</ft.content-model.version>
         <mongo.driver.version>2.12.5</mongo.driver.version>
         <jongo.version>1.1</jongo.version>
         <hamcrest.version>1.2</hamcrest.version>
@@ -114,21 +113,6 @@
             <groupId>com.ft.ws.lib</groupId>
             <artifactId>ft-jackson-date-serialization</artifactId>
             <version>${jackson.date.serialization.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ft</groupId>
-            <artifactId>content-model</artifactId>
-            <version>${ft.content-model.version}</version>
-            <exclusions>
-            	<exclusion>
-            		<artifactId>hibernate-validator</artifactId>
-            		<groupId>org.hibernate</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jackson-annotations</artifactId>
-            		<groupId>com.fasterxml.jackson.core</groupId>
-            	</exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
