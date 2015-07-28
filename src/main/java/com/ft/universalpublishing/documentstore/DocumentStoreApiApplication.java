@@ -18,6 +18,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 import javax.servlet.DispatcherType;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -50,6 +51,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());
 
+        documentStoreService.applyIndexes(Arrays.asList(DocumentResource.CONTENT_COLLECTION,
+                DocumentResource.LISTS_COLLECTION));
     }
 
     private MongoClient getMongoClient(MongoConfig config) {
@@ -63,5 +66,4 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
             return new MongoClient(mongoServers);
         }
     }
-
 }

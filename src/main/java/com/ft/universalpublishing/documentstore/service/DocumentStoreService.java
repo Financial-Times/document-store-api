@@ -1,9 +1,9 @@
 package com.ft.universalpublishing.documentstore.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 
 public interface DocumentStoreService {
@@ -14,4 +14,5 @@ public interface DocumentStoreService {
 
     void delete(String resourceType, UUID fromString);
 
+    void applyIndexes(final List<String> collectionNames);
 }

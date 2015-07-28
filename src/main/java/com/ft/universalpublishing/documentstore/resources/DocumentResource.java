@@ -34,8 +34,8 @@ import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
-    protected static final String CONTENT_COLLECTION = "content";
-    private static final String LISTS_COLLECTION = "lists";
+    public static final String CONTENT_COLLECTION = "content";
+    public static final String LISTS_COLLECTION = "lists";
 	
 	private ContentListDocumentValidator contentListDocumentValidator;
     private DocumentStoreService documentStoreService;
