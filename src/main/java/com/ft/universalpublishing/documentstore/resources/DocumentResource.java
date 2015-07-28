@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
@@ -39,15 +40,17 @@ public class DocumentResource {
 	private ContentListDocumentValidator contentListDocumentValidator;
     private DocumentStoreService documentStoreService;
     private UuidValidator uuidValidator;
+    private String apiPath;
 
     public DocumentResource(DocumentStoreService documentStoreService,
                             ContentListDocumentValidator contentListDocumentValidator,
-                            UuidValidator uuidValidator) {
+                            UuidValidator uuidValidator, String apiPath) {
         this.documentStoreService = documentStoreService;
         this.uuidValidator = uuidValidator;
         this.documentStoreService = documentStoreService;
     	this.contentListDocumentValidator = contentListDocumentValidator;
-	}
+        this.apiPath = apiPath;
+    }
 
 	@GET
     @Timed
@@ -62,9 +65,14 @@ public class DocumentResource {
     @Timed
     @Path("/lists/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final Map<String, Object> getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+    public final ContentList getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
         validateUuid(uuidString);
-        return findResourceByUuid(LISTS_COLLECTION, uuidString);
+        Map<String, Object> contentMap = findResourceByUuid(LISTS_COLLECTION, uuidString);
+        ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
+        contentList.addIds();
+        contentList.addApiUrls(apiPath);
+        contentList.removePrivateFields();
+        return contentList;
     }
     
     @PUT
@@ -86,7 +94,12 @@ public class DocumentResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeLists(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap, @Context UriInfo uriInfo) {
         validateUuid(uuidString);
-
+        try {
+            ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
+            contentListDocumentValidator.validate(uuidString, contentList);
+        } catch (ValidationException | IllegalArgumentException e) {
+            throw ClientError.status(400).error(e.getMessage()).exception();
+        }
         return writeDocument(LISTS_COLLECTION, contentMap, uriInfo);
     
     }
@@ -152,6 +165,7 @@ public class DocumentResource {
         try {
             final Map<String, Object> foundDocument = documentStoreService.findByUuid(resourceType, UUID.fromString(uuid));
             if (foundDocument!= null) {
+                foundDocument.remove("_id");
                 return foundDocument;
             } else {
                 throw ClientError.status(404).error("Requested item does not exist").exception();

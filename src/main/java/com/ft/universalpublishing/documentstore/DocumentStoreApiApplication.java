@@ -42,11 +42,11 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final MongoClient mongoClient = getMongoClient(configuration.getMongo());
         MongoDatabase database = mongoClient.getDatabase(configuration.getMongo().getDb());
 
-        final DocumentStoreService documentStoreService = new MongoDocumentStoreService(database, configuration.getApiPath());
+        final DocumentStoreService documentStoreService = new MongoDocumentStoreService(database);
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(uuidValidator);
 
-        environment.jersey().register(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator));
+        environment.jersey().register(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, configuration.getApiPath()));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());
 

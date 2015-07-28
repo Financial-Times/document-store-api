@@ -22,11 +22,9 @@ import java.util.UUID;
 public class MongoDocumentStoreService implements DocumentStoreService {
 
     private MongoDatabase db;
-    private String apiPath;
 
-    public MongoDocumentStoreService(MongoDatabase db, String apiPath) {
+    public MongoDocumentStoreService(MongoDatabase db) {
         this.db = db;
-        this.apiPath = apiPath;
     }
 
     @Override
