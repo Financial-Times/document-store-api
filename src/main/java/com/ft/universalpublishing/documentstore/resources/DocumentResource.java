@@ -25,7 +25,6 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavaila
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.Document;
-import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -64,11 +63,12 @@ public class DocumentResource {
 
     @GET
     @Timed
-    @Path("/content-read/{uuidString}")
+    @Path("/content-read/{uuid}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final Content getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
-        validateUuid(uuidString);
-        return findResourceByUuid(CONTENT_COLLECTION, uuidString);
+    public final com.ft.universalpublishing.documentstore.model.read.Content getContentReadByUuid(@PathParam("uuid") String uuid) {
+        validateUuid(uuid);
+        final Map<String, Object> resource = findResourceByUuid(CONTENT_COLLECTION, uuid);
+        return new ObjectMapper().convertValue(resource, com.ft.universalpublishing.documentstore.model.read.Content.class);
     }
     
     @GET

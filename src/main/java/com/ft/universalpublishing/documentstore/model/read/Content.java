@@ -9,7 +9,7 @@ import org.joda.time.DateTime;
 import java.util.Set;
 import java.util.SortedSet;
 
-@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations", "mainImage", "comments"})
 public class Content {
 
@@ -21,15 +21,47 @@ public class Content {
 	private String description;
 	private DateTime publishedDate;
 	private SortedSet<Identifier> identifiers;
-	private SortedSet<UriResult> members;
+	private SortedSet<Uri> members;
 	private String requestUrl;
 	private String binaryUrl;
 	private SortedSet<String> brands;
 	private Set<Annotation> annotations;
-    private UriResult mainImage;
+    private Uri mainImage;
     private Comments comments;
 
     public Content() {
+    }
+
+    public Content(@JsonProperty("id") String id,
+                   @JsonProperty("type") String type,
+                   @JsonProperty("bodyXml") String bodyXml,
+                   @JsonProperty("title") String title,
+                   @JsonProperty("byline") String byline,
+                   @JsonProperty("description") String description,
+                   @JsonProperty("publishedDate") DateTime publishedDate,
+                   @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
+                   @JsonProperty("members") SortedSet<Uri> members,
+                   @JsonProperty("requestUrl") String requestUrl,
+                   @JsonProperty("binaryUrl") String binaryUrl,
+                   @JsonProperty("brands") SortedSet<String> brands,
+                   @JsonProperty("annotations") Set<Annotation> annotations,
+                   @JsonProperty("mainImage") Uri mainImage,
+                   @JsonProperty("comments") Comments comments) {
+        this.id = id;
+        this.type = type;
+        this.bodyXml = bodyXml;
+        this.title = title;
+        this.byline = byline;
+        this.description = description;
+        this.publishedDate = publishedDate;
+        this.identifiers = identifiers;
+        this.members = members;
+        this.requestUrl = requestUrl;
+        this.binaryUrl = binaryUrl;
+        this.brands = brands;
+        this.annotations = annotations;
+        this.mainImage = mainImage;
+        this.comments = comments;
     }
 
     public String getId() {
@@ -48,7 +80,6 @@ public class Content {
 		this.type = type;
 	}
 
-	@JsonProperty("bodyXML")
 	public String getBodyXml() {
 		return bodyXml;
 	}
@@ -98,11 +129,11 @@ public class Content {
 		return brands;
 	}
 
-    public Set<AnnotationResult> getAnnotations() {
+    public Set<Annotation> getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(Set<AnnotationResult> annotations) {
+    public void setAnnotations(Set<Annotation> annotations) {
         this.annotations = annotations;
     }
 
@@ -122,11 +153,11 @@ public class Content {
 		this.identifiers = identifiers;
 	}
 
-	public SortedSet<UriResult> getMembers() {
+	public SortedSet<Uri> getMembers() {
 		return members;
 	}
 
-	public void setMembers(SortedSet<UriResult> members) {
+	public void setMembers(SortedSet<Uri> members) {
 		this.members = members;
 	}
 
@@ -138,19 +169,127 @@ public class Content {
 		this.binaryUrl = binaryUrl;
 	}
 
-    public UriResult getMainImage() {
+    public Uri getMainImage() {
         return mainImage;
     }
 
-    public void setMainImage(UriResult mainImage) {
+    public void setMainImage(Uri mainImage) {
         this.mainImage = mainImage;
     }
 
-    public CommentsResult getComments() {
+    public Comments getComments() {
         return comments;
     }
 
-    public void setComments(CommentsResult comments) {
+    public void setComments(Comments comments) {
         this.comments = comments;
+    }
+
+    public static class Builder {
+
+        private String id;
+        private String type;
+        private String bodyXml;
+        private String title;
+        private String byline;
+        private String description;
+        private DateTime publishedDate;
+        private SortedSet<Identifier> identifiers;
+        private SortedSet<Uri> members;
+        private String requestUrl;
+        private String binaryUrl;
+        private SortedSet<String> brands;
+        private Set<Annotation> annotations;
+        private Uri mainImage;
+        private Comments comments;
+
+        public Builder withUuid(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withType(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder withBodyXml(String bodyXml) {
+            this.bodyXml = bodyXml;
+            return this;
+        }
+
+        public Builder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder withByline(String byline) {
+            this.byline = byline;
+            return this;
+        }
+
+        public Builder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder withPublishedDate(DateTime publishedDate) {
+            this.publishedDate = publishedDate;
+            return this;
+        }
+
+        public Builder withIdentifiers(SortedSet<Identifier> identifiers) {
+            this.identifiers = identifiers;
+            return this;
+        }
+
+        public Builder withMembers(SortedSet<Uri> members) {
+            this.members = members;
+            return this;
+        }
+
+        public Builder withRequestUrl(String requestUrl) {
+            this.requestUrl = requestUrl;
+            return this;
+        }
+
+        public Builder withBrands(SortedSet<String> brands) {
+            this.brands = brands;
+            return this;
+        }
+
+        public Builder withAnnotations(Set<Annotation> annotations) {
+            this.annotations = annotations;
+            return this;
+        }
+
+        public Builder withMainImage(Uri mainImage) {
+            this.mainImage = mainImage;
+            return this;
+        }
+
+        public Builder withComments(Comments comments) {
+            this.comments = comments;
+            return this;
+        }
+
+        public Content build() {
+            return new Content(id,
+                    type,
+                    bodyXml,
+                    title,
+                    byline,
+                    description,
+                    publishedDate,
+                    identifiers,
+                    members,
+                    requestUrl,
+                    binaryUrl,
+                    brands,
+                    annotations,
+                    mainImage,
+                    comments
+            );
+        }
     }
 }

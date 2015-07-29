@@ -3,9 +3,6 @@ package com.ft.universalpublishing.documentstore.model.read;
 public class Comments {
     private boolean enabled;
 
-    /**
-     * Needed for Jackson
-     */
     public Comments() {
     }
 
@@ -25,11 +22,8 @@ public class Comments {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        CommentsResult that = (CommentsResult) o;
-
+        Comments that = (Comments) o;
         return enabled == that.enabled;
-
     }
 
     @Override

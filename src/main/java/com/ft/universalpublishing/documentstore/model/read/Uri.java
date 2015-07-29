@@ -2,17 +2,14 @@ package com.ft.universalpublishing.documentstore.model.read;
 
 import com.google.common.collect.ComparisonChain;
 
-public class UriResult implements Comparable<UriResult> {
+public class Uri implements Comparable<Uri> {
     private String id;
 
-    public UriResult(String id) {
+    public Uri(String id) {
         this.id = id;
     }
 
-    /**
-     * Needed for Jackson
-     */
-    public UriResult() {
+    public Uri() {
     }
 
     public String getId() {
@@ -27,11 +24,8 @@ public class UriResult implements Comparable<UriResult> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        UriResult uriResult = (UriResult) o;
-
-        return !(id != null ? !id.equals(uriResult.id) : uriResult.id != null);
-
+        Uri uri = (Uri) o;
+        return !(id != null ? !id.equals(uri.id) : uri.id != null);
     }
 
     @Override
@@ -40,7 +34,7 @@ public class UriResult implements Comparable<UriResult> {
     }
 
     @Override
-    public int compareTo(UriResult that) {
+    public int compareTo(Uri that) {
         return ComparisonChain.start().compare(this.id, that.id).result();
     }
 }
