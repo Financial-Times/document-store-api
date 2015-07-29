@@ -203,7 +203,7 @@ public class Content {
         private Uri mainImage;
         private Comments comments;
 
-        public Builder withUuid(String id) {
+        public Builder withId(String id) {
             this.id = id;
             return this;
         }
