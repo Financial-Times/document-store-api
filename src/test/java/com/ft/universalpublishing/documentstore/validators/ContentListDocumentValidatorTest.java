@@ -3,6 +3,7 @@ package com.ft.universalpublishing.documentstore.validators;
 import java.util.List;
 import java.util.UUID;
 
+import com.ft.universalpublishing.documentstore.model.ListItem;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,7 +11,6 @@ import org.junit.rules.ExpectedException;
 
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.google.common.collect.ImmutableList;
 
 

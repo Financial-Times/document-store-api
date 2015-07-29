@@ -5,27 +5,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.model.ListItem;
-import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-import com.github.fakemongo.Fongo;
-import com.google.common.collect.ImmutableList;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-
 public class MongoDocumentStoreContentListServiceTest {
     
 //    private static final String API_URL_PREFIX_CONTENT = "http://api.ft.com/content/";

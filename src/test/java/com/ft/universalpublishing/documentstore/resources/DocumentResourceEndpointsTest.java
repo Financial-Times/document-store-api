@@ -1,47 +1,15 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import io.dropwizard.testing.junit.ResourceTestRule;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import javax.ws.rs.core.MediaType;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.model.Document;
-import com.ft.universalpublishing.documentstore.model.ListItem;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
-import com.ft.universalpublishing.documentstore.validators.DocumentValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.collect.ImmutableList;
-import com.sun.jersey.api.client.ClientResponse;
 
 @RunWith(Parameterized.class)
 public class DocumentResourceEndpointsTest {
