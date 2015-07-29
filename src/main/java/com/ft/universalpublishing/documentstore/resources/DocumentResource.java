@@ -24,7 +24,10 @@ import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundExcept
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
+import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.Document;
+import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -41,15 +44,18 @@ public class DocumentResource {
     private DocumentStoreService documentStoreService;
     private UuidValidator uuidValidator;
     private String apiPath;
+    private final ContentMapper contentMapper;
 
     public DocumentResource(DocumentStoreService documentStoreService,
                             ContentListDocumentValidator contentListDocumentValidator,
-                            UuidValidator uuidValidator, String apiPath) {
+                            UuidValidator uuidValidator,
+                            String apiPath,
+                            final ContentMapper contentMapper) {
         this.documentStoreService = documentStoreService;
         this.uuidValidator = uuidValidator;
-        this.documentStoreService = documentStoreService;
     	this.contentListDocumentValidator = contentListDocumentValidator;
         this.apiPath = apiPath;
+        this.contentMapper = contentMapper;
     }
 
 	@GET
@@ -68,7 +74,8 @@ public class DocumentResource {
     public final com.ft.universalpublishing.documentstore.model.read.Content getContentReadByUuid(@PathParam("uuid") String uuid) {
         validateUuid(uuid);
         final Map<String, Object> resource = findResourceByUuid(CONTENT_COLLECTION, uuid);
-        return new ObjectMapper().convertValue(resource, com.ft.universalpublishing.documentstore.model.read.Content.class);
+        final Content content = new ObjectMapper().convertValue(resource, Content.class);
+        return contentMapper.map(content);
     }
     
     @GET

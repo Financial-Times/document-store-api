@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.model;
 
 import com.ft.universalpublishing.documentstore.model.read.Comments;
+import com.ft.universalpublishing.documentstore.model.read.Content.Builder;
 import com.ft.universalpublishing.documentstore.model.read.Uri;
 import com.ft.universalpublishing.documentstore.model.transformer.Brand;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
@@ -22,20 +23,32 @@ public class ContentMapper {
     }
 
     public com.ft.universalpublishing.documentstore.model.read.Content map(Content source) {
-        return new com.ft.universalpublishing.documentstore.model.read.Content.Builder()
+        Builder builder = new Builder()
                 .withId(THING + source.getUuid())
-                .withType(API_URL_PREFIX + source.getMediaType())
                 .withTitle(source.getTitle())
                 .withDescription(source.getDescription())
                 .withBodyXml(source.getBody())
                 .withByline(source.getByline())
-                .withBrands(source.getBrands().stream().map(Brand::getId).collect(Collectors.toCollection(TreeSet::new)))
                 .withPublishedDate(new DateTime(source.getPublishedDate().getTime()))
-                .withIdentifiers(source.getIdentifiers().stream().map(identifierMapper::map).collect(Collectors.toCollection(TreeSet::new)))
-                .withMembers(source.getMembers().stream().map(member -> new Uri(member.getUuid())).collect(Collectors.toCollection(TreeSet::new)))
-                .withRequestUrl(API_URL_PREFIX + source.getUuid())
-                .withMainImage(new Uri(source.getMainImage()))
-                .withComments(new Comments(source.getComments().isEnabled()))
-                .build();
+                .withRequestUrl(API_URL_PREFIX + source.getUuid());
+        if (source.getMediaType() != null) {
+            builder = builder.withType(TYPE_PREFIX + source.getMediaType());
+        }
+        if (source.getBrands() != null) {
+            builder = builder.withBrands(source.getBrands().stream().map(Brand::getId).collect(Collectors.toCollection(TreeSet::new)));
+        }
+        if (source.getIdentifiers() != null) {
+            builder = builder.withIdentifiers(source.getIdentifiers().stream().map(identifierMapper::map).collect(Collectors.toCollection(TreeSet::new)));
+        }
+        if (source.getMembers() != null) {
+            builder = builder.withMembers(source.getMembers().stream().map(member -> new Uri(member.getUuid())).collect(Collectors.toCollection(TreeSet::new)));
+        }
+        if (source.getMainImage() != null) {
+            builder = builder.withMainImage(new Uri(source.getMainImage()));
+        }
+        if (source.getComments() != null) {
+            builder = builder.withComments(new Comments(source.getComments().isEnabled()));
+        }
+        return builder.build();
     }
 }
