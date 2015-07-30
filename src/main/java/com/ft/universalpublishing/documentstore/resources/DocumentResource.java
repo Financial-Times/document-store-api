@@ -68,13 +68,21 @@ public class DocumentResource {
     public final ContentList getListsByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
         validateUuid(uuidString);
         Map<String, Object> contentMap = findResourceByUuid(LISTS_COLLECTION, uuidString);
+        try {
+            return convertToContentList(contentMap);
+        } catch (IllegalArgumentException e) {
+            throw ClientError.status(500).error(e.getMessage()).exception();
+        }
+    }
+
+    protected ContentList convertToContentList(Map<String, Object> contentMap) {
         ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
         contentList.addIds();
         contentList.addApiUrls(apiPath);
         contentList.removePrivateFields();
         return contentList;
     }
-    
+
     @PUT
     @Timed
     @Path("/content/{uuidString}")
