@@ -19,7 +19,7 @@ public class ContentMapper {
     final IdentifierMapper identifierMapper;
 
     public ContentMapper(final IdentifierMapper identifierMapper) {
-        this.identifierMapper = new IdentifierMapper();
+        this.identifierMapper = identifierMapper;
     }
 
     public com.ft.universalpublishing.documentstore.model.read.Content map(Content source) {
