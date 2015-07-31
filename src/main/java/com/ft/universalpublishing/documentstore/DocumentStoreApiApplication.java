@@ -7,6 +7,7 @@ import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.mongo.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -50,7 +51,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(uuidValidator);
 
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper());
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver());
         environment.jersey().register(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, configuration.getApiPath(), contentMapper));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());

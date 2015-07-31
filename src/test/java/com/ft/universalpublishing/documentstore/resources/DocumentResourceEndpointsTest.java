@@ -6,6 +6,7 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavaila
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -102,7 +103,7 @@ public class DocumentResourceEndpointsTest {
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, API_URL_PREFIX_CONTENT,
-                    new ContentMapper(new IdentifierMapper())))
+                    new ContentMapper(new IdentifierMapper(), new TypeResolver())))
             .build();
 
     @Before

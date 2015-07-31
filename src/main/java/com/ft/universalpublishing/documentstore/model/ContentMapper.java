@@ -13,27 +13,27 @@ import java.util.stream.Collectors;
 public class ContentMapper {
 
     public static final String THING = "http://www.ft.com/thing/";
-    public static final String TYPE_PREFIX = "http://www.ft.com/ontology/content/";
     public static final String API_URL_PREFIX = "http://int.api.ft.com/";
 
-    final IdentifierMapper identifierMapper;
+    private final IdentifierMapper identifierMapper;
+    private final TypeResolver typeResolver;
 
-    public ContentMapper(final IdentifierMapper identifierMapper) {
+    public ContentMapper(final IdentifierMapper identifierMapper,
+                         final TypeResolver typeResolver) {
         this.identifierMapper = identifierMapper;
+        this.typeResolver = typeResolver;
     }
 
-    public com.ft.universalpublishing.documentstore.model.read.Content map(Content source) {
+    public com.ft.universalpublishing.documentstore.model.read.Content map(final Content source) {
         Builder builder = new Builder()
                 .withId(THING + source.getUuid())
+                .withType(typeResolver.resolveType(source))
                 .withTitle(source.getTitle())
                 .withDescription(source.getDescription())
                 .withBodyXml(source.getBody())
                 .withByline(source.getByline())
                 .withPublishedDate(new DateTime(source.getPublishedDate().getTime()))
                 .withRequestUrl(API_URL_PREFIX + source.getUuid());
-        if (source.getMediaType() != null) {
-            builder = builder.withType(TYPE_PREFIX + source.getMediaType());
-        }
         if (source.getBrands() != null) {
             builder = builder.withBrands(source.getBrands().stream().map(Brand::getId).collect(Collectors.toCollection(TreeSet::new)));
         }

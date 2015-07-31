@@ -2,6 +2,7 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
@@ -25,7 +26,7 @@ public class DocumentResourceTest {
     public void test() {
         final DocumentStoreService mockStore = mock(DocumentStoreService.class);
         final ContentListDocumentValidator mockValidator = mock(ContentListDocumentValidator.class);
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper());
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver());
         final DocumentResource resource = new DocumentResource(mockStore, mockValidator, new UuidValidator(), "api.ft.com/", contentMapper);
 
         final UUID uuid = UUID.randomUUID();

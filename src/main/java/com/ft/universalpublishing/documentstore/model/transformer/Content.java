@@ -261,7 +261,7 @@ public class Content {
             return this;
         }
 
-        public Builder withXmlBody(String body) {
+        public Builder withBody(String body) {
             this.body = body;
             return this;
         }
@@ -329,7 +329,7 @@ public class Content {
                     .withIdentifiers(content.getIdentifiers())
                     .withUuid(UUID.fromString(content.getUuid()))
                     .withPublishedDate(content.getPublishedDate())
-                    .withXmlBody(content.getBody())
+                    .withBody(content.getBody())
                     .withDescription(content.getDescription())
                     .withMediaType(content.getMediaType())
                     .withPixelWidth(content.getPixelWidth())
