@@ -22,18 +22,18 @@ public class ContentMapperTest {
 
     @Test
     public void testContentMaping() throws Exception {
+        final UUID uuid = UUID.randomUUID();
+        final Date publishDate = new Date();
+        final SortedSet<Identifier> identifiers = new TreeSet<>();
+        identifiers.add(new Identifier("authority1", "identifier1"));
         final SortedSet<Brand> brands = new TreeSet<>();
         brands.add(new Brand("Lex"));
         brands.add(new Brand("Chuck Taylor"));
-        final SortedSet<Identifier> identifiers = new TreeSet<>();
-        identifiers.add(new Identifier("authority1", "identifier1"));
-        final UUID uuid = UUID.randomUUID();
         final UUID mainImageUuid = UUID.randomUUID();
-        final Date date = new Date();
         final Content content = Content.builder()
                 .withUuid(uuid)
                 .withTitle("Philosopher")
-                .withPublishedDate(date)
+                .withPublishedDate(publishDate)
                 .withBody("Why did the chicken cross the street?")
                 .withByline("David Jules")
                 .withBrands(brands)
@@ -46,10 +46,11 @@ public class ContentMapperTest {
 
         assertThat(readContent.getId(), equalTo("http://www.ft.com/thing/" + uuid.toString()));
         assertThat(readContent.getTitle(), equalTo("Philosopher"));
-        assertThat(readContent.getPublishedDate(), equalTo(new DateTime(date.getTime())));
+        assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));
         assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_ARTICLE));
         assertThat(readContent.getBodyXml(), equalTo("Why did the chicken cross the street?"));
         assertThat(readContent.getByline(), equalTo("David Jules"));
+        assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         final SortedSet<String> expectedBrands = new TreeSet<>();
         expectedBrands.add("Lex");
         expectedBrands.add("Chuck Taylor");
@@ -58,19 +59,31 @@ public class ContentMapperTest {
         assertThat(readContent.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
     }
 
+    @Test
     public void testImageMapping() throws Exception {
+        final UUID uuid = UUID.randomUUID();
+        final Date publishDate = new Date();
         final SortedSet<Identifier> identifiers = new TreeSet<>();
         identifiers.add(new Identifier("authority1", "identifier1"));
-
-        final UUID uuid = UUID.randomUUID();
-
-        Content.builder()
+        final Content content = Content.builder()
                 .withUuid(uuid)
                 .withTitle("Philosopher")
+                .withPublishedDate(publishDate)
                 .withDescription("A question.")
                 .withByline("David Jules")
                 .withInternalBinaryUrl("http://methode-image-binary-transformer/binary/" + uuid.toString())
                 .withExternalBinaryUrl("http://ft.s3.aws/" + uuid.toString())
-                .withIdentifiers(identifiers);
+                .withIdentifiers(identifiers)
+                .build();
+
+        final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
+
+        assertThat(readContent.getId(), equalTo("http://www.ft.com/thing/" + uuid.toString()));
+        assertThat(readContent.getTitle(), equalTo("Philosopher"));
+        assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
+        assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_MEDIA_RESOURCE));
+        assertThat(readContent.getByline(), equalTo("David Jules"));
+        assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
+        assertThat(readContent.getBinaryUrl() , equalTo("http://ft.s3.aws/" + uuid.toString()));
     }
 }

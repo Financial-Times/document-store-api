@@ -218,6 +218,11 @@ public class Content {
             return this;
         }
 
+        public Builder withBinaryUrl(String binaryUrl) {
+            this.binaryUrl = binaryUrl;
+            return this;
+        }
+
         public Builder withTitle(String title) {
             this.title = title;
             return this;

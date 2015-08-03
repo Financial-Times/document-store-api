@@ -46,6 +46,9 @@ public class ContentMapper {
         if (source.getMainImage() != null) {
             builder = builder.withMainImage(new Uri(source.getMainImage()));
         }
+        if (source.getExternalBinaryUrl() != null) {
+            builder = builder.withBinaryUrl(source.getExternalBinaryUrl());
+        }
         if (source.getComments() != null) {
             builder = builder.withComments(new Comments(source.getComments().isEnabled()));
         }
