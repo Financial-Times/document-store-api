@@ -5,6 +5,7 @@ import com.ft.universalpublishing.documentstore.model.transformer.Brand;
 import com.ft.universalpublishing.documentstore.model.transformer.Comments;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import com.ft.universalpublishing.documentstore.model.transformer.Identifier;
+import com.ft.universalpublishing.documentstore.model.transformer.Member;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -85,5 +86,35 @@ public class ContentMapperTest {
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         assertThat(readContent.getBinaryUrl() , equalTo("http://ft.s3.aws/" + uuid.toString()));
+    }
+
+    @Test
+    public void testImageSetMapping() throws Exception {
+        final UUID uuid = UUID.randomUUID();
+        final Date publishDate = new Date();
+        final SortedSet<Identifier> identifiers = new TreeSet<>();
+        identifiers.add(new Identifier("authority1", "identifier1"));
+        final SortedSet<Member> members = new TreeSet<>();
+        final UUID memberUuid = UUID.randomUUID();
+        members.add(new Member(memberUuid.toString()));
+        final Content content = Content.builder()
+                .withUuid(uuid)
+                .withTitle("Philosopher")
+                .withPublishedDate(publishDate)
+                .withDescription("A question.")
+                .withByline("David Jules")
+                .withMembers(members)
+                .withIdentifiers(identifiers)
+                .build();
+
+        final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
+
+        assertThat(readContent.getId(), equalTo("http://www.ft.com/thing/" + uuid.toString()));
+        assertThat(readContent.getTitle(), equalTo("Philosopher"));
+        assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
+        assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_IMAGE_SET));
+        assertThat(readContent.getByline(), equalTo("David Jules"));
+        assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
+        assertThat(readContent.getMembers().first(), equalTo(new Uri(memberUuid.toString())));
     }
 }
