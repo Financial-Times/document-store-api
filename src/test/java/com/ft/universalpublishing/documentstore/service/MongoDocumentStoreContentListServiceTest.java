@@ -1,11 +1,10 @@
-package com.ft.universalpublishing.documentstore.mongo;
+package com.ft.universalpublishing.documentstore.service;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,7 +29,6 @@ import com.github.fakemongo.Fongo;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 public class MongoDocumentStoreContentListServiceTest {
     

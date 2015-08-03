@@ -1,4 +1,4 @@
-package com.ft.universalpublishing.documentstore.mongo;
+package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
