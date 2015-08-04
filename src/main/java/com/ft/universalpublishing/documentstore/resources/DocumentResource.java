@@ -173,7 +173,7 @@ public class DocumentResource {
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("Service Unavailable").exception(esue);
         } catch (DocumentNotFoundException e){
-            return Response.status(404).build();
+            return Response.ok().build();
         }
     }
 

@@ -130,13 +130,13 @@ public class DocumentContentResourceEndpointTest {
     }
 
     @Test
-    public void shouldReturn404WhenDeletingNonExistentContentList() {
+    public void shouldReturn200WhenDeletingNonExistentContentList() {
         doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .delete(ClientResponse.class);
 
-        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
 
     @Test
