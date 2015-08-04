@@ -38,7 +38,7 @@ public class ContentMapperTest {
                 .withBody("Why did the chicken cross the street?")
                 .withByline("David Jules")
                 .withBrands(brands)
-                .withMainImage("http://api.ft.com/content/" + mainImageUuid.toString())
+                .withMainImage(mainImageUuid.toString())
                 .withIdentifiers(identifiers)
                 .withComments(new Comments(true))
                 .build();
@@ -56,7 +56,7 @@ public class ContentMapperTest {
         expectedBrands.add("Lex");
         expectedBrands.add("Chuck Taylor");
         assertThat(readContent.getBrands(), equalTo(expectedBrands));
-        assertThat(readContent.getMainImage(), equalTo(new Uri("http://api.ft.com/content/" + mainImageUuid.toString())));
+        assertThat(readContent.getMainImage(), equalTo(new Uri("http://localhost/content/" + mainImageUuid.toString())));
         assertThat(readContent.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
     }
 

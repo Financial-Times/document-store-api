@@ -46,7 +46,7 @@ public class ContentMapper {
             builder = builder.withMembers(source.getMembers().stream().map(member -> new Uri(member.getUuid())).collect(Collectors.toCollection(TreeSet::new)));
         }
         if (source.getMainImage() != null) {
-            builder = builder.withMainImage(new Uri(source.getMainImage()));
+            builder = builder.withMainImage(new Uri(apiUrlPrefix + source.getMainImage()));
         }
         if (source.getExternalBinaryUrl() != null) {
             builder = builder.withBinaryUrl(source.getExternalBinaryUrl());
