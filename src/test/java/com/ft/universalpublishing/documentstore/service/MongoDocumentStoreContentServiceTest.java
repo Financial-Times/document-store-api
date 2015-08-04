@@ -1,9 +1,11 @@
 package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
 import com.github.fakemongo.Fongo;
+import com.mongodb.MongoSocketException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -13,6 +15,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class MongoDocumentStoreContentServiceTest {
 
@@ -50,13 +54,13 @@ public class MongoDocumentStoreContentServiceTest {
         collection = db.getCollection("content");
         uuid = UUID.randomUUID();
         lastPublicationDate = new Date();
+
         content = new HashMap<>();
         content.put("uuid", uuid.toString());
         content.put("title", "Here is the news");
         content.put("byline", "By Bob Woodward");
         content.put("bodyXML", "xmlBody");
         content.put("publishedDate", lastPublicationDate);
-        collection = db.getCollection("content");
 
         outboundContent = new HashMap<>();
         outboundContent.put("uuid", uuid.toString());

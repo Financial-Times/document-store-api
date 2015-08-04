@@ -4,6 +4,7 @@ import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundExcept
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
@@ -31,7 +32,7 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             return dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
-        } catch (MongoSocketException | MongoTimeoutException e) {
+        } catch (MongoException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         }
     }
@@ -48,7 +49,7 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                 throw new DocumentNotFoundException(uuid);
             }
 
-        } catch (MongoSocketException | MongoTimeoutException e) {
+        } catch (MongoException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         }
     }
@@ -64,7 +65,7 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                 return DocumentWritten.updated(document);
             }
             return DocumentWritten.created(document);
-        } catch (MongoSocketException | MongoTimeoutException e) {
+        } catch (MongoException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         }
     }

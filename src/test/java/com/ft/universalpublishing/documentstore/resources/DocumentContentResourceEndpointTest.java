@@ -17,8 +17,6 @@ import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import javax.ws.rs.core.MediaType;
@@ -34,6 +32,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -42,35 +41,22 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(Parameterized.class)
-public class DocumentResourceEndpointsTest {
+public class DocumentContentResourceEndpointTest {
 
     private String uuid;
-    private String resourceType;
     private Document document;
     private String writePath;
-
     private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
+
     private final static ContentListDocumentValidator contentListDocumentValidator = mock(ContentListDocumentValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
     private static final String API_URL_PREFIX_CONTENT = "localhost";
+    private static final String RESOURCE_TYPE = "content";
 
-    public DocumentResourceEndpointsTest(String resourceType, Document document,
-            String uuid) {
-        this.resourceType = resourceType;
-        this.document = document;
-        this.uuid = uuid;
-        this.writePath = "/" + resourceType + "/" + uuid;
-    }
-
-    @Parameters
-    public static Collection<Object[]> documents() {
-        String uuid1 = UUID.randomUUID().toString();
-        String uuid2 = UUID.randomUUID().toString();
-        return Arrays.asList(new Object[][]{{"content", getContent(uuid1), uuid1}
-//                ,{"lists", getContentList(uuid2), uuid2}
-        });
-
+    public DocumentContentResourceEndpointTest() {
+        this.uuid = UUID.randomUUID().toString();
+        this.document = getContent(uuid);
+        this.writePath = "/" + RESOURCE_TYPE + "/" + uuid;
     }
 
     private static Document getContent(String uuid) {
@@ -83,23 +69,6 @@ public class DocumentResourceEndpointsTest {
         return new Document(content);
     }
 
-//    private static Document getContentList(String uuid) {
-//        String contentUuid1 = UUID.randomUUID().toString();
-//        String contentUuid2 = UUID.randomUUID().toString();
-//        ListItem contentItem1 = new ListItem();
-//        contentItem1.setUuid(contentUuid1);
-//        ListItem contentItem2 = new ListItem();
-//        contentItem2.setUuid(contentUuid2);
-//        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
-//
-//        return new Document(new ObjectMapper().convertValue(new ContentList.Builder()
-//                .withId("http://api.ft.com/thing/" + uuid)
-//                .withApiUrl("http://localhost/lists/" + uuid)
-//                .withUuid(UUID.fromString(uuid))
-//                .withItems(content)
-//                .build(), Map.class));
-//    }
-
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, API_URL_PREFIX_CONTENT,
@@ -111,7 +80,7 @@ public class DocumentResourceEndpointsTest {
         reset(documentStoreService);
         reset(contentListDocumentValidator);
         reset(uuidValidator);
-        when(documentStoreService.write(eq(resourceType), any(Map.class))).thenReturn(DocumentWritten.created(document));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.created(document));
     }
 
     //WRITE
@@ -120,12 +89,12 @@ public class DocumentResourceEndpointsTest {
     public void shouldReturn201ForNewDocument() {
         ClientResponse clientResponse = writeDocument(writePath, document);
         assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
-        verify(documentStoreService).write(eq(resourceType), any(Map.class));
+        verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class));
     }
 
     @Test
     public void shouldReturn200ForUpdatedContent() {
-        when(documentStoreService.write(eq(resourceType), any(Map.class))).thenReturn(DocumentWritten.updated(document));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.updated(document));
 
         ClientResponse clientResponse = writeDocument(writePath, document);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -142,7 +111,7 @@ public class DocumentResourceEndpointsTest {
 
     @Test
     public void shouldReturn503WhenCannotAccessExternalSystem() {
-        when(documentStoreService.write(eq(resourceType), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
 
         ClientResponse clientResponse = writeDocument(writePath, document);
 
@@ -162,7 +131,7 @@ public class DocumentResourceEndpointsTest {
 
     @Test
     public void shouldReturn404WhenDeletingNonExistentContentList() {
-        doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(resourceType), any(UUID.class));
+        doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .delete(ClientResponse.class);
@@ -182,7 +151,7 @@ public class DocumentResourceEndpointsTest {
 
     @Test
     public void shouldReturn503OnDeleteWhenMongoIsntReachable() {
-        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(resourceType), any(UUID.class));
+        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .delete(ClientResponse.class);
@@ -193,7 +162,7 @@ public class DocumentResourceEndpointsTest {
     //READ
     @Test
     public void shouldReturn200WhenReadSuccessfully() {
-        when(documentStoreService.findByUuid(eq(resourceType), any(UUID.class))).thenReturn(document);
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(document);
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);
 
@@ -204,7 +173,7 @@ public class DocumentResourceEndpointsTest {
 
     @Test
     public void shouldReturn404WhenContentNotFound() {
-        when(documentStoreService.findByUuid(eq(resourceType), any(UUID.class))).thenReturn(null);
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);
 
@@ -224,7 +193,7 @@ public class DocumentResourceEndpointsTest {
 
     @Test
     public void shouldReturn503OnReadWhenMongoIsntReachable() {
-        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(resourceType), any(UUID.class));
+        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class));
 
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .get(ClientResponse.class);
