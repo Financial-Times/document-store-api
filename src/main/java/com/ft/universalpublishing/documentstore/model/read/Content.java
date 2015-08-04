@@ -15,7 +15,7 @@ public class Content {
 
 	private String id;
 	private String type;
-	private String bodyXml;
+	private String bodyXML;
 	private String title;
 	private String byline;
 	private String description;
@@ -34,7 +34,7 @@ public class Content {
 
     public Content(@JsonProperty("id") String id,
                    @JsonProperty("type") String type,
-                   @JsonProperty("bodyXml") String bodyXml,
+                   @JsonProperty("bodyXML") String bodyXML,
                    @JsonProperty("title") String title,
                    @JsonProperty("byline") String byline,
                    @JsonProperty("description") String description,
@@ -49,7 +49,7 @@ public class Content {
                    @JsonProperty("comments") Comments comments) {
         this.id = id;
         this.type = type;
-        this.bodyXml = bodyXml;
+        this.bodyXML = bodyXML;
         this.title = title;
         this.byline = byline;
         this.description = description;
@@ -80,12 +80,12 @@ public class Content {
 		this.type = type;
 	}
 
-	public String getBodyXml() {
-		return bodyXml;
+	public String getBodyXML() {
+		return bodyXML;
 	}
 
-	public void setBodyXml(String bodyXml) {
-		this.bodyXml = bodyXml;
+	public void setBodyXML(String bodyXML) {
+		this.bodyXML = bodyXML;
 	}
 
 	public String getTitle() {
