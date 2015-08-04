@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ContentMapperTest {
 
-    private final ContentMapper mapper = new ContentMapper(new IdentifierMapper(), new TypeResolver());
+    private final ContentMapper mapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost");
 
     @Test
     public void testContentMaping() throws Exception {

@@ -13,15 +13,17 @@ import java.util.stream.Collectors;
 public class ContentMapper {
 
     public static final String THING = "http://www.ft.com/thing/";
-    public static final String API_URL_PREFIX = "http://int.api.ft.com/";
 
     private final IdentifierMapper identifierMapper;
     private final TypeResolver typeResolver;
+    private final String apiUrlPrefix;
 
     public ContentMapper(final IdentifierMapper identifierMapper,
-                         final TypeResolver typeResolver) {
+                         final TypeResolver typeResolver,
+                         final String apiHost) {
         this.identifierMapper = identifierMapper;
         this.typeResolver = typeResolver;
+        this.apiUrlPrefix = "http://" + apiHost + "/content/";
     }
 
     public com.ft.universalpublishing.documentstore.model.read.Content map(final Content source) {
@@ -33,7 +35,7 @@ public class ContentMapper {
                 .withBodyXml(source.getBody())
                 .withByline(source.getByline())
                 .withPublishedDate(new DateTime(source.getPublishedDate().getTime()))
-                .withRequestUrl(API_URL_PREFIX + source.getUuid());
+                .withRequestUrl(apiUrlPrefix + source.getUuid());
         if (source.getBrands() != null) {
             builder = builder.withBrands(source.getBrands().stream().map(Brand::getId).collect(Collectors.toCollection(TreeSet::new)));
         }

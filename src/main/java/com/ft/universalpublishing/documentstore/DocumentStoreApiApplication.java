@@ -50,8 +50,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(uuidValidator);
 
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver());
-        environment.jersey().register(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, configuration.getApiPath(), contentMapper));
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), configuration.getApiHost());
+        environment.jersey().register(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, configuration.getApiHost(), contentMapper));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());
 

@@ -72,7 +72,7 @@ public class DocumentContentResourceEndpointTest {
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, API_URL_PREFIX_CONTENT,
-                    new ContentMapper(new IdentifierMapper(), new TypeResolver())))
+                    new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost")))
             .build();
 
     @Before

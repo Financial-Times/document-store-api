@@ -26,7 +26,7 @@ public class DocumentResourceTest {
     public void test() {
         final DocumentStoreService mockStore = mock(DocumentStoreService.class);
         final ContentListDocumentValidator mockValidator = mock(ContentListDocumentValidator.class);
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver());
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost");
         final DocumentResource resource = new DocumentResource(mockStore, mockValidator, new UuidValidator(), "api.ft.com/", contentMapper);
 
         final UUID uuid = UUID.randomUUID();
