@@ -1,11 +1,9 @@
 package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
 import com.github.fakemongo.Fongo;
-import com.mongodb.MongoSocketException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -15,7 +13,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +23,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class MongoDocumentStoreContentServiceTest {
 
@@ -34,7 +30,6 @@ public class MongoDocumentStoreContentServiceTest {
 
     private Map<String, Object> content;
     private Map<String, Object> outboundContent;
-    private Fongo fongo;
 
     private MongoDocumentStoreService mongoDocumentStoreService;
 
@@ -48,7 +43,7 @@ public class MongoDocumentStoreContentServiceTest {
 
     @Before
     public void setup() {
-        fongo = new Fongo("embedded");
+        Fongo fongo = new Fongo("embedded");
         MongoDatabase db = fongo.getDatabase(DBNAME);
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
         collection = db.getCollection("content");

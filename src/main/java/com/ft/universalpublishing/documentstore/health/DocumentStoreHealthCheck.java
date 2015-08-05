@@ -2,8 +2,6 @@ package com.ft.universalpublishing.documentstore.health;
 
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
-import com.mongodb.CommandResult;
-import com.mongodb.DB;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;

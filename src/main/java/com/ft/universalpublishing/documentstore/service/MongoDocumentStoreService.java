@@ -2,11 +2,8 @@ package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
-import com.mongodb.MongoSocketException;
-import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -21,9 +18,9 @@ import java.util.UUID;
 
 public class MongoDocumentStoreService implements DocumentStoreService {
 
-    private MongoDatabase db;
+    private final MongoDatabase db;
 
-    public MongoDocumentStoreService(MongoDatabase db) {
+    public MongoDocumentStoreService(final MongoDatabase db) {
         this.db = db;
     }
 

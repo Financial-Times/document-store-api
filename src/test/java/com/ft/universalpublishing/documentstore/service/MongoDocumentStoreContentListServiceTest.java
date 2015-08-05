@@ -32,20 +32,13 @@ import com.mongodb.BasicDBObject;
 
 public class MongoDocumentStoreContentListServiceTest {
     
-    private static final String API_URL_PREFIX_CONTENT = "http://api.ft.com/content/";
-    private static final String API_URL_PREFIX_LIST = "http://api.ft.com/lists/";
-
-    private static final String THING_URL_PREFIX = "http://api.ft.com/thing/";
-
     private static final String DBNAME = "upp-store";
-
     private static final String WEBURL = "http://www.bbc.co.uk/";
 
     private MongoDocumentStoreService mongoDocumentStoreService;
 
     private UUID uuid;
     private String contentUuid1;
-
     private MongoCollection<Document> collection;
 
     @Rule

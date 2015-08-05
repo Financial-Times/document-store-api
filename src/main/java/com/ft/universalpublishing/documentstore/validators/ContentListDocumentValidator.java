@@ -17,22 +17,21 @@ public class ContentListDocumentValidator implements DocumentValidator {
 
     @Override
     public void validate(String uuidString, ContentList document) {
-        ContentList contentList = (ContentList) document;
-        if (contentList == null) {
+        if (document == null) {
             throw new ValidationException("list must be provided in request body");
         }
-        if (contentList.getUuid() == null || contentList.getUuid().isEmpty()) {
+        if (document.getUuid() == null || document.getUuid().isEmpty()) {
             throw new ValidationException("submitted list must provide a non-empty uuid");
         }
-        if (contentList.getTitle() == null || contentList.getTitle().isEmpty()) {
+        if (document.getTitle() == null || document.getTitle().isEmpty()) {
             throw new ValidationException("submitted list must provide a non-empty title");
         }
-        if (!uuidString.equals(contentList.getUuid())) {
-            String message = String.format("uuid in path %s is not equal to uuid in submitted list %s", uuidString, contentList.getUuid());
+        if (!uuidString.equals(document.getUuid())) {
+            String message = String.format("uuid in path %s is not equal to uuid in submitted list %s", uuidString, document.getUuid());
             throw new ValidationException(message);
 
         }
-        List<ListItem> items = contentList.getItems();
+        List<ListItem> items = document.getItems();
         if (items == null) {
             throw new ValidationException("submitted list should have an 'items' field");
         }

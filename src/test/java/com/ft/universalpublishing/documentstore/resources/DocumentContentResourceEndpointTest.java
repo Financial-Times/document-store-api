@@ -17,12 +17,9 @@ import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
 
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
