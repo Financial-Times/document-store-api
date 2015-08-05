@@ -1,9 +1,9 @@
 package com.ft.universalpublishing.documentstore.validators;
 
-import com.ft.universalpublishing.documentstore.model.Document;
+import com.ft.universalpublishing.documentstore.model.ContentList;
 
 public interface DocumentValidator {
 
-    void validate(String uuidString, Document document);
+    void validate(String uuidString, ContentList document);
 
 }

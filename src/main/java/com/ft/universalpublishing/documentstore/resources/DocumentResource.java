@@ -25,7 +25,6 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavaila
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
@@ -128,7 +127,7 @@ public class DocumentResource {
     
     }
 
-    private <T extends Document> Response writeDocument(String resourceType, Map<String, Object> content, UriInfo uriInfo) {
+    private Response writeDocument(String resourceType, Map<String, Object> content, UriInfo uriInfo) {
         try {
             final DocumentWritten written = 
                     documentStoreService.write(resourceType, content);
