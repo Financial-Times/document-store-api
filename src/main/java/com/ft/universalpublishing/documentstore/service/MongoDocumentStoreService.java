@@ -1,9 +1,12 @@
 package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
+import com.mongodb.MongoSocketException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -28,9 +31,15 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-            return dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
-        } catch (MongoException e) {
+            Document foundDocument = dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
+            if (foundDocument!= null) {
+                foundDocument.remove("_id");
+            }
+            return foundDocument;
+        } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            throw new ExternalSystemInternalServerException(e);
         }
     }
 
@@ -46,8 +55,10 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                 throw new DocumentNotFoundException(uuid);
             }
 
-        } catch (MongoException e) {
+        } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            throw new ExternalSystemInternalServerException(e);
         }
     }
 
@@ -62,8 +73,10 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                 return DocumentWritten.updated(document);
             }
             return DocumentWritten.created(document);
-        } catch (MongoException e) {
+        } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            throw new ExternalSystemInternalServerException(e);
         }
     }
 

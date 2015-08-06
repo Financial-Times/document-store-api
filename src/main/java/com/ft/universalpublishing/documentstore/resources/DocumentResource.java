@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
@@ -145,6 +146,8 @@ public class DocumentResource {
             return response;
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("Service Unavailable").exception(esue);
+        } catch (ExternalSystemInternalServerException e) {
+            throw ServerError.status(500).error("Internal error communicating with external system").exception(e);
         }
     }
     
@@ -167,9 +170,11 @@ public class DocumentResource {
     private Response delete(String resourceType, String uuidString) {
         try {
             documentStoreService.delete(resourceType, UUID.fromString(uuidString));
-            return Response.noContent().build();
+            return Response.ok().build();
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("Service Unavailable").exception(esue);
+        } catch (ExternalSystemInternalServerException e) {
+            throw ServerError.status(500).error("Internal error communicating with external system").exception(e);
         } catch (DocumentNotFoundException e){
             return Response.ok().build();
         }
@@ -188,13 +193,14 @@ public class DocumentResource {
         try {
             final Map<String, Object> foundDocument = documentStoreService.findByUuid(resourceType, UUID.fromString(uuid));
             if (foundDocument!= null) {
-                foundDocument.remove("_id");
                 return foundDocument;
             } else {
                 throw ClientError.status(404).error("Requested item does not exist").exception();
             }
         } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(503).error("upstream system unavailable").exception(esue);
+            throw ServerError.status(503).error("External system unavailable").exception(esue);
+        } catch (ExternalSystemInternalServerException e) {
+            throw ServerError.status(500).error("Internal error communicating with external system").exception(e);
         }
     }
 }
