@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.model.transformer;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Content {
 
     private final String uuid;
