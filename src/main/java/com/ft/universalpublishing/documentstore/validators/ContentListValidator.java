@@ -7,31 +7,30 @@ import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.ListItem;
 
 
-public class ContentListDocumentValidator implements DocumentValidator {
+public class ContentListValidator {
 
     private UuidValidator uuidValidator;
 
-    public ContentListDocumentValidator(UuidValidator uuidValidator) {
+    public ContentListValidator(UuidValidator uuidValidator) {
         this.uuidValidator = uuidValidator;
     }
 
-    @Override
-    public void validate(String uuidString, ContentList document) {
-        if (document == null) {
+    public void validate(String uuidString, ContentList contentList) {
+        if (contentList == null) {
             throw new ValidationException("list must be provided in request body");
         }
-        if (document.getUuid() == null || document.getUuid().isEmpty()) {
+        if (contentList.getUuid() == null || contentList.getUuid().isEmpty()) {
             throw new ValidationException("submitted list must provide a non-empty uuid");
         }
-        if (document.getTitle() == null || document.getTitle().isEmpty()) {
+        if (contentList.getTitle() == null || contentList.getTitle().isEmpty()) {
             throw new ValidationException("submitted list must provide a non-empty title");
         }
-        if (!uuidString.equals(document.getUuid())) {
-            String message = String.format("uuid in path %s is not equal to uuid in submitted list %s", uuidString, document.getUuid());
+        if (!uuidString.equals(contentList.getUuid())) {
+            String message = String.format("uuid in path %s is not equal to uuid in submitted list %s", uuidString, contentList.getUuid());
             throw new ValidationException(message);
 
         }
-        List<ListItem> items = document.getItems();
+        List<ListItem> items = contentList.getItems();
         if (items == null) {
             throw new ValidationException("submitted list should have an 'items' field");
         }

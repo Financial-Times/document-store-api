@@ -22,7 +22,7 @@ public class ContentMapperTest {
     private final ContentMapper mapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost");
 
     @Test
-    public void testContentMaping() throws Exception {
+    public void testContentMapping() throws Exception {
         final UUID uuid = UUID.randomUUID();
         final Date publishDate = new Date();
         final SortedSet<Identifier> identifiers = new TreeSet<>();

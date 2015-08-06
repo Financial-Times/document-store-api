@@ -8,7 +8,7 @@ import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.sun.jersey.api.client.ClientResponse;
@@ -45,7 +45,7 @@ public class DocumentContentResourceEndpointTest {
     private String writePath;
     private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
 
-    private final static ContentListDocumentValidator contentListDocumentValidator = mock(ContentListDocumentValidator.class);
+    private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
     private static final String API_URL_PREFIX_CONTENT = "localhost";
     private static final String RESOURCE_TYPE = "content";
@@ -68,14 +68,14 @@ public class DocumentContentResourceEndpointTest {
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new DocumentResource(documentStoreService, contentListDocumentValidator, uuidValidator, API_URL_PREFIX_CONTENT,
+            .addResource(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, API_URL_PREFIX_CONTENT,
                     new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost")))
             .build();
 
     @Before
     public void setup() {
         reset(documentStoreService);
-        reset(contentListDocumentValidator);
+        reset(contentListValidator);
         reset(uuidValidator);
         when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.created(document));
     }
@@ -127,7 +127,7 @@ public class DocumentContentResourceEndpointTest {
     }
 
     @Test
-    public void shouldReturn200WhenDeletingNonExistentContentList() {
+    public void shouldReturn200WhenDeletingNonExistentContent() {
         doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
         ClientResponse clientResponse = resources.client().resource(writePath)

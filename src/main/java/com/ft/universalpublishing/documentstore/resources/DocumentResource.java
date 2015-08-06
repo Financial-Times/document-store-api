@@ -28,7 +28,7 @@ import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListDocumentValidator;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 
@@ -39,20 +39,20 @@ public class DocumentResource {
     public static final String CONTENT_COLLECTION = "content";
     public static final String LISTS_COLLECTION = "lists";
 	
-	private ContentListDocumentValidator contentListDocumentValidator;
+	private ContentListValidator contentListValidator;
     private DocumentStoreService documentStoreService;
     private UuidValidator uuidValidator;
     private String apiPath;
     private final ContentMapper contentMapper;
 
     public DocumentResource(DocumentStoreService documentStoreService,
-                            ContentListDocumentValidator contentListDocumentValidator,
+                            ContentListValidator contentListValidator,
                             UuidValidator uuidValidator,
                             String apiPath,
                             final ContentMapper contentMapper) {
         this.documentStoreService = documentStoreService;
         this.uuidValidator = uuidValidator;
-    	this.contentListDocumentValidator = contentListDocumentValidator;
+    	this.contentListValidator = contentListValidator;
         this.apiPath = apiPath;
         this.contentMapper = contentMapper;
     }
@@ -120,7 +120,7 @@ public class DocumentResource {
         validateUuid(uuidString);
         try {
             ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
-            contentListDocumentValidator.validate(uuidString, contentList);
+            contentListValidator.validate(uuidString, contentList);
         } catch (ValidationException | IllegalArgumentException e) {
             throw ClientError.status(400).error(e.getMessage()).exception();
         }
