@@ -136,11 +136,11 @@ public class DocumentListResourceEndpointTest {
     //DELETE
 
     @Test
-    public void shouldReturn204WhenDeletedSuccessfully() {
+    public void shouldReturn200WhenDeletedSuccessfully() {
         ClientResponse clientResponse = resources.client().resource(writePath)
                 .delete(ClientResponse.class);
 
-        assertThat("response", clientResponse, hasProperty("status", equalTo(204)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
 
     @Test
