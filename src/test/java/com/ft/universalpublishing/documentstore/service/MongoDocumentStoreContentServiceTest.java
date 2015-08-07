@@ -56,6 +56,7 @@ public class MongoDocumentStoreContentServiceTest {
         content.put("byline", "By Bob Woodward");
         content.put("bodyXML", "xmlBody");
         content.put("publishedDate", lastPublicationDate);
+        content.put("publishReference", "Some String");
 
         outboundContent = new HashMap<>();
         outboundContent.put("uuid", uuid.toString());
@@ -63,6 +64,7 @@ public class MongoDocumentStoreContentServiceTest {
         outboundContent.put("byline", "By Bob Woodward");
         outboundContent.put("bodyXML", "xmlBody");
         outboundContent.put("publishedDate", lastPublicationDate);
+        outboundContent.put("publishReference", "Some String");
     }
 
 
@@ -73,7 +75,8 @@ public class MongoDocumentStoreContentServiceTest {
                 .append("title", "Here is the news")
                 .append("byline", "By Bob Woodward")
                 .append("bodyXML", "xmlBody")
-                .append("publishedDate", lastPublicationDate);
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String");
         collection.insertOne(toInsert);
 
 
@@ -99,6 +102,7 @@ public class MongoDocumentStoreContentServiceTest {
         assertThat((String) foundContent.get("byline"), is("By Bob Woodward"));
         assertThat((String) foundContent.get("bodyXML"), is("xmlBody"));
         assertThat((Date) foundContent.get("publishedDate"), is(lastPublicationDate));
+        assertThat((String)foundContent.get("publishReference"), is("Some String"));
 
     }
 

@@ -54,6 +54,9 @@ public class ContentMapper {
         if (source.getComments() != null) {
             builder = builder.withComments(new Comments(source.getComments().isEnabled()));
         }
+        if (source.getPublishReference() != null) {
+            builder = builder.withPublishReference(source.getPublishReference());
+        }
         return builder.build();
     }
 }

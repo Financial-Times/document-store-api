@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations", "mainImage", "comments"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations", "mainImage", "comments", "publishReference"})
 public class Content {
 
 	private String id;
@@ -28,6 +28,7 @@ public class Content {
 	private Set<Annotation> annotations;
     private Uri mainImage;
     private Comments comments;
+    private String publishReference;
 
     public Content() {
     }
@@ -46,7 +47,8 @@ public class Content {
                    @JsonProperty("brands") SortedSet<String> brands,
                    @JsonProperty("annotations") Set<Annotation> annotations,
                    @JsonProperty("mainImage") Uri mainImage,
-                   @JsonProperty("comments") Comments comments) {
+                   @JsonProperty("comments") Comments comments,
+                   @JsonProperty("publishReference") String publishReference) {
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
@@ -62,6 +64,7 @@ public class Content {
         this.annotations = annotations;
         this.mainImage = mainImage;
         this.comments = comments;
+        this.publishReference = publishReference;
     }
 
     public String getId() {
@@ -185,6 +188,13 @@ public class Content {
         this.comments = comments;
     }
 
+    public String getPublishReference() {
+        return publishReference;
+    }
+
+    public void  setPublishReference(String publishReference) {
+        this.publishReference = publishReference;
+    }
     public static class Builder {
 
         private String id;
@@ -202,6 +212,7 @@ public class Content {
         private Set<Annotation> annotations;
         private Uri mainImage;
         private Comments comments;
+        private String transactionId;
 
         public Builder withId(String id) {
             this.id = id;
@@ -278,6 +289,11 @@ public class Content {
             return this;
         }
 
+        public Builder withPublishReference(String transactionId) {
+            this.transactionId = transactionId;
+            return this;
+        }
+
         public Content build() {
             return new Content(id,
                     type,
@@ -293,7 +309,9 @@ public class Content {
                     brands,
                     annotations,
                     mainImage,
-                    comments
+                    comments,
+                    transactionId
+
             );
         }
     }
