@@ -41,6 +41,7 @@ public class ContentMapperTest {
                 .withMainImage(mainImageUuid.toString())
                 .withIdentifiers(identifiers)
                 .withComments(new Comments(true))
+                .withPublishReference("Publish Reference")
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
@@ -58,6 +59,7 @@ public class ContentMapperTest {
         assertThat(readContent.getBrands(), equalTo(expectedBrands));
         assertThat(readContent.getMainImage(), equalTo(new Uri("http://localhost/content/" + mainImageUuid.toString())));
         assertThat(readContent.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
+        assertThat(readContent.getPublishReference(), equalTo("Publish Reference"));
     }
 
     @Test

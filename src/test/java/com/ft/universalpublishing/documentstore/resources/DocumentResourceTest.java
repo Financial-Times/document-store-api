@@ -7,6 +7,7 @@ import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -18,6 +19,8 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentResourceTest {
@@ -38,9 +41,10 @@ public class DocumentResourceTest {
         final Map<String, Object> comments = new HashMap<>();
         comments.put("enabled", true);
         content.put("comments", comments);
+        content.put("publishReference", "Some String");
 
         when(mockStore.findByUuid(DocumentResource.CONTENT_COLLECTION, uuid)).thenReturn(content);
         Content rContent = resource.getContentReadByUuid(uuid.toString());
-        rContent.getId();
+        assertThat(rContent.getId(),containsString(uuid.toString()));
     }
 }
