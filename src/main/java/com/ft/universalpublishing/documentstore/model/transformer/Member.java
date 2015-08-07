@@ -1,9 +1,12 @@
 package com.ft.universalpublishing.documentstore.model.transformer;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
+
 import javax.validation.constraints.NotNull;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Member implements Comparable<Member> {
 
     private final String uuid;

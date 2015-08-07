@@ -1,8 +1,10 @@
 package com.ft.universalpublishing.documentstore.model.transformer;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Comments {
 
     private boolean enabled;

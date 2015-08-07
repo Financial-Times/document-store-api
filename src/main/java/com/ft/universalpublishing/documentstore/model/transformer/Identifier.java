@@ -1,11 +1,13 @@
 package com.ft.universalpublishing.documentstore.model.transformer;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 
 import javax.validation.constraints.NotNull;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Identifier implements Comparable<Identifier> {
     private String authority;
     private String identifierValue;
@@ -32,7 +34,7 @@ public class Identifier implements Comparable<Identifier> {
         if (!(o instanceof Identifier)) return false;
         Identifier that = (Identifier) o;
         return !(identifierValue != null ? !identifierValue.equals(that.identifierValue) : that.identifierValue != null) &&
-                 !(authority != null ? !authority.equals(that.authority) : that.authority != null);
+                !(authority != null ? !authority.equals(that.authority) : that.authority != null);
     }
 
     @Override
