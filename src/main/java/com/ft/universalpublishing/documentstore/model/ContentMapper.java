@@ -35,7 +35,9 @@ public class ContentMapper {
                 .withBodyXml(source.getBody())
                 .withByline(source.getByline())
                 .withPublishedDate(new DateTime(source.getPublishedDate().getTime()))
-                .withRequestUrl(apiUrlPrefix + source.getUuid());
+                .withRequestUrl(apiUrlPrefix + source.getUuid())
+                .withBinaryUrl(source.getExternalBinaryUrl())
+                .withPublishReference(source.getPublishReference());
         if (source.getBrands() != null) {
             builder = builder.withBrands(source.getBrands().stream().map(Brand::getId).collect(Collectors.toCollection(TreeSet::new)));
         }
@@ -48,14 +50,8 @@ public class ContentMapper {
         if (source.getMainImage() != null) {
             builder = builder.withMainImage(new Uri(apiUrlPrefix + source.getMainImage()));
         }
-        if (source.getExternalBinaryUrl() != null) {
-            builder = builder.withBinaryUrl(source.getExternalBinaryUrl());
-        }
         if (source.getComments() != null) {
             builder = builder.withComments(new Comments(source.getComments().isEnabled()));
-        }
-        if (source.getPublishReference() != null) {
-            builder = builder.withPublishReference(source.getPublishReference());
         }
         return builder.build();
     }
