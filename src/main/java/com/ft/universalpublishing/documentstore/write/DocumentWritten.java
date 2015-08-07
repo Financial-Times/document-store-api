@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.write;
 
-import com.ft.universalpublishing.documentstore.model.Document;
+
+import org.bson.Document;
 
 public class DocumentWritten {
 

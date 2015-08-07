@@ -4,21 +4,18 @@ import java.util.List;
 
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.model.Document;
 import com.ft.universalpublishing.documentstore.model.ListItem;
 
 
-public class ContentListDocumentValidator implements DocumentValidator {
+public class ContentListValidator {
 
     private UuidValidator uuidValidator;
 
-    public ContentListDocumentValidator(UuidValidator uuidValidator) {
+    public ContentListValidator(UuidValidator uuidValidator) {
         this.uuidValidator = uuidValidator;
     }
 
-    @Override
-    public void validate(String uuidString, Document document) {
-        ContentList contentList = (ContentList) document;
+    public void validate(String uuidString, ContentList contentList) {
         if (contentList == null) {
             throw new ValidationException("list must be provided in request body");
         }

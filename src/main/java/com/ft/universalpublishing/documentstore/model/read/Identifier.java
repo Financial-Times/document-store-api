@@ -1,5 +1,6 @@
-package com.ft.universalpublishing.documentstore.model;
+package com.ft.universalpublishing.documentstore.model.read;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ComparisonChain;
 
@@ -10,6 +11,12 @@ public class Identifier implements Comparable<Identifier> {
 
     private String authority;
     private String identifierValue;
+
+    public Identifier(@JsonProperty("authority") String authority,
+                      @JsonProperty("identifierValue") String identifierValue) {
+        this.authority = authority;
+        this.identifierValue = identifierValue;
+    }
 
     public String getAuthority() {
         return authority;

@@ -3,6 +3,7 @@ package com.ft.universalpublishing.documentstore.validators;
 import java.util.List;
 import java.util.UUID;
 
+import com.ft.universalpublishing.documentstore.model.ListItem;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,13 +11,12 @@ import org.junit.rules.ExpectedException;
 
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.google.common.collect.ImmutableList;
 
 
-public class ContentListDocumentValidatorTest {
+public class ContentListValidatorTest {
 
-    private ContentListDocumentValidator contentListDocumentValidator = new ContentListDocumentValidator(new UuidValidator());
+    private ContentListValidator contentListValidator = new ContentListValidator(new UuidValidator());
     private ContentList.Builder builder = new ContentList.Builder();
     private String uuid;
     
@@ -48,7 +48,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("list must be provided in request body");
         
-        contentListDocumentValidator.validate(uuid, null);
+        contentListValidator.validate(uuid, null);
     }
     
     @Test
@@ -58,7 +58,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty uuid");
         
-        contentListDocumentValidator.validate(uuid, contentList);
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
@@ -68,7 +68,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty title");
         
-        contentListDocumentValidator.validate(uuid, contentList);
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
@@ -78,7 +78,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty title");
         
-        contentListDocumentValidator.validate(uuid, contentList);
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
@@ -88,7 +88,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list should have an 'items' field");
         
-        contentListDocumentValidator.validate(uuid, contentList);
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
@@ -101,7 +101,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("invalid UUID: invalid, does not conform to RFC 4122");
         
-        contentListDocumentValidator.validate(uuid, contentList);
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
@@ -112,7 +112,7 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("list items must have a non-empty uuid or a non-empty webUrl");
         
-        contentListDocumentValidator.validate(uuid, contentList);
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
@@ -121,6 +121,6 @@ public class ContentListDocumentValidatorTest {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage(String.format("uuid in path %s is not equal to uuid in submitted list %s", mismatchedUuid, uuid));
 
-        contentListDocumentValidator.validate(mismatchedUuid, builder.build());
+        contentListValidator.validate(mismatchedUuid, builder.build());
     }
 }

@@ -3,7 +3,7 @@ mongo:
   port: 27017
   db: upp-store
   
-apiPath: localhost
+apiHost: localhost
 
 healthcheckParameters:
     name: "Connectivity to MongoDB"

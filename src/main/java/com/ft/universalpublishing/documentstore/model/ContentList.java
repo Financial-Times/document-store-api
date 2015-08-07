@@ -15,7 +15,20 @@ import com.google.common.base.Objects;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
 @JsonDeserialize(builder = ContentList.Builder.class)
-public class ContentList extends Document {
+public class ContentList {
+
+    protected static final String IDENTIFIER_TEMPLATE = "http://api.ft.com/thing/";
+    protected static final String API_URL_TEMPLATE = "http://%s/%s/%s";
+    private String _id;
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         private String id;
@@ -131,7 +144,6 @@ public class ContentList extends Document {
         return layoutHint;
     }
     
-    @Override
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
         if (items != null) {
@@ -143,7 +155,6 @@ public class ContentList extends Document {
         }
     }
 
-    @Override
     public void addApiUrls(String apiPath) {
         setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "lists", uuid));
         if (items != null) {
@@ -156,7 +167,6 @@ public class ContentList extends Document {
         }
     }
 
-    @Override
     public void removePrivateFields() {
         //set to null so they aren't output, there's probably a cleverer way to do this
         setUuid(null);
