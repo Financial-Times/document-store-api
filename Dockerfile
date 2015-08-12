@@ -1,6 +1,6 @@
 FROM up-registry.ft.com/coco/dropwizardbase
 
-RUN git clone --branch flexibleMongoAddresses http://git.svc.ft.com:8080/scm/cp/document-store-api.git
+RUN git clone http://git.svc.ft.com:8080/scm/cp/document-store-api.git
 
 ADD buildnum.txt /
 ADD buildurl.txt /
