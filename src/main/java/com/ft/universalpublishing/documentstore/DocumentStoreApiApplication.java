@@ -5,6 +5,7 @@ import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
+import com.ft.universalpublishing.documentstore.model.BrandInferrer;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
@@ -51,7 +52,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
         final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), configuration.getApiHost());
-        environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost(), contentMapper));
+        final BrandInferrer brandInferrer = new BrandInferrer();
+        environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost(), contentMapper, brandInferrer));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());
 

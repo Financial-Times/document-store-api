@@ -4,6 +4,7 @@ import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.BrandInferrer;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
@@ -69,7 +70,7 @@ public class DocumentContentResourceEndpointTest {
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, API_URL_PREFIX_CONTENT,
-                    new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost")))
+                    new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost"), new BrandInferrer()))
             .build();
 
     @Before
