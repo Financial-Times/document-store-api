@@ -24,7 +24,6 @@ import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundExcept
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.BrandInferrer;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
@@ -45,20 +44,17 @@ public class DocumentResource {
     private UuidValidator uuidValidator;
     private String apiPath;
     private final ContentMapper contentMapper;
-    private final BrandInferrer brandInferrer;
 
     public DocumentResource(DocumentStoreService documentStoreService,
                             ContentListValidator contentListValidator,
                             UuidValidator uuidValidator,
                             String apiPath,
-                            final ContentMapper contentMapper,
-                            final BrandInferrer brandInferrer) {
+                            final ContentMapper contentMapper) {
         this.documentStoreService = documentStoreService;
         this.uuidValidator = uuidValidator;
     	this.contentListValidator = contentListValidator;
         this.apiPath = apiPath;
         this.contentMapper = contentMapper;
-        this.brandInferrer = brandInferrer;
     }
 
 	@GET
@@ -78,7 +74,7 @@ public class DocumentResource {
         validateUuid(uuid);
         final Map<String, Object> resource = findResourceByUuid(CONTENT_COLLECTION, uuid);
         final Content content = new ObjectMapper().convertValue(resource, Content.class);
-        return brandInferrer.infer(contentMapper.map(content));
+        return contentMapper.map(content);
     }
     
     @GET
