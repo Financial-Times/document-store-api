@@ -45,7 +45,9 @@ public class ContentMapper {
             builder = builder.withIdentifiers(source.getIdentifiers().stream().map(identifierMapper::map).collect(Collectors.toCollection(TreeSet::new)));
         }
         if (source.getMembers() != null) {
-            builder = builder.withMembers(source.getMembers().stream().map(member -> new Uri(member.getUuid())).collect(Collectors.toCollection(TreeSet::new)));
+            builder = builder.withMembers(source.getMembers().stream()
+                    .map(member -> new Uri(apiUrlPrefix + member.getUuid()))
+                    .collect(Collectors.toCollection(TreeSet::new)));
         }
         if (source.getMainImage() != null) {
             builder = builder.withMainImage(new Uri(apiUrlPrefix + source.getMainImage()));

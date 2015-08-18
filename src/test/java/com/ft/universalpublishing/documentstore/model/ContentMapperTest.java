@@ -117,6 +117,6 @@ public class ContentMapperTest {
         assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_IMAGE_SET));
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
-        assertThat(readContent.getMembers().first(), equalTo(new Uri(memberUuid.toString())));
+        assertThat(readContent.getMembers().first(), equalTo(new Uri("http://localhost/content/" + memberUuid.toString())));
     }
 }
