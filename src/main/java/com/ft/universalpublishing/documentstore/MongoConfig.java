@@ -5,12 +5,10 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ft.universalpublishing.documentstore.exception.BadConfigurationException;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.mongodb.ServerAddress;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,7 +95,7 @@ public class MongoConfig {
     
 	@Override
 	public String toString() {
-		return Objects.toStringHelper(this)
+		return MoreObjects.toStringHelper(this)
 				.add("hosts", hosts)
                 .add("host (legacy)", host)
 				.add("port", port)

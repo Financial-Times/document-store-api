@@ -1,5 +1,6 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import com.ft.universalpublishing.documentstore.model.BrandsMapper;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
@@ -7,7 +8,6 @@ import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -29,7 +29,7 @@ public class DocumentResourceTest {
     public void test() {
         final DocumentStoreService mockStore = mock(DocumentStoreService.class);
         final ContentListValidator mockValidator = mock(ContentListValidator.class);
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), "localhost");
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), "localhost");
         final DocumentResource resource = new DocumentResource(mockStore, mockValidator, new UuidValidator(), "api.ft.com/", contentMapper);
 
         final UUID uuid = UUID.randomUUID();
@@ -45,6 +45,6 @@ public class DocumentResourceTest {
 
         when(mockStore.findByUuid(DocumentResource.CONTENT_COLLECTION, uuid)).thenReturn(content);
         Content rContent = resource.getContentReadByUuid(uuid.toString());
-        assertThat(rContent.getId(),containsString(uuid.toString()));
+        assertThat(rContent.getId(), containsString(uuid.toString()));
     }
 }
