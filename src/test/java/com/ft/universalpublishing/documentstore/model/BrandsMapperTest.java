@@ -7,6 +7,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BrandsMapperTest {
@@ -28,6 +29,6 @@ public class BrandsMapperTest {
     public void testInferEmptyBrands() throws Exception {
         final SortedSet<String> target = brandsMapper.map(null);
 
-        assertThat(target, hasItem("http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"));
+        assertThat(target, nullValue());
     }
 }

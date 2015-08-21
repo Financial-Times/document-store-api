@@ -11,13 +11,14 @@ public class BrandsMapper {
     private static final String FT_BRAND = "http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54";
 
     public SortedSet<String> map(final SortedSet<Brand> source) {
+        if (source == null) {
+            return null;
+        }
         SortedSet<String> target = new TreeSet<>();
         target.add(FT_BRAND);
-        if (source != null) {
-            target.addAll(source.stream()
-                    .map(Brand::getId)
-                    .collect(Collectors.toCollection(TreeSet::new)));
-        }
+        target.addAll(source.stream()
+                .map(Brand::getId)
+                .collect(Collectors.toCollection(TreeSet::new)));
         return target;
     }
 }
