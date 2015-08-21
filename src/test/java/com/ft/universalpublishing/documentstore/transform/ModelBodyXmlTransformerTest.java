@@ -1,6 +1,5 @@
 package com.ft.universalpublishing.documentstore.transform;
 
-import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.util.FixedUriGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,23 +25,15 @@ public class ModelBodyXmlTransformerTest {
 
 	@Test
 	public void testNormalModel() throws Exception {
-		Content original = new Content.Builder()
-                .withBodyXml("<xml/>")
-                .build();
+		String actual = unit.transform("<xml/>", mockProcessingContext);
 
-		Content actual = unit.transform(original, mockProcessingContext);
-
-		assertThat(actual.getBodyXML(), equalTo("<xml></xml>"));
+		assertThat(actual, equalTo("<xml></xml>"));
 	}
 
     @Test
     public void shouldEscapeLessThanBracket() throws Exception {
-        Content original = new Content.Builder()
-                .withBodyXml("<xml>&lt;i&gt;</xml>")
-                .build();
+        String actual = unit.transform("<xml>&lt;i&gt;</xml>", mockProcessingContext);
 
-        Content actual = unit.transform(original, mockProcessingContext);
-
-        assertThat(actual.getBodyXML(), equalTo("<xml>&lt;i></xml>"));
+        assertThat(actual, equalTo("<xml>&lt;i></xml>"));
     }
 }
