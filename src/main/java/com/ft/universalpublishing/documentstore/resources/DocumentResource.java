@@ -28,6 +28,8 @@ import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
+import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
@@ -44,17 +46,20 @@ public class DocumentResource {
     private UuidValidator uuidValidator;
     private String apiPath;
     private final ContentMapper contentMapper;
+    private final ContentBodyProcessingService bodyProcessingService;
 
     public DocumentResource(DocumentStoreService documentStoreService,
                             ContentListValidator contentListValidator,
                             UuidValidator uuidValidator,
                             String apiPath,
-                            final ContentMapper contentMapper) {
+                            final ContentMapper contentMapper,
+                            final ContentBodyProcessingService bodyProcessingService) {
         this.documentStoreService = documentStoreService;
         this.uuidValidator = uuidValidator;
     	this.contentListValidator = contentListValidator;
         this.apiPath = apiPath;
         this.contentMapper = contentMapper;
+        this.bodyProcessingService = bodyProcessingService;
     }
 
 	@GET
@@ -70,11 +75,12 @@ public class DocumentResource {
     @Timed
     @Path("/content-read/{uuid}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final com.ft.universalpublishing.documentstore.model.read.Content getContentReadByUuid(@PathParam("uuid") String uuid) {
+    public final com.ft.universalpublishing.documentstore.model.read.Content getContentReadByUuid(@PathParam("uuid") String uuid,
+            @Context ApiUriGenerator currentUriGenerator) {
         validateUuid(uuid);
         final Map<String, Object> resource = findResourceByUuid(CONTENT_COLLECTION, uuid);
         final Content content = new ObjectMapper().convertValue(resource, Content.class);
-        return contentMapper.map(content);
+        return bodyProcessingService.process(contentMapper.map(content), currentUriGenerator);
     }
     
     @GET

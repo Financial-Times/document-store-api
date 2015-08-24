@@ -9,6 +9,10 @@ import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
+import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
+import com.ft.universalpublishing.documentstore.transform.UriBuilder;
+import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
@@ -67,10 +71,32 @@ public class DocumentContentResourceEndpointTest {
         return new Document(content);
     }
 
+    private static final Map<String, String> templates = new HashMap<>();
+    static {
+        templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
+        templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
+    }
+
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, API_URL_PREFIX_CONTENT,
-                    new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), "localhost")))
+            .addResource(new DocumentResource(
+                    documentStoreService,
+                    contentListValidator,
+                    uuidValidator,
+                    API_URL_PREFIX_CONTENT,
+                    new ContentMapper(
+                            new IdentifierMapper(),
+                            new TypeResolver(),
+                            new BrandsMapper(),
+                            "localhost"
+                    ),
+                    new ContentBodyProcessingService(
+                            new ModelBodyXmlTransformer(
+                                    new UriBuilder(templates)
+                            )
+                    )
+            ))
+            .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
             .build();
 
     @Before
