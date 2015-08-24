@@ -8,7 +8,7 @@ import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriMerger;
+import com.ft.universalpublishing.documentstore.transform.UriBuilder;
 import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -39,7 +39,7 @@ public class DocumentResourceTest {
         templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
         final ContentBodyProcessingService bodyProcessingService = new ContentBodyProcessingService(
                 new ModelBodyXmlTransformer(
-                        new UriMerger(templates)
+                        new UriBuilder(templates)
                 )
         );
         final ApiUriGenerator mockedUriGenerator = mock(ApiUriGenerator.class);

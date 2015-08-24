@@ -31,6 +31,7 @@ public class ContentMapper {
     public com.ft.universalpublishing.documentstore.model.read.Content map(final Content source) {
         Builder builder = new Builder()
                 .withId(THING + source.getUuid())
+                .withTitle(source.getTitle())
                 .withType(typeResolver.resolveType(source))
                 .withTitle(source.getTitle())
                 .withDescription(source.getDescription())

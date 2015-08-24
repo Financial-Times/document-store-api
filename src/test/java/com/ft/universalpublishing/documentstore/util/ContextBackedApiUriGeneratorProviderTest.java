@@ -23,21 +23,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ContextBackedApiUriGeneratorProviderTest {
 
-    public static final String EXAMPLE_GATEWAY_HOST = "int.api.ft.com";
+    private static final String EXAMPLE_GATEWAY_HOST = "int.api.ft.com";
     private static final String EXAMPLE_GATEWAY_BASE_URI = "http://" + EXAMPLE_GATEWAY_HOST;
-    public static final String PATH = "/path";
+    private static final String PATH = "/path";
     private static final String EXAMPLE_LOCAL_HOST = "localhost";
-    public static final int LOCAL_PORT = 9090;
+    private static final int LOCAL_PORT = 9090;
     private static final String EXAMPLE_LOCAL_HOST_AND_PORT = EXAMPLE_LOCAL_HOST + ":" + LOCAL_PORT;
     private static final String EXAMPLE_LOCAL_BASE_URI = "http://" + EXAMPLE_LOCAL_HOST_AND_PORT;
 
-
-    @Mock
-    HttpContext context;
-    @Mock
-    HttpRequestContext request;
-    @Mock
-    ExtendedUriInfo uriInfo;
+    @Mock HttpContext context;
+    @Mock HttpRequestContext request;
+    @Mock ExtendedUriInfo uriInfo;
 
     @Before
     public void setUpContextStructure() {
@@ -50,7 +46,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
 
     @Test
     public void shouldHandleGatewayHeadersAndSetUpGeneratorToCreateUrisWithNoPort() {
-        filloutContext(EXAMPLE_LOCAL_HOST, EXAMPLE_LOCAL_BASE_URI);
+        filloutContext(EXAMPLE_LOCAL_BASE_URI);
         when(request.getHeaderValue(ContextBackedApiUriGeneratorProvider.HEADER_API_ROOT_PATH)).thenReturn(EXAMPLE_GATEWAY_HOST);
         when(request.getHeaderValue(ContextBackedApiUriGeneratorProvider.HEADER_FORWARDED_PROTO)).thenReturn("http");
         ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider(EXAMPLE_LOCAL_HOST_AND_PORT);
@@ -62,7 +58,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
 
     @Test
     public void shouldHandleRequestWithNoHeaderAndSetUpGeneratorToCreateUrisWithMatchingPort() {
-        filloutContext(EXAMPLE_LOCAL_HOST, EXAMPLE_LOCAL_BASE_URI);
+        filloutContext(EXAMPLE_LOCAL_BASE_URI);
         ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider(EXAMPLE_LOCAL_HOST_AND_PORT);
 
         ApiUriGenerator generator = provider.getValue(context);
@@ -76,7 +72,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
 
         String httpsLocalUrl = EXAMPLE_LOCAL_BASE_URI.replaceAll("http:", "https:");
 
-        filloutContext(EXAMPLE_LOCAL_HOST,httpsLocalUrl);
+        filloutContext(httpsLocalUrl);
 
         ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider(EXAMPLE_LOCAL_HOST_AND_PORT);
         ApiUriGenerator generator = provider.getValue(context);
@@ -88,7 +84,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
     @Test
     public void shouldFallBackToProxyHostAddressIfThatIsProvidedAndThereIsNoHeader() {
 
-        filloutContext(EXAMPLE_LOCAL_HOST, EXAMPLE_LOCAL_BASE_URI);
+        filloutContext(EXAMPLE_LOCAL_BASE_URI);
 
         ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider("varnish.example.com");
         ApiUriGenerator generator = provider.getValue(context);
@@ -99,7 +95,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
     @Test
     public void shouldFallBackToProxyHostAddressAndPortIfThatIsProvidedAndThereIsNoHeader() {
 
-        filloutContext(EXAMPLE_LOCAL_HOST, EXAMPLE_LOCAL_BASE_URI);
+        filloutContext(EXAMPLE_LOCAL_BASE_URI);
 
         ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider("varnish.example.com:8080");
         ApiUriGenerator generator = provider.getValue(context);
@@ -111,7 +107,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
     @Test
     public void shouldHandleHttpRequestWithNoHttpsHeaderAndSetUpGeneratorToCreateUrisWithHttps() {
 
-        filloutContext(EXAMPLE_LOCAL_HOST,EXAMPLE_LOCAL_BASE_URI);
+        filloutContext(EXAMPLE_LOCAL_BASE_URI);
 
         when(request.getHeaderValue(ContextBackedApiUriGeneratorProvider.HEADER_API_ROOT_PATH)).thenReturn(EXAMPLE_GATEWAY_HOST);
         when(request.getHeaderValue(ContextBackedApiUriGeneratorProvider.HEADER_FORWARDED_PROTO)).thenReturn("https");
@@ -126,7 +122,7 @@ public class ContextBackedApiUriGeneratorProviderTest {
 
     }
 
-    private void filloutContext(String host, String baseUri) {
+    private void filloutContext(String baseUri) {
         URI gatewayUri = URI.create(baseUri);
         URI resourceUri = gatewayUri.resolve(PATH);
 

@@ -5,8 +5,8 @@ import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandlerRegistry;
 
 public class ModelBodyTransformationXmlEventHandlerRegistry extends XMLEventHandlerRegistry {
 
-	public ModelBodyTransformationXmlEventHandlerRegistry(final UriMerger uriMerger, final ContentBodyProcessingContext context) {
+	public ModelBodyTransformationXmlEventHandlerRegistry(final UriBuilder uriBuilder, final ContentBodyProcessingContext context) {
 		registerDefaultEventHandler(new RetainXMLEventHandler());
-		registerStartAndEndElementEventHandler(new RewriteContentElementEventHandler(uriMerger, context), "content");
+		registerStartAndEndElementEventHandler(new RewriteContentElementEventHandler(uriBuilder, context), "content");
 	}
 }

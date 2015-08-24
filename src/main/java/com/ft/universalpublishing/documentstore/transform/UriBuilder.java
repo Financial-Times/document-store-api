@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class UriMerger {
+public class UriBuilder {
 
     private static final String ID_PARAMETER = "id";
 
     private final Map<String, Template> contentTypeTemplates;
 
-    public UriMerger(final Map<String, String> templates) {
+    public UriBuilder(final Map<String, String> templates) {
         if (templates == null || templates.isEmpty()) {
             contentTypeTemplates = Collections.emptyMap();
             return;

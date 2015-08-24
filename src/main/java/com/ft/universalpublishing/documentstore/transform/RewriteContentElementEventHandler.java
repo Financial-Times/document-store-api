@@ -24,10 +24,10 @@ public class RewriteContentElementEventHandler extends BaseXMLEventHandler {
 	private static final String ID_ATTR_MISSING_MESSAGE = "Id attribute is missing from a content element";
 
 	private final ContentBodyProcessingContext context;
-    private final UriMerger uriMerger;
+    private final UriBuilder uriBuilder;
 
-    public RewriteContentElementEventHandler(UriMerger uriMerger, final ContentBodyProcessingContext context) {
-        this.uriMerger = uriMerger;
+    public RewriteContentElementEventHandler(UriBuilder uriBuilder, final ContentBodyProcessingContext context) {
+        this.uriBuilder = uriBuilder;
 		this.context = context;
 	}
 
@@ -48,7 +48,7 @@ public class RewriteContentElementEventHandler extends BaseXMLEventHandler {
 		final String id = getAttribute(event, ID_ATTRIBUTE_NAME, ID_ATTR_MISSING_MESSAGE);
         ApiUriGenerator uriGenerator = context.getUriGenerator();
         try {
-			final String mergedUrl = uriMerger.mergeUrl(type,id);
+			final String mergedUrl = uriBuilder.mergeUrl(type,id);
 			final Map<String, String> rewrittenAttributes = new LinkedHashMap<>();
 			rewrittenAttributes.put(TYPE_ATTRIBUTE_NAME, type);
 			rewrittenAttributes.put(URL_ATTRIBUTE_NAME, uriGenerator.resolve(mergedUrl));

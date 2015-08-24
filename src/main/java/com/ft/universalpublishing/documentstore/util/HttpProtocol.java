@@ -4,7 +4,7 @@ public enum HttpProtocol {
     
     HTTP("http"), HTTPS("https");
     
-    private HttpProtocol(String protocol){
+    HttpProtocol(String protocol){
         this.protocol = protocol;
     }
 
@@ -15,12 +15,13 @@ public enum HttpProtocol {
     }
     
     public static HttpProtocol fromString(String protocol) {
-        if (protocol != null) {
-          for (HttpProtocol httpProtocol : HttpProtocol.values()) {
+        if (protocol == null) {
+            return null;
+        }
+        for (HttpProtocol httpProtocol : HttpProtocol.values()) {
             if (httpProtocol.protocol.equalsIgnoreCase(protocol)) {
-              return httpProtocol;
+                return httpProtocol;
             }
-          }
         }
         return null;
       }

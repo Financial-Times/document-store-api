@@ -19,7 +19,7 @@ public class ModelBodyXmlTransformerTest {
 	public void before() {
 		final Map<String, String> contentTypeTemplates =
                 Collections.singletonMap("http://www.ft.com/ontology/content/Article", "http://localhost:9090/content/{{id}}");
-        unit = new ModelBodyXmlTransformer(new UriMerger(contentTypeTemplates));
+        unit = new ModelBodyXmlTransformer(new UriBuilder(contentTypeTemplates));
         mockProcessingContext = new ContentBodyProcessingContext(FixedUriGenerator.localUriGenerator());
 	}
 

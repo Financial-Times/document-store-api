@@ -11,7 +11,7 @@ import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriMerger;
+import com.ft.universalpublishing.documentstore.transform.UriBuilder;
 import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -21,7 +21,6 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
@@ -44,15 +43,12 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class DocumentContentResourceEndpointTest {
 
     private String uuid;
     private Document document;
     private String writePath;
     private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
-//    private final static  ContentBodyProcessingService mockedProcessing = mock(ContentBodyProcessingService.class);
-//    private final static  ModelBodyXmlTransformer mockedTransformer = mock(ModelBodyXmlTransformer.class);
 
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
@@ -96,7 +92,7 @@ public class DocumentContentResourceEndpointTest {
                     ),
                     new ContentBodyProcessingService(
                             new ModelBodyXmlTransformer(
-                                    new UriMerger(templates)
+                                    new UriBuilder(templates)
                             )
                     )
             ))

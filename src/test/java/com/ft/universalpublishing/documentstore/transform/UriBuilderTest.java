@@ -9,12 +9,12 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class UriMergerTest {
+public class UriBuilderTest {
 
-    public static final String TYPE_A = "http://example.com/ontlogy/types/A";
-    public static final String TYPE_B = "http://example.com/ontlogy/types/B";
-    public static final String TYPE_C = "http://example.com/ontlogy/types/C";
-    private UriMerger mergerUnderTest;
+    private static final String TYPE_A = "http://example.com/ontlogy/types/A";
+    private static final String TYPE_B = "http://example.com/ontlogy/types/B";
+    private static final String TYPE_C = "http://example.com/ontlogy/types/C";
+    private UriBuilder mergerUnderTest;
 
     @Before
     public void givenTemplatesForTypesAAndB() {
@@ -23,7 +23,7 @@ public class UriMergerTest {
         templates.put(TYPE_B,"http://example.com/admin/B/{{id}}/edit");
 
         assertThat(templates.size(),is(2));
-        mergerUnderTest = new UriMerger(templates);
+        mergerUnderTest = new UriBuilder(templates);
     }
 
     @Test

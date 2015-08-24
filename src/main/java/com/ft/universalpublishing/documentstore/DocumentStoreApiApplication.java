@@ -14,7 +14,7 @@ import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriMerger;
+import com.ft.universalpublishing.documentstore.transform.UriBuilder;
 import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -55,8 +55,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
-        final UriMerger uriMerger = new UriMerger(configuration.getContentTypeTemplates());
-        final ModelBodyXmlTransformer transformer = new ModelBodyXmlTransformer(uriMerger);
+        final UriBuilder uriBuilder = new UriBuilder(configuration.getContentTypeTemplates());
+        final ModelBodyXmlTransformer transformer = new ModelBodyXmlTransformer(uriBuilder);
         environment.jersey().register(new ContextBackedApiUriGeneratorProvider(configuration.getApiHost()));
         final ContentBodyProcessingService bodyProcessing = new ContentBodyProcessingService(transformer);
         final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), configuration.getApiHost());

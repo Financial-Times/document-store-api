@@ -32,7 +32,7 @@ public class RewriteContentElementEventHandlerTest {
 	public void before() {
 		final Map<String, String> templates = new LinkedHashMap<>();
 		templates.put("TEST-TYPE", "/content/{{id}}");
-		this.unit = new RewriteContentElementEventHandler(new UriMerger(templates), context);
+		this.unit = new RewriteContentElementEventHandler(new UriBuilder(templates), context);
 	}
 
 	@Test

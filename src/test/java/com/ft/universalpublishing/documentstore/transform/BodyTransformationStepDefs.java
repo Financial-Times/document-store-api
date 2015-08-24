@@ -37,7 +37,7 @@ public class BodyTransformationStepDefs {
 
 	@When("^I transform the article for output$")
 	public void transform() {
-		body.set(new ModelBodyXmlTransformer(new UriMerger(mapping.get())).transform(body.get(), localProcessingContext()));
+		body.set(new ModelBodyXmlTransformer(new UriBuilder(mapping.get())).transform(body.get(), localProcessingContext()));
 	}
 
     private ContentBodyProcessingContext localProcessingContext() {

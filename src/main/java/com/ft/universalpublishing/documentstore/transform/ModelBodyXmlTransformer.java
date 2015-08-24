@@ -10,10 +10,10 @@ import java.util.List;
 
 public class ModelBodyXmlTransformer {
 
-    private final UriMerger uriMerger;
+    private final UriBuilder uriBuilder;
 
-    public ModelBodyXmlTransformer(final UriMerger uriMerger) {
-        this.uriMerger = uriMerger;
+    public ModelBodyXmlTransformer(final UriBuilder uriBuilder) {
+        this.uriBuilder = uriBuilder;
     }
 
     public String transform(final String body, final ContentBodyProcessingContext context) {
@@ -21,7 +21,7 @@ public class ModelBodyXmlTransformer {
     }
 
     private List<BodyProcessor> bodyProcessors(final ContentBodyProcessingContext context) {
-        final XMLEventHandlerRegistry registry = new ModelBodyTransformationXmlEventHandlerRegistry(uriMerger, context);
+        final XMLEventHandlerRegistry registry = new ModelBodyTransformationXmlEventHandlerRegistry(uriBuilder, context);
         return Collections.singletonList(new StAXTransformingBodyProcessor(registry));
     }
 }

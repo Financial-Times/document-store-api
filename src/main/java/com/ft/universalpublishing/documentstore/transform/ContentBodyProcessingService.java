@@ -5,7 +5,7 @@ import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 
 public class ContentBodyProcessingService {
 
-    final ModelBodyXmlTransformer transformer;
+    private final ModelBodyXmlTransformer transformer;
 
     public ContentBodyProcessingService(final ModelBodyXmlTransformer transformer) {
         this.transformer = transformer;
@@ -23,6 +23,7 @@ public class ContentBodyProcessingService {
         return new Content.Builder()
                 .withId(content.getId())
                 .withType(content.getType())
+                .withTitle(content.getTitle())
                 .withPublishedDate(content.getPublishedDate())
                 .withByline(content.getByline())
                 .withDescription(content.getDescription())
@@ -34,7 +35,6 @@ public class ContentBodyProcessingService {
                 .withMainImage(content.getMainImage())
                 .withComments(content.getComments())
                 .withBrands(content.getBrands())
-                .withAnnotations(content.getAnnotations())
                 .withPublishReference(content.getPublishReference())
                 .build();
     }

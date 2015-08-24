@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 @RunWith(Theories.class)
 public class ApiUriGeneratorTest {
 
-    public static final String KITCHEN_SINK_URL = "http://example.com/path/file.cgi?foo=bar#top";
+    private static final String KITCHEN_SINK_URL = "http://example.com/path/file.cgi?foo=bar#top";
 
     @DataPoint
     public static ApiUriGenerator mockImplementation = new FixedUriGenerator(KITCHEN_SINK_URL);
@@ -44,19 +44,11 @@ public class ApiUriGeneratorTest {
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getAbsolutePath()).thenReturn(URI.create(KITCHEN_SINK_URL));
         when(uriInfo.getQueryParameters(anyBoolean())).thenReturn(fooBar);
-        when(uriInfo.getAbsolutePathBuilder()).thenAnswer(new Answer<UriBuilder>() {
-            @Override
-            public UriBuilder answer(InvocationOnMock invocationOnMock) throws Throwable {
-                UriBuilder builder = new UriBuilderImpl();
-                return applyDefaults(builder).path("/path/file.cgi").fragment("top");
-            }
+        when(uriInfo.getAbsolutePathBuilder()).thenAnswer(invocationOnMock -> {
+            UriBuilder builder = new UriBuilderImpl();
+            return applyDefaults(builder).path("/path/file.cgi").fragment("top");
         });
-        when(uriInfo.getBaseUriBuilder()).thenAnswer(new Answer<UriBuilder>() {
-            @Override
-            public UriBuilder answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return applyDefaults(new UriBuilderImpl());
-            }
-        });
+        when(uriInfo.getBaseUriBuilder()).thenAnswer(invocationOnMock -> applyDefaults(new UriBuilderImpl()));
 
         realImplementation = new ContextBackedUriGenerator(uriInfo, "example.com",HttpProtocol.HTTP, Optional.<Integer>absent());
     }
