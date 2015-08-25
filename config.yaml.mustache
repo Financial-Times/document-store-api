@@ -6,9 +6,11 @@ mongo:
   
 apiHost: "{{{apiHost}}}"
 
+{{=<% %>=}}
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}
   http://www.ft.com/ontology/content/ImageSet: /content/{{id}}
+<%={{ }}=%>
 
 healthcheckParameters:
     name: "{{{healthcheckParameterName}}}"
