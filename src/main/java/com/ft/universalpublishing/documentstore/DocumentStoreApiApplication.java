@@ -12,6 +12,7 @@ import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
 import com.ft.universalpublishing.documentstore.transform.UriBuilder;
@@ -44,7 +45,9 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     @Override
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
-                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/lists/*");
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/content-read/*", "/lists/*");
+        environment.servlets().addFilter("cache-filter", new CacheControlFilter())
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content-read/*");
 
         environment.jersey().register(new BuildInfoResource());
 
