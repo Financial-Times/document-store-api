@@ -1,6 +1,14 @@
 # Document Store API
 Document Store API is a Dropwizard application which allows writes to and reads from MongoDB.
 
+Reading content by API users should be done via the /content-read/{uuid} endpoint. This makes sure the format of the response obeys the contract that our api was designed by.
+
+The /content/{uuid} endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
+
+These two endpoints should be separated into two independent applications, all of them using the name /content, one reading, one formatting, but that was scheduled to be later, for now both layers are in the same app.
+
+Operations on lists DOES NOT share the same logic, their read/writes are separate from this mechanism.
+
 ## Running locally
 To compile, run tests and build jar
     
@@ -52,7 +60,14 @@ Body should look like:
 Any fields that aren't supported will be ignored. NB: this response body is the same as the response for a GET to a content transformer.
 
 ## Content GET
-Make a GET request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
+Make a GET request to `http://localhost:14180/content/{uuid}` with `Content-Type` set to `application/json`.
+
+Should return the json right in the format as you PUT it in.
+
+## Content Read GET
+Make a GET request to `http://localhost:14180/content-read/{uuid}` with `Content-Type` set to `application/json`.
+
+Should return the json in the format of APIv2.
 
 ## Content DELETE
 Make a DELETE request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
