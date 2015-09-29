@@ -13,7 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "publishedDate", "items"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items"})
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
@@ -36,7 +36,6 @@ public class ContentList {
         private String apiUrl;
         private String title;
         private List<ListItem> items;
-        private Date publishedDate;
         private String layoutHint;
         
         public Builder withId(String id) {
@@ -64,18 +63,13 @@ public class ContentList {
             return this;
         }
         
-        public Builder withPublishedDate(Date publishedDate) {
-            this.publishedDate = publishedDate;
-            return this;
-        }
-        
         public Builder withLayoutHint(String layoutHint) {
             this.layoutHint = layoutHint;
             return this;
         }
         
         public ContentList build() {
-            ContentList list = new ContentList(id, uuid, apiUrl, title, items, publishedDate, layoutHint);
+            ContentList list = new ContentList(id, uuid, apiUrl, title, items, layoutHint);
             return list;
         }
     }
@@ -89,7 +83,7 @@ public class ContentList {
     private String layoutHint;
     
     private ContentList(String id, UUID uuid, String apiUrl, String title, List<ListItem> items,
-                        Date publishedDate, String layoutHint) {
+                        String layoutHint) {
         
         setId(id);
         if (uuid != null) {
@@ -98,7 +92,6 @@ public class ContentList {
         setApiUrl(apiUrl);
         this.title = title;
         this.items = items;
-        this.publishedDate = publishedDate;
         this.layoutHint = layoutHint;
     }
     
