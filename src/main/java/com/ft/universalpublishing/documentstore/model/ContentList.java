@@ -17,7 +17,7 @@ import com.google.common.base.Objects;
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
-    protected static final String IDENTIFIER_TEMPLATE = "http://api.ft.com/thing/";
+    protected static final String IDENTIFIER_TEMPLATE = "http://api.ft.com/things/";
     protected static final String API_URL_TEMPLATE = "http://%s/%s/%s";
     private String _id;
 
