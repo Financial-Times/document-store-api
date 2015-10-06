@@ -1,16 +1,18 @@
 package com.ft.universalpublishing.documentstore.model.read;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ft.ws.lib.serialization.datetime.JsonDateTimeWithMillisSerializer;
+
 import org.joda.time.DateTime;
 
 import java.util.Set;
 import java.util.SortedSet;
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations", "mainImage", "comments", "publishReference"})
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations", "mainImage", "comments", "realtime", "publishReference"})
 public class Content {
 
 	private String id;
@@ -28,12 +30,10 @@ public class Content {
 	private Set<Annotation> annotations;
     private Uri mainImage;
     private Comments comments;
+    private Boolean realtime;
     private String publishReference;
 
-    public Content() {
-    }
-
-    public Content(@JsonProperty("id") String id,
+    private Content(@JsonProperty("id") String id,
                    @JsonProperty("type") String type,
                    @JsonProperty("bodyXML") String bodyXML,
                    @JsonProperty("title") String title,
@@ -48,6 +48,7 @@ public class Content {
                    @JsonProperty("annotations") Set<Annotation> annotations,
                    @JsonProperty("mainImage") Uri mainImage,
                    @JsonProperty("comments") Comments comments,
+                   @JsonProperty("realtime") Boolean realtime,
                    @JsonProperty("publishReference") String publishReference) {
         this.id = id;
         this.type = type;
@@ -64,6 +65,7 @@ public class Content {
         this.annotations = annotations;
         this.mainImage = mainImage;
         this.comments = comments;
+        this.realtime = realtime;
         this.publishReference = publishReference;
     }
 
@@ -187,7 +189,15 @@ public class Content {
     public void setComments(Comments comments) {
         this.comments = comments;
     }
-
+    
+    public void setRealtime(Boolean realtime) {
+        this.realtime = realtime;
+    }
+    
+    public Boolean isRealtime() {
+        return realtime;
+    }
+    
     public String getPublishReference() {
         return publishReference;
     }
@@ -212,6 +222,7 @@ public class Content {
         private Set<Annotation> annotations;
         private Uri mainImage;
         private Comments comments;
+        private Boolean realtime;
         private String transactionId;
 
         public Builder withId(String id) {
@@ -288,7 +299,12 @@ public class Content {
             this.comments = comments;
             return this;
         }
-
+        
+        public Builder withRealtime(Boolean realtime) {
+            this.realtime = realtime;
+            return this;
+        }
+        
         public Builder withPublishReference(String transactionId) {
             this.transactionId = transactionId;
             return this;
@@ -310,6 +326,7 @@ public class Content {
                     annotations,
                     mainImage,
                     comments,
+                    realtime,
                     transactionId
 
             );

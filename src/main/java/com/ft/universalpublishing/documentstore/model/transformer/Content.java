@@ -35,9 +35,10 @@ public class Content {
     private final SortedSet<Member> members;
     private final String mainImage;
     private final Comments comments;
+    private final Boolean realtime;
     private final String publishReference;
 
-    public Content(@JsonProperty("uuid") UUID uuid,
+    private Content(@JsonProperty("uuid") UUID uuid,
             @JsonProperty("title") String title,
             @JsonProperty("titles") List<String> titles,
             @JsonProperty("byline") String byline,
@@ -54,6 +55,7 @@ public class Content {
             @JsonProperty("members") SortedSet<Member> members,
             @JsonProperty("mainImage") String mainImage,
             @JsonProperty("comments") Comments comments,
+            @JsonProperty("realtime") Boolean realtime,
             @JsonProperty("publishReference") String publishReference) {
         this.identifiers = identifiers;
         this.body = body;
@@ -72,6 +74,7 @@ public class Content {
         this.externalBinaryUrl = externalBinaryUrl;
         this.members = members;
         this.mainImage = mainImage;
+        this.realtime = realtime;
         this.publishReference = publishReference;
     }
 
@@ -146,7 +149,11 @@ public class Content {
     public Comments getComments() {
         return comments;
     }
-
+    
+    public Boolean isRealtime() {
+        return realtime;
+    }
+    
     public String getPublishReference() {
         return publishReference;
     }
@@ -170,6 +177,7 @@ public class Content {
                 .add("members", members)
                 .add("mainImage", mainImage)
                 .add("comments", comments)
+                .add("realtime", realtime)
                 .add("publishReference", publishReference)
                 .toString();
     }
@@ -197,12 +205,13 @@ public class Content {
                 && Objects.equal(this.members, that.members)
                 && Objects.equal(this.mainImage, that.mainImage)
                 && Objects.equal(this.comments, that.comments)
+                && Objects.equal(this.realtime, that.realtime)
                 && Objects.equal(this.publishReference, that.publishReference);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, publishReference);
+        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, publishReference);
     }
 
     public static Builder builder() {
@@ -228,6 +237,7 @@ public class Content {
         private SortedSet<Member> members;
         private String mainImage;
         private Comments comments;
+        private Boolean realtime;
         private String transactionId;
 
         public Builder withUuid(UUID uuid) {
@@ -317,7 +327,12 @@ public class Content {
             this.comments = comments;
             return this;
         }
-
+        
+        public Builder withRealtime(Boolean realtime) {
+            this.realtime = realtime;
+            return this;
+        }
+        
         public Builder withPublishReference(String transactionId) {
             this.transactionId = transactionId;
             return this;
@@ -341,11 +356,12 @@ public class Content {
                     .withMembers(content.getMembers())
                     .withMainImage(content.getMainImage())
                     .withComments(content.getComments())
+                    .withRealtime(content.isRealtime())
                     .withPublishReference(content.getPublishReference());
         }
 
 		public Content build() {
-            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, transactionId);
+            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, transactionId);
         }
     }
 

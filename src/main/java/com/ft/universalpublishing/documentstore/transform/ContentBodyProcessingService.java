@@ -35,6 +35,7 @@ public class ContentBodyProcessingService {
                 .withMainImage(content.getMainImage())
                 .withComments(content.getComments())
                 .withBrands(content.getBrands())
+                .withRealtime(content.isRealtime())
                 .withPublishReference(content.getPublishReference())
                 .build();
     }
