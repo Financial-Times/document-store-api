@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "brands", "annotations", "mainImage", "comments", "realtime", "publishReference"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "realtime", "publishReference"})
 public class Content {
 
 	private String id;
@@ -32,24 +32,28 @@ public class Content {
     private Comments comments;
     private Boolean realtime;
     private String publishReference;
+    private Integer pixelWidth;
+    private Integer pixelHeight;
 
     private Content(@JsonProperty("id") String id,
-                   @JsonProperty("type") String type,
-                   @JsonProperty("bodyXML") String bodyXML,
-                   @JsonProperty("title") String title,
-                   @JsonProperty("byline") String byline,
-                   @JsonProperty("description") String description,
-                   @JsonProperty("publishedDate") DateTime publishedDate,
-                   @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
-                   @JsonProperty("members") SortedSet<Uri> members,
-                   @JsonProperty("requestUrl") String requestUrl,
-                   @JsonProperty("binaryUrl") String binaryUrl,
-                   @JsonProperty("brands") SortedSet<String> brands,
-                   @JsonProperty("annotations") Set<Annotation> annotations,
-                   @JsonProperty("mainImage") Uri mainImage,
-                   @JsonProperty("comments") Comments comments,
-                   @JsonProperty("realtime") Boolean realtime,
-                   @JsonProperty("publishReference") String publishReference) {
+                    @JsonProperty("type") String type,
+                    @JsonProperty("bodyXML") String bodyXML,
+                    @JsonProperty("title") String title,
+                    @JsonProperty("byline") String byline,
+                    @JsonProperty("description") String description,
+                    @JsonProperty("publishedDate") DateTime publishedDate,
+                    @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
+                    @JsonProperty("members") SortedSet<Uri> members,
+                    @JsonProperty("requestUrl") String requestUrl,
+                    @JsonProperty("binaryUrl") String binaryUrl,
+                    @JsonProperty("brands") SortedSet<String> brands,
+                    @JsonProperty("annotations") Set<Annotation> annotations,
+                    @JsonProperty("mainImage") Uri mainImage,
+                    @JsonProperty("comments") Comments comments,
+                    @JsonProperty("realtime") Boolean realtime,
+                    @JsonProperty("publishReference") String publishReference,
+                    @JsonProperty("pixelWidth") Integer pixelWidth,
+                    @JsonProperty("pixelHeight") Integer pixelHeight) {
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
@@ -67,6 +71,8 @@ public class Content {
         this.comments = comments;
         this.realtime = realtime;
         this.publishReference = publishReference;
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
     }
 
     public String getId() {
@@ -205,6 +211,23 @@ public class Content {
     public void  setPublishReference(String publishReference) {
         this.publishReference = publishReference;
     }
+
+    public Integer getPixelWidth() {
+        return pixelWidth;
+    }
+
+    public void setPixelWidth(Integer pixelWidth) {
+        this.pixelWidth = pixelWidth;
+    }
+
+    public Integer getPixelHeight() {
+        return pixelHeight;
+    }
+
+    public void setPixelHeight(Integer pixelHeight) {
+        this.pixelHeight = pixelHeight;
+    }
+
     public static class Builder {
 
         private String id;
@@ -224,6 +247,8 @@ public class Content {
         private Comments comments;
         private Boolean realtime;
         private String transactionId;
+        private Integer pixelWidth;
+        private Integer pixelHeight;
 
         public Builder withId(String id) {
             this.id = id;
@@ -310,6 +335,16 @@ public class Content {
             return this;
         }
 
+        public Builder withPixelWidth(Integer pixelWidth) {
+            this.pixelWidth = pixelWidth;
+            return this;
+        }
+
+        public Builder withPixelHeight(Integer pixelHeight) {
+            this.pixelHeight = pixelHeight;
+            return this;
+        }
+
         public Content build() {
             return new Content(id,
                     type,
@@ -327,9 +362,9 @@ public class Content {
                     mainImage,
                     comments,
                     realtime,
-                    transactionId
-
-            );
+                    transactionId,
+                    pixelWidth,
+                    pixelHeight);
         }
     }
 }

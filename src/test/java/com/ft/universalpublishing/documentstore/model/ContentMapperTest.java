@@ -153,6 +153,8 @@ public class ContentMapperTest {
                 .withInternalBinaryUrl("http://methode-image-binary-transformer/binary/" + uuid.toString())
                 .withExternalBinaryUrl("http://ft.s3.aws/" + uuid.toString())
                 .withIdentifiers(identifiers)
+                .withPixelWidth(1536)
+                .withPixelHeight(1538)
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
@@ -164,6 +166,8 @@ public class ContentMapperTest {
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         assertThat(readContent.getBinaryUrl() , equalTo("http://ft.s3.aws/" + uuid.toString()));
+        assertThat(readContent.getPixelWidth() , equalTo(1536));
+        assertThat(readContent.getPixelHeight() , equalTo(1538));
     }
 
     @Test

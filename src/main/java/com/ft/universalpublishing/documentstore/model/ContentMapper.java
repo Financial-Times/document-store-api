@@ -42,7 +42,9 @@ public class ContentMapper {
                 .withBinaryUrl(source.getExternalBinaryUrl())
                 .withBrands(brandsMapper.map(source.getBrands()))
                 .withRealtime(source.isRealtime())
-                .withPublishReference(source.getPublishReference());
+                .withPublishReference(source.getPublishReference())
+                .withPixelWidth(source.getPixelWidth())
+                .withPixelHeight(source.getPixelHeight());
         if (source.getIdentifiers() != null) {
             builder = builder.withIdentifiers(source.getIdentifiers().stream()
                     .map(identifierMapper::map)

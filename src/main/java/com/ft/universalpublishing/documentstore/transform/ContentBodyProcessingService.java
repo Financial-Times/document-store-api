@@ -37,6 +37,8 @@ public class ContentBodyProcessingService {
                 .withBrands(content.getBrands())
                 .withRealtime(content.isRealtime())
                 .withPublishReference(content.getPublishReference())
+                .withPixelWidth(content.getPixelWidth())
+                .withPixelHeight(content.getPixelHeight())
                 .build();
     }
 }
