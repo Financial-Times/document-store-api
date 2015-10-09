@@ -20,6 +20,13 @@ public class TypeResolverTest {
     }
 
     @Test
+    public void thatRealtimeMeansItsArticle() throws Exception {
+        final Content content = Content.builder().withRealtime(true).build();
+        final String type = resolver.resolveType(content);
+        assertThat(type, equalTo(TypeResolver.TYPE_ARTICLE));
+    }
+
+    @Test
     public void testMembersMeansItsImageSet() throws Exception {
         final Content content = Content.builder().withMembers(new TreeSet<>()).build();
         final String type = resolver.resolveType(content);

@@ -41,6 +41,7 @@ public class ContentMapper {
                 .withRequestUrl(apiUrlPrefix + source.getUuid())
                 .withBinaryUrl(source.getExternalBinaryUrl())
                 .withBrands(brandsMapper.map(source.getBrands()))
+                .withRealtime(source.isRealtime())
                 .withPublishReference(source.getPublishReference());
         if (source.getIdentifiers() != null) {
             builder = builder.withIdentifiers(source.getIdentifiers().stream()

@@ -9,7 +9,8 @@ public class TypeResolver {
     public static final String TYPE_MEDIA_RESOURCE = "http://www.ft.com/ontology/content/MediaResource";
 
     public String resolveType(Content source) {
-        if (source.getBody() != null) {
+        if ((source.getBody() != null)
+                || ((source.isRealtime() != null) && source.isRealtime().booleanValue())) {
             return TYPE_ARTICLE;
         }
         if (source.getInternalBinaryUrl() != null) {
