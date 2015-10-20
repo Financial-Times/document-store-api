@@ -57,7 +57,7 @@ logging:
   level: INFO
 
   loggers:
-    io.dropwizard: INFO
+    io.dropwizard: WARN
     com.ft.api.util.transactionid.TransactionIdFilter: WARN
 
   appenders:
