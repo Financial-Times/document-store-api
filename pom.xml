@@ -22,8 +22,8 @@
         <dw.version>0.7.1</dw.version>
         <advanced-dropwizard-healthcheck.version>2.3</advanced-dropwizard-healthcheck.version>
         <jaxrs-build-info-resource.version>1.1</jaxrs-build-info-resource.version>
-        <jaxrs.error-handling.version>1.1.1</jaxrs.error-handling.version>
-        <jaxrs.transaction-id-handling.version>1.9</jaxrs.transaction-id-handling.version>
+        <jaxrs.error-handling.version>1.1.2</jaxrs.error-handling.version>
+        <jaxrs.transaction-id-handling.version>2.5</jaxrs.transaction-id-handling.version>
         <jackson.date.serialization.version>0.1.29</jackson.date.serialization.version>
         <junit.version>4.11</junit.version>
         <mockito-core.version>1.9.5</mockito-core.version>

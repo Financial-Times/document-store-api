@@ -19,6 +19,7 @@ import javax.ws.rs.core.UriInfo;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.api.jaxrs.errors.LogLevel;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
@@ -201,7 +202,7 @@ public class DocumentResource {
             if (foundDocument!= null) {
                 return foundDocument;
             } else {
-                throw ClientError.status(404).error("Requested item does not exist").exception();
+                throw ClientError.status(404).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
             }
         } catch (ExternalSystemUnavailableException esue) {
             throw ServerError.status(503).error("External system unavailable").exception(esue);
