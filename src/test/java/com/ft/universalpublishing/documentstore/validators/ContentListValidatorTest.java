@@ -32,15 +32,24 @@ public class ContentListValidatorTest {
         ListItem contentItem2 = new ListItem();
         contentItem2.setWebUrl("weburl");
         List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
-        
+        String publishReference = "tid_zxcv7531";
+
         builder.withUuid(UUID.fromString(uuid))
-               .withTitle("headline")
-               .withItems(content);
+                .withTitle("headline")
+                .withItems(content)
+                .withPublishReference(publishReference);
     }
     
     @Test
     public void shouldPassIfItemsListIsEmpty() {
         
+    }
+
+    @Test
+    public void shouldPassIfPublishReferenceIsNull() {
+        ContentList contentList = builder.withPublishReference(null).build();
+
+        contentListValidator.validate(uuid, contentList);
     }
     
     @Test
