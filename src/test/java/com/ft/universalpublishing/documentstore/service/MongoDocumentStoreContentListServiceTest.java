@@ -167,7 +167,7 @@ public class MongoDocumentStoreContentListServiceTest {
                 .build();
 
         DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class));
-        assertThat(result.getMode(), is(Mode.Updated));
+        assertThat(result.getMode(), is(Mode.Created));
 
         ContentList actual = new ObjectMapper().convertValue(result.getDocument(), ContentList.class);
         assertThat("list uuid", actual.getUuid(), is(uuid.toString()));
