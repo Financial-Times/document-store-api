@@ -158,6 +158,50 @@ public class MongoDocumentStoreContentListServiceTest {
 
     @Test
     @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
+    public void thatPublishReferenceIsPersisted() {
+        String publishReference = "tid_zxcv7531";
+        ContentList list = new ContentList.Builder()
+                .withUuid(uuid)
+                .withItems(mockInboundListItems())
+                .withPublishReference(publishReference)
+                .build();
+
+        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class));
+        assertThat(result.getMode(), is(Mode.Updated));
+
+        ContentList actual = new ObjectMapper().convertValue(result.getDocument(), ContentList.class);
+        assertThat("list uuid", actual.getUuid(), is(uuid.toString()));
+        assertThat("publish reference", actual.getPublishReference(), is(publishReference));
+    }
+
+    @Test
+    public void thatPublishReferenceIsRetrieved() {
+        String publishReference = "tid_zxcv7531";
+
+        BasicDBList items = new BasicDBList();
+        items.add(new BasicDBObject().append("uuid", contentUuid1));
+        items.add(new BasicDBObject().append("webUrl", WEBURL));
+
+        final Document toInsert = new Document()
+                .append("uuid", uuid.toString())
+                .append("publishReference", publishReference)
+                .append("items", items);
+
+        collection.insertOne(toInsert);
+
+        ContentList expectedList = new ContentList.Builder()
+                .withUuid(uuid)
+                .withItems(mockOutboundListItems())
+                .withPublishReference(publishReference)
+                .build();
+
+        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid);
+        ContentList retrievedContentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
+        assertThat(retrievedContentList, is(expectedList));
+    }
+
+    @Test
+    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void contentListShouldBeDeletedOnRemove() {
         ContentList list = new ContentList.Builder()
             .withUuid(uuid)

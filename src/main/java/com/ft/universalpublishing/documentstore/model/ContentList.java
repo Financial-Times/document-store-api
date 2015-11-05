@@ -13,7 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items", "layoutHint", "publishReference"})
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
@@ -37,39 +37,45 @@ public class ContentList {
         private String title;
         private List<ListItem> items;
         private String layoutHint;
-        
+        private String publishReference;
+
         public Builder withId(String id) {
             this.id = id;
             return this;
         }
-        
+
         public Builder withUuid(UUID uuid) {
             this.uuid = uuid;
             return this;
         }
-        
+
         public Builder withTitle(String title) {
             this.title = title;
             return this;
         }
-        
+
         public Builder withApiUrl(String url) {
             this.apiUrl = url;
             return this;
         }
-        
+
         public Builder withItems(List<ListItem> items) {
             this.items = items;
             return this;
         }
-        
+
         public Builder withLayoutHint(String layoutHint) {
             this.layoutHint = layoutHint;
             return this;
         }
-        
+
+        public Builder withPublishReference(String publishReference) {
+            this.publishReference = publishReference;
+            return this;
+        }
+
         public ContentList build() {
-            ContentList list = new ContentList(id, uuid, apiUrl, title, items, layoutHint);
+            ContentList list = new ContentList(id, uuid, apiUrl, title, items, layoutHint, publishReference);
             return list;
         }
     }
@@ -81,10 +87,11 @@ public class ContentList {
     private List<ListItem> items;
     private Date publishedDate;
     private String layoutHint;
-    
+    private String publishReference;
+
     private ContentList(String id, UUID uuid, String apiUrl, String title, List<ListItem> items,
-                        String layoutHint) {
-        
+                        String layoutHint, String publishReference) {
+
         setId(id);
         if (uuid != null) {
             setUuid(uuid.toString());
@@ -93,40 +100,41 @@ public class ContentList {
         this.title = title;
         this.items = items;
         this.layoutHint = layoutHint;
+        this.publishReference = publishReference;
     }
-    
+
     public String getId() {
         return id;
     }
-    
+
     private void setId(String id) {
         this.id = id;
     }
-    
+
     public String getUuid() {
         return uuid;
     }
-    
+
     private void setUuid(String uuid) {
         this.uuid = uuid;
     }
-    
+
     public String getTitle() {
         return title;
     }
-    
+
     public String getApiUrl() {
         return apiUrl;
     }
-    
+
     private void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
     }
-    
+
     public List<ListItem> getItems() {
         return items;
     }
-    
+
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
     public Date getPublishedDate() {
         return publishedDate;
@@ -136,7 +144,11 @@ public class ContentList {
     public String getLayoutHint() {
         return layoutHint;
     }
-    
+
+    public String getPublishReference() {
+        return publishReference;
+    }
+
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
         if (items != null) {
@@ -170,8 +182,7 @@ public class ContentList {
             }
         }
     }
-    
-    
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -182,28 +193,30 @@ public class ContentList {
                 .add("items", items)
                 .add("publishedDate", publishedDate)
                 .add("layoutHint", layoutHint)
+                .add("publishReference", publishReference)
                 .toString();
 
     }
-    
+
     @Override
     public boolean equals(Object obj) {
- 
+
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         final ContentList other = (ContentList) obj;
         return Objects.equal(this.id, other.id)
-            && Objects.equal(this.uuid, other.uuid)
-            && Objects.equal(this.title, other.title)
-            && Objects.equal(this.apiUrl, other.apiUrl)
-            && Objects.equal(this.items, other.items)
-            && Objects.equal(this.publishedDate, other.publishedDate)
-            && Objects.equal(this.layoutHint, other.layoutHint);
+                && Objects.equal(this.uuid, other.uuid)
+                && Objects.equal(this.title, other.title)
+                && Objects.equal(this.apiUrl, other.apiUrl)
+                && Objects.equal(this.items, other.items)
+                && Objects.equal(this.publishedDate, other.publishedDate)
+                && Objects.equal(this.layoutHint, other.layoutHint)
+                && Objects.equal(this.publishReference, publishReference);
     }
-    
+
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate, layoutHint);
+        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate, layoutHint, publishReference);
     }
-    
+
 }
