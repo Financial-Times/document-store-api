@@ -8,7 +8,7 @@ RUN apk --update add git \
   && BUILD_URL=$(cat buildurl.txt) \
   && echo "DEBUG Jenkins job url: $BUILD_URL" \
   && mvn install -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
-  && rm target/document-store-api-*-sources.jar target/document-store-*-shaded.jar \
+  && rm target/document-store-api-*-sources.jar \
   && mv target/document-store-api-*.jar app.jar \
   && apk del go git \
   && rm -rf /var/cache/apk/* /target* /root/.m2/*
