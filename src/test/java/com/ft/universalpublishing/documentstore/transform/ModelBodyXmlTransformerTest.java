@@ -13,14 +13,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ModelBodyXmlTransformerTest {
 
 	private ModelBodyXmlTransformer unit;
-    private ContentBodyProcessingContext mockProcessingContext;
+    private LinkProcessingContext mockProcessingContext;
 
 	@Before
 	public void before() {
 		final Map<String, String> contentTypeTemplates =
                 Collections.singletonMap("http://www.ft.com/ontology/content/Article", "http://localhost:9090/content/{{id}}");
         unit = new ModelBodyXmlTransformer(new UriBuilder(contentTypeTemplates));
-        mockProcessingContext = new ContentBodyProcessingContext(FixedUriGenerator.localUriGenerator());
+        mockProcessingContext = new LinkProcessingContext(FixedUriGenerator.localUriGenerator());
 	}
 
 	@Test
