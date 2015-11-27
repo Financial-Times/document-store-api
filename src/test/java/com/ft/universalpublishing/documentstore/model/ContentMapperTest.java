@@ -54,7 +54,6 @@ public class ContentMapperTest {
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         final SortedSet<String> expectedBrands = new TreeSet<>();
-        expectedBrands.add("http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54");
         expectedBrands.add("Lex");
         expectedBrands.add("Chuck Taylor");
         assertThat(readContent.getBrands(), equalTo(expectedBrands));

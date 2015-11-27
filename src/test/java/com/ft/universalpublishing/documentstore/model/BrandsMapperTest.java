@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNot.not;
 
 public class BrandsMapperTest {
 
@@ -22,7 +23,7 @@ public class BrandsMapperTest {
         final SortedSet<String> target = brandsMapper.map(brands);
 
         assertThat(target, hasItem("http://api.ft.com/things/something-from-before"));
-        assertThat(target, hasItem("http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"));
+        assertThat(target, not(hasItem("http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54")));
     }
 
     @Test
