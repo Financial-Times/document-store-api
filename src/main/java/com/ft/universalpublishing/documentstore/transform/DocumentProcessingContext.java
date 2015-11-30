@@ -3,12 +3,12 @@ package com.ft.universalpublishing.documentstore.transform;
 import com.ft.bodyprocessing.BodyProcessingContext;
 import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 
-public class LinkProcessingContext implements BodyProcessingContext {
+public class DocumentProcessingContext implements BodyProcessingContext {
 
     private boolean processingContent = false;
     private ApiUriGenerator uriGenerator;
 
-    public LinkProcessingContext(ApiUriGenerator uriGenerator) {
+    public DocumentProcessingContext(ApiUriGenerator uriGenerator) {
         this.uriGenerator = uriGenerator;
     }
 

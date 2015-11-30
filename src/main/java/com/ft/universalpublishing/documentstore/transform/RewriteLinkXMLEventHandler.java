@@ -26,15 +26,15 @@ public class RewriteLinkXMLEventHandler extends BaseXMLEventHandler {
 
     private final UriBuilder uriBuilder;
     private final String rewriteElementName;
-    private final LinkProcessingContext context;
+    private final DocumentProcessingContext context;
 
-    public RewriteLinkXMLEventHandler(String rewriteElementName, UriBuilder uriBuilder, LinkProcessingContext context) {
+    public RewriteLinkXMLEventHandler(String rewriteElementName, UriBuilder uriBuilder, DocumentProcessingContext context) {
         this.rewriteElementName = rewriteElementName;
         this.uriBuilder = uriBuilder;
         this.context = context;
     }
 
-    public LinkProcessingContext getContext() {
+    public DocumentProcessingContext getContext() {
         return this.context;
     }
 

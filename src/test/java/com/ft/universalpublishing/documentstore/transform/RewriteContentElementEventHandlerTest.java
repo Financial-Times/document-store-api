@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 public class RewriteContentElementEventHandlerTest {
 
-	private final LinkProcessingContext context = new LinkProcessingContext(FixedUriGenerator.localUriGenerator());
+	private final DocumentProcessingContext context = new DocumentProcessingContext(FixedUriGenerator.localUriGenerator());
 
 	private RewriteLinkXMLEventHandler unit;
 

@@ -5,7 +5,7 @@ import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandlerRegistry;
 
 public class ModelBodyTransformationXmlEventHandlerRegistry extends XMLEventHandlerRegistry {
 
-	public ModelBodyTransformationXmlEventHandlerRegistry(final UriBuilder uriBuilder, final LinkProcessingContext context) {
+	public ModelBodyTransformationXmlEventHandlerRegistry(final UriBuilder uriBuilder, final DocumentProcessingContext context) {
 		registerDefaultEventHandler(new RetainXMLEventHandler());
 		registerStartAndEndElementEventHandler(new RewriteLinkXMLEventHandler("ft-content",uriBuilder, context), "content");
         registerStartAndEndElementEventHandler(new RewriteLinkXMLEventHandler("ft-related",uriBuilder, context), "related");
