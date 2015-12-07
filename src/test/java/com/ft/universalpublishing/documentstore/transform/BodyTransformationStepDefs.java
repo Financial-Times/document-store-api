@@ -40,8 +40,8 @@ public class BodyTransformationStepDefs {
 		body.set(new ModelBodyXmlTransformer(new UriBuilder(mapping.get())).transform(body.get(), localProcessingContext()));
 	}
 
-    private ContentBodyProcessingContext localProcessingContext() {
-        return new ContentBodyProcessingContext(FixedUriGenerator.localUriGenerator() );
+    private DocumentProcessingContext localProcessingContext() {
+        return new DocumentProcessingContext(FixedUriGenerator.localUriGenerator() );
     }
 
     @When("I transform the article for output it will fail")

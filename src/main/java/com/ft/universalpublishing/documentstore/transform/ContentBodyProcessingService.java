@@ -15,7 +15,7 @@ public class ContentBodyProcessingService {
         if (content.getBodyXML() == null) {
             return content;
         }
-        final String transformedBody = transformer.transform(content.getBodyXML(), new ContentBodyProcessingContext(currentUriGenerator));
+        final String transformedBody = transformer.transform(content.getBodyXML(), new DocumentProcessingContext(currentUriGenerator));
         return buildContentWithNewBody(content, transformedBody);
     }
 

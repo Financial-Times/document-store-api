@@ -48,3 +48,9 @@ Feature: Body transformation
     And I have body text in the article consisting of <body><content data-embedded="true" id="abc123" type="http://www.ft.com/ontology/content/ImageSet">...</content></body>
     When I transform the article for output
     Then the body text in the article should have been transformed into <body><ft-content type="http://www.ft.com/ontology/content/ImageSet" url="http://localhost/content/abc123" data-embedded="true">...</ft-content></body>
+
+  Scenario: Handle related items and related content promoboxes
+    Given I have a url template mapping of type http://www.ft.com/ontology/content/Article to url /content/{{id}}
+    And I have body text in the article consisting of <body><related id="abc123" type="http://www.ft.com/ontology/content/Article">...</related></body>
+    When I transform the article for output
+    Then the body text in the article should have been transformed into <body><ft-related type="http://www.ft.com/ontology/content/Article" url="http://localhost/content/abc123">...</ft-related></body>

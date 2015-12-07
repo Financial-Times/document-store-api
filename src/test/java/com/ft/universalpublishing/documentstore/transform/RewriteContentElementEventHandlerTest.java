@@ -24,15 +24,15 @@ import static org.mockito.Mockito.when;
 
 public class RewriteContentElementEventHandlerTest {
 
-	private final ContentBodyProcessingContext context = new ContentBodyProcessingContext(FixedUriGenerator.localUriGenerator());
+	private final DocumentProcessingContext context = new DocumentProcessingContext(FixedUriGenerator.localUriGenerator());
 
-	private RewriteContentElementEventHandler unit;
+	private RewriteLinkXMLEventHandler unit;
 
 	@Before
 	public void before() {
 		final Map<String, String> templates = new LinkedHashMap<>();
 		templates.put("TEST-TYPE", "/content/{{id}}");
-		this.unit = new RewriteContentElementEventHandler(new UriBuilder(templates), context);
+		this.unit = new RewriteLinkXMLEventHandler("ft-content",new UriBuilder(templates), context);
 	}
 
 	@Test
@@ -47,17 +47,17 @@ public class RewriteContentElementEventHandlerTest {
 		expectedAttributes.put("url", "http://localhost/content/ABC-123");
 		expectedAttributes.put("banana", "BANANA");
 
-		assertFalse(context.isProcessingContent());
+		assertFalse(context.isProcessingLink());
 		unit.handleStartElementEvent(startElement, xmlEventReader, eventWriter, context);
 
 		verify(eventWriter).writeStartTag("ft-content", expectedAttributes);
 
-		assertTrue(context.isProcessingContent());
+		assertTrue(context.isProcessingLink());
 		unit.handleEndElementEvent(endElement, xmlEventReader, eventWriter);
 
 		verify(eventWriter).writeEndTag("ft-content");
 
-		assertFalse(context.isProcessingContent());
+		assertFalse(context.isProcessingLink());
 	}
 
 	@Test(expected = BodyTransformationException.class)
@@ -66,7 +66,7 @@ public class RewriteContentElementEventHandlerTest {
 		final XMLEventReader xmlEventReader = mock(XMLEventReader.class);
 		final BodyWriter eventWriter = mock(BodyWriter.class);
 
-		context.setProcessingContent(true); // Already within a content element
+		context.setProcessingLink(true); // Already within a content element
 		unit.handleStartElementEvent(startElement, xmlEventReader, eventWriter, context);
 	}
 

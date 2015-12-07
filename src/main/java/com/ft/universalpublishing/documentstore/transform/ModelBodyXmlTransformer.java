@@ -16,11 +16,11 @@ public class ModelBodyXmlTransformer {
         this.uriBuilder = uriBuilder;
     }
 
-    public String transform(final String body, final ContentBodyProcessingContext context) {
+    public String transform(final String body, final DocumentProcessingContext context) {
         return new BodyProcessorChain(bodyProcessors(context)).process(body, context);
     }
 
-    private List<BodyProcessor> bodyProcessors(final ContentBodyProcessingContext context) {
+    private List<BodyProcessor> bodyProcessors(final DocumentProcessingContext context) {
         final XMLEventHandlerRegistry registry = new ModelBodyTransformationXmlEventHandlerRegistry(uriBuilder, context);
         return Collections.singletonList(new StAXTransformingBodyProcessor(registry));
     }
