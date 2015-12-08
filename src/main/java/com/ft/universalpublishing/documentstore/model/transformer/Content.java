@@ -36,6 +36,7 @@ public class Content {
     private final String mainImage;
     private final Comments comments;
     private final Boolean realtime;
+    private final Copyright copyright;
     private final String publishReference;
 
     private Content(@JsonProperty("uuid") UUID uuid,
@@ -56,6 +57,7 @@ public class Content {
             @JsonProperty("mainImage") String mainImage,
             @JsonProperty("comments") Comments comments,
             @JsonProperty("realtime") Boolean realtime,
+            @JsonProperty("copyright") Copyright copyright,
             @JsonProperty("publishReference") String publishReference) {
         this.identifiers = identifiers;
         this.body = body;
@@ -75,6 +77,7 @@ public class Content {
         this.members = members;
         this.mainImage = mainImage;
         this.realtime = realtime;
+        this.copyright = copyright;
         this.publishReference = publishReference;
     }
 
@@ -153,7 +156,11 @@ public class Content {
     public Boolean isRealtime() {
         return realtime;
     }
-    
+
+    public Copyright getCopyright() {
+        return copyright;
+    }
+
     public String getPublishReference() {
         return publishReference;
     }
@@ -178,6 +185,7 @@ public class Content {
                 .add("mainImage", mainImage)
                 .add("comments", comments)
                 .add("realtime", realtime)
+                .add("copyright", copyright)
                 .add("publishReference", publishReference)
                 .toString();
     }
@@ -206,12 +214,13 @@ public class Content {
                 && Objects.equal(this.mainImage, that.mainImage)
                 && Objects.equal(this.comments, that.comments)
                 && Objects.equal(this.realtime, that.realtime)
+                && Objects.equal(this.copyright, that.copyright)
                 && Objects.equal(this.publishReference, that.publishReference);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, publishReference);
+        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, copyright, publishReference);
     }
 
     public static Builder builder() {
@@ -238,6 +247,7 @@ public class Content {
         private String mainImage;
         private Comments comments;
         private Boolean realtime;
+        private Copyright copyright;
         private String transactionId;
 
         public Builder withUuid(UUID uuid) {
@@ -327,7 +337,12 @@ public class Content {
             this.comments = comments;
             return this;
         }
-        
+
+        public Builder withCopyright(Copyright copyright) {
+            this.copyright = copyright;
+            return this;
+        }
+
         public Builder withRealtime(Boolean realtime) {
             this.realtime = realtime;
             return this;
@@ -357,11 +372,12 @@ public class Content {
                     .withMainImage(content.getMainImage())
                     .withComments(content.getComments())
                     .withRealtime(content.isRealtime())
+                    .withCopyright(content.getCopyright())
                     .withPublishReference(content.getPublishReference());
         }
 
 		public Content build() {
-            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, transactionId);
+            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, copyright, transactionId);
         }
     }
 

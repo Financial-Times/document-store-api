@@ -2,6 +2,7 @@ package com.ft.universalpublishing.documentstore.model;
 
 import com.ft.universalpublishing.documentstore.model.read.Comments;
 import com.ft.universalpublishing.documentstore.model.read.Content.Builder;
+import com.ft.universalpublishing.documentstore.model.read.Copyright;
 import com.ft.universalpublishing.documentstore.model.read.Uri;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
 import org.joda.time.DateTime;
@@ -61,6 +62,11 @@ public class ContentMapper {
         if (source.getComments() != null) {
             builder = builder.withComments(new Comments(source.getComments().isEnabled()));
         }
+
+        if(source.getCopyright() != null) {
+            builder.withCopyright(new Copyright(source.getCopyright().getNotice()));
+        }
+
         return builder.build();
     }
 }

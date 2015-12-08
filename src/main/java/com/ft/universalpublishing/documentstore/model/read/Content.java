@@ -31,6 +31,7 @@ public class Content {
     private Uri mainImage;
     private Comments comments;
     private Boolean realtime;
+    private Copyright copyright;
     private String publishReference;
     private Integer pixelWidth;
     private Integer pixelHeight;
@@ -51,6 +52,7 @@ public class Content {
                     @JsonProperty("mainImage") Uri mainImage,
                     @JsonProperty("comments") Comments comments,
                     @JsonProperty("realtime") Boolean realtime,
+                    @JsonProperty("copyright") Copyright copyright,
                     @JsonProperty("publishReference") String publishReference,
                     @JsonProperty("pixelWidth") Integer pixelWidth,
                     @JsonProperty("pixelHeight") Integer pixelHeight) {
@@ -70,6 +72,7 @@ public class Content {
         this.mainImage = mainImage;
         this.comments = comments;
         this.realtime = realtime;
+        this.copyright = copyright;
         this.publishReference = publishReference;
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
@@ -203,7 +206,16 @@ public class Content {
     public Boolean isRealtime() {
         return realtime;
     }
-    
+
+
+    public Copyright getCopyright() {
+        return copyright;
+    }
+
+    public void setCopyright(Copyright copyright) {
+        this.copyright = copyright;
+    }
+
     public String getPublishReference() {
         return publishReference;
     }
@@ -246,6 +258,7 @@ public class Content {
         private Uri mainImage;
         private Comments comments;
         private Boolean realtime;
+        private Copyright copyright;
         private String transactionId;
         private Integer pixelWidth;
         private Integer pixelHeight;
@@ -329,6 +342,11 @@ public class Content {
             this.realtime = realtime;
             return this;
         }
+
+        public Builder withCopyright(Copyright copyright) {
+            this.copyright = copyright;
+            return this;
+        }
         
         public Builder withPublishReference(String transactionId) {
             this.transactionId = transactionId;
@@ -362,6 +380,7 @@ public class Content {
                     mainImage,
                     comments,
                     realtime,
+                    copyright,
                     transactionId,
                     pixelWidth,
                     pixelHeight);

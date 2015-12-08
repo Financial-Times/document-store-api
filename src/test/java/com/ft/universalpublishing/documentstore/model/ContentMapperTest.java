@@ -4,9 +4,11 @@ import com.ft.universalpublishing.documentstore.model.read.Uri;
 import com.ft.universalpublishing.documentstore.model.transformer.Brand;
 import com.ft.universalpublishing.documentstore.model.transformer.Comments;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
+import com.ft.universalpublishing.documentstore.model.transformer.Copyright;
 import com.ft.universalpublishing.documentstore.model.transformer.Identifier;
 import com.ft.universalpublishing.documentstore.model.transformer.Member;
 
+import org.fest.util.Strings;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -54,6 +56,7 @@ public class ContentMapperTest {
                 .withMainImage(mainImageUuid.toString())
                 .withIdentifiers(identifiers)
                 .withComments(new Comments(true))
+                .withCopyright(new Copyright("© AFP"))
                 .withPublishReference(ref)
                 .build();
 
@@ -64,13 +67,13 @@ public class ContentMapperTest {
         expectedBrands.add(FT_BRAND_URI);
         
         verifyContent(readContent, uuid, title, byline, publishDate, body, IDENTIFIER,
-                expectedBrands, mainImageUuid, true, null, ref);
+                expectedBrands, mainImageUuid, true, null, "© AFP", ref);
     }
     
     private void verifyContent(com.ft.universalpublishing.documentstore.model.read.Content actual,
             UUID expectedUuid, String expectedTitle, String expectedByline, Date expectedDate, String expectedBody,
             Identifier expectedIdentifier, SortedSet<String> expectedBrands,
-            UUID expectedImageUuid, Boolean expectedCommentingEnabled, Boolean expectedRealtime, String expectedRef) {
+            UUID expectedImageUuid, Boolean expectedCommentingEnabled, Boolean expectedRealtime, String copyright, String expectedRef) {
         
         assertThat(actual.getId(), equalTo("http://www.ft.com/thing/" + expectedUuid.toString()));
         assertThat(actual.getTitle(), equalTo(expectedTitle));
@@ -86,7 +89,13 @@ public class ContentMapperTest {
         assertThat(actual.getBrands(), equalTo(expectedBrands));
         assertThat(actual.getMainImage(), equalTo(new Uri("http://localhost/content/" + expectedImageUuid.toString())));
         assertThat(actual.getComments().isEnabled(), equalTo(expectedCommentingEnabled));
-        
+
+        if(!Strings.isNullOrEmpty(copyright)) {
+            assertThat(actual.getCopyright().getNotice(),equalTo(copyright));
+        } else {
+            assertThat(actual.getCopyright(),nullValue());
+        }
+
         if (expectedRealtime == null) {
             assertThat(actual.isRealtime(), nullValue());
         }
@@ -135,7 +144,7 @@ public class ContentMapperTest {
         expectedBrands.add(FT_BRAND_URI);
         
         verifyContent(readContent, uuid, title, byline, publishDate, null, IDENTIFIER,
-                expectedBrands, mainImageUuid, true, true, ref);
+                expectedBrands, mainImageUuid, true, true, null, ref);
     }
 
     @Test
@@ -155,6 +164,7 @@ public class ContentMapperTest {
                 .withIdentifiers(identifiers)
                 .withPixelWidth(1536)
                 .withPixelHeight(1538)
+                .withCopyright(new Copyright("© AFP"))
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
@@ -168,6 +178,7 @@ public class ContentMapperTest {
         assertThat(readContent.getBinaryUrl() , equalTo("http://ft.s3.aws/" + uuid.toString()));
         assertThat(readContent.getPixelWidth() , equalTo(1536));
         assertThat(readContent.getPixelHeight() , equalTo(1538));
+        assertThat(readContent.getCopyright().getNotice(),equalTo("© AFP"));
     }
 
     @Test
