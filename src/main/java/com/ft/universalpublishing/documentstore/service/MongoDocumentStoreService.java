@@ -10,6 +10,7 @@ import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -82,7 +83,9 @@ public class MongoDocumentStoreService implements DocumentStoreService {
 
     @Override
     public void applyIndexes(final List<String> collectionNames) {
+    	IndexOptions options = new IndexOptions();
+    	options.unique(true);
         collectionNames.stream()
-                .forEach(name -> db.getCollection(name).createIndex(new Document("uuid", 1)));
+                .forEach(name -> db.getCollection(name).createIndex(new Document("uuid", 1), options));
     }
 }
