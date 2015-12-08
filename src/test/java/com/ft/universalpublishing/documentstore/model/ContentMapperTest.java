@@ -8,7 +8,6 @@ import com.ft.universalpublishing.documentstore.model.transformer.Copyright;
 import com.ft.universalpublishing.documentstore.model.transformer.Identifier;
 import com.ft.universalpublishing.documentstore.model.transformer.Member;
 
-import org.fest.util.Strings;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -104,7 +103,7 @@ public class ContentMapperTest {
         assertThat(readContent.getTitle(), equalTo("Philosopher"));
         assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));
         assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_ARTICLE));
-
+        assertThat(readContent.getBodyXML(),nullValue());
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         final SortedSet<String> expectedBrands = new TreeSet<>();
