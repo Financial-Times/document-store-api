@@ -45,10 +45,14 @@ public class RewriteLinkXMLEventHandler extends BaseXMLEventHandler {
     @Override
     public void handleStartElementEvent(final StartElement event, final XMLEventReader xmlEventReader, final BodyWriter eventWriter,
                                         final BodyProcessingContext bodyProcessingContext) throws XMLStreamException {
-        if (getContext().isProcessingLink()) {
-            throw new BodyTransformationException("Nested content is not permitted");
+
+        String elementName = event.getName().getLocalPart();
+
+        if (getContext().isProcessing(elementName)) {
+            String message = String.format("Nested %s elements are not permitted", elementName);
+            throw new BodyTransformationException(message);
         } else {
-            getContext().setProcessingLink(true);
+            getContext().processingStarted(elementName);
         }
 
         /* we expect a new instance of this class for every run through the transform and for the same
@@ -80,7 +84,7 @@ public class RewriteLinkXMLEventHandler extends BaseXMLEventHandler {
     @Override
     public void handleEndElementEvent(final EndElement event, final XMLEventReader xmlEventReader, final BodyWriter eventWriter) throws XMLStreamException {
         eventWriter.writeEndTag(getRewriteElementName());
-        context.setProcessingLink(false);
+        context.processingStopped(event.getName().getLocalPart());
     }
 
     private String getAttribute(final StartElement event, final String name, final String missingValueErrorMessage) {

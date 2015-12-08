@@ -24,7 +24,8 @@ import static org.mockito.Mockito.when;
 
 public class RewriteContentElementEventHandlerTest {
 
-	private final DocumentProcessingContext context = new DocumentProcessingContext(FixedUriGenerator.localUriGenerator());
+    public static final QName CONTENT = new QName("content");
+    private final DocumentProcessingContext context = new DocumentProcessingContext(FixedUriGenerator.localUriGenerator());
 
 	private RewriteLinkXMLEventHandler unit;
 
@@ -38,7 +39,7 @@ public class RewriteContentElementEventHandlerTest {
 	@Test
 	public void testRewrite() throws Exception {
 		final StartElement startElement = mockStartElement();
-		final EndElement endElement = mock(EndElement.class);
+		final EndElement endElement = mockEndContentElement();
 		final XMLEventReader xmlEventReader = mock(XMLEventReader.class);
 		final BodyWriter eventWriter = mock(BodyWriter.class);
 
@@ -47,26 +48,33 @@ public class RewriteContentElementEventHandlerTest {
 		expectedAttributes.put("url", "http://localhost/content/ABC-123");
 		expectedAttributes.put("banana", "BANANA");
 
-		assertFalse(context.isProcessingLink());
+		assertFalse(context.isProcessing("content"));
 		unit.handleStartElementEvent(startElement, xmlEventReader, eventWriter, context);
 
 		verify(eventWriter).writeStartTag("ft-content", expectedAttributes);
 
-		assertTrue(context.isProcessingLink());
+		assertTrue(context.isProcessing("content"));
 		unit.handleEndElementEvent(endElement, xmlEventReader, eventWriter);
 
 		verify(eventWriter).writeEndTag("ft-content");
 
-		assertFalse(context.isProcessingLink());
+		assertFalse(context.isProcessing("content"));
 	}
 
-	@Test(expected = BodyTransformationException.class)
+    private EndElement mockEndContentElement() {
+        EndElement element = mock(EndElement.class);
+        when(element.getName()).thenReturn(CONTENT);
+
+        return element;
+    }
+
+    @Test(expected = BodyTransformationException.class)
 	public void testDisallowNesting() throws Exception {
 		final StartElement startElement = mockStartElement();
 		final XMLEventReader xmlEventReader = mock(XMLEventReader.class);
 		final BodyWriter eventWriter = mock(BodyWriter.class);
 
-		context.setProcessingLink(true); // Already within a content element
+		context.processingStarted("content"); // Already within a content element
 		unit.handleStartElementEvent(startElement, xmlEventReader, eventWriter, context);
 	}
 
@@ -80,7 +88,7 @@ public class RewriteContentElementEventHandlerTest {
 		attributes.add(id);
 		attributes.add(banana);
 
-		return new StartElementImpl(new QName("content"), attributes.iterator(), null, null, null);
+		return new StartElementImpl(CONTENT, attributes.iterator(), null, null, null);
 	}
 
 	private Attribute mockAttribute(final String name, final String value) {
