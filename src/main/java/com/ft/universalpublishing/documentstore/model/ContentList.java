@@ -13,7 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items", "layoutHint", "publishReference"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items", "layoutHint", "publishReference", "lastModified"})
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
@@ -38,6 +38,7 @@ public class ContentList {
         private List<ListItem> items;
         private String layoutHint;
         private String publishReference;
+        private Date lastModified;
 
         public Builder withId(String id) {
             this.id = id;
@@ -74,8 +75,13 @@ public class ContentList {
             return this;
         }
 
+        public Builder withLastModified(Date lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
         public ContentList build() {
-            ContentList list = new ContentList(id, uuid, apiUrl, title, items, layoutHint, publishReference);
+            ContentList list = new ContentList(id, uuid, apiUrl, title, items, layoutHint, publishReference, lastModified);
             return list;
         }
     }
@@ -88,9 +94,10 @@ public class ContentList {
     private Date publishedDate;
     private String layoutHint;
     private String publishReference;
+    private Date lastModified;
 
     private ContentList(String id, UUID uuid, String apiUrl, String title, List<ListItem> items,
-                        String layoutHint, String publishReference) {
+                        String layoutHint, String publishReference, Date lastModified) {
 
         setId(id);
         if (uuid != null) {
@@ -101,6 +108,7 @@ public class ContentList {
         this.items = items;
         this.layoutHint = layoutHint;
         this.publishReference = publishReference;
+        this.lastModified = lastModified;
     }
 
     public String getId() {
@@ -135,7 +143,7 @@ public class ContentList {
         return items;
     }
 
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     public Date getPublishedDate() {
         return publishedDate;
     }
@@ -149,10 +157,15 @@ public class ContentList {
         return publishReference;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    public Date getLastModified() {
+        return lastModified;
+    }
+
     public void addIds() {
         setId(IDENTIFIER_TEMPLATE + uuid);
         if (items != null) {
-            for (ListItem item: items) {
+            for (ListItem item : items) {
                 if (item.getUuid() != null) {
                     item.setId(IDENTIFIER_TEMPLATE + item.getUuid());
                 }
@@ -163,7 +176,7 @@ public class ContentList {
     public void addApiUrls(String apiPath) {
         setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "lists", uuid));
         if (items != null) {
-            for (ListItem item: items) {
+            for (ListItem item : items) {
                 if (item.getUuid() != null) {
                     // for now, assume they're all content
                     item.setApiUrl(String.format(API_URL_TEMPLATE, apiPath, "content", item.getUuid()));
@@ -177,7 +190,7 @@ public class ContentList {
         setUuid(null);
         set_id(null);
         if (items != null) {
-            for (ListItem item: items) {
+            for (ListItem item : items) {
                 item.setUuid(null);
             }
         }
@@ -194,6 +207,7 @@ public class ContentList {
                 .add("publishedDate", publishedDate)
                 .add("layoutHint", layoutHint)
                 .add("publishReference", publishReference)
+                .add("lastModified", lastModified)
                 .toString();
 
     }
@@ -211,12 +225,13 @@ public class ContentList {
                 && Objects.equal(this.items, other.items)
                 && Objects.equal(this.publishedDate, other.publishedDate)
                 && Objects.equal(this.layoutHint, other.layoutHint)
-                && Objects.equal(this.publishReference, publishReference);
+                && Objects.equal(this.publishReference, publishReference)
+                && Objects.equal(this.lastModified, lastModified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate, layoutHint, publishReference);
+        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate, layoutHint, publishReference, lastModified);
     }
 
 }

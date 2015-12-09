@@ -45,6 +45,11 @@ public class ContentMapper {
                 .withPublishReference(source.getPublishReference())
                 .withPixelWidth(source.getPixelWidth())
                 .withPixelHeight(source.getPixelHeight());
+
+        if (source.getLastModified() != null) {
+            builder = builder.withLastModifiedDate(new DateTime(source.getLastModified().getTime()));
+        }
+
         if (source.getIdentifiers() != null) {
             builder = builder.withIdentifiers(source.getIdentifiers().stream()
                     .map(identifierMapper::map)

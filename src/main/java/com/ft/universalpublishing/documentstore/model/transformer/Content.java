@@ -37,26 +37,28 @@ public class Content {
     private final Comments comments;
     private final Boolean realtime;
     private final String publishReference;
+    private final Date lastModified;
 
     private Content(@JsonProperty("uuid") UUID uuid,
-            @JsonProperty("title") String title,
-            @JsonProperty("titles") List<String> titles,
-            @JsonProperty("byline") String byline,
-            @JsonProperty("brands") SortedSet<Brand> brands,
-            @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
-            @JsonProperty("publishedDate") Date publishedDate,
-            @JsonProperty("body") String body,
-            @JsonProperty("description") String description,
-            @JsonProperty("mediaType") String mediaType,
-            @JsonProperty("pixelWidth") Integer pixelWidth,
-            @JsonProperty("pixelHeight") Integer pixelHeight,
-            @JsonProperty("internalBinaryUrl") String internalBinaryUrl,
-            @JsonProperty("externalBinaryUrl") String externalBinaryUrl,
-            @JsonProperty("members") SortedSet<Member> members,
-            @JsonProperty("mainImage") String mainImage,
-            @JsonProperty("comments") Comments comments,
-            @JsonProperty("realtime") Boolean realtime,
-            @JsonProperty("publishReference") String publishReference) {
+                    @JsonProperty("title") String title,
+                    @JsonProperty("titles") List<String> titles,
+                    @JsonProperty("byline") String byline,
+                    @JsonProperty("brands") SortedSet<Brand> brands,
+                    @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
+                    @JsonProperty("publishedDate") Date publishedDate,
+                    @JsonProperty("body") String body,
+                    @JsonProperty("description") String description,
+                    @JsonProperty("mediaType") String mediaType,
+                    @JsonProperty("pixelWidth") Integer pixelWidth,
+                    @JsonProperty("pixelHeight") Integer pixelHeight,
+                    @JsonProperty("internalBinaryUrl") String internalBinaryUrl,
+                    @JsonProperty("externalBinaryUrl") String externalBinaryUrl,
+                    @JsonProperty("members") SortedSet<Member> members,
+                    @JsonProperty("mainImage") String mainImage,
+                    @JsonProperty("comments") Comments comments,
+                    @JsonProperty("realtime") Boolean realtime,
+                    @JsonProperty("publishReference") String publishReference,
+                    @JsonProperty("lastModified") Date lastModified) {
         this.identifiers = identifiers;
         this.body = body;
         this.comments = comments;
@@ -76,6 +78,7 @@ public class Content {
         this.mainImage = mainImage;
         this.realtime = realtime;
         this.publishReference = publishReference;
+        this.lastModified = lastModified;
     }
 
     @NotNull
@@ -87,21 +90,21 @@ public class Content {
     public String getTitle() {
         return title;
     }
-    
+
     public List<String> getTitles() {
-    	return titles;
+        return titles;
     }
-    
+
     public String getByline() {
-    	return byline;
+        return byline;
     }
 
     public SortedSet<Brand> getBrands() {
-		return brands;
-	}
+        return brands;
+    }
 
     @NotNull
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     public Date getPublishedDate() {
         return publishedDate;
     }
@@ -149,13 +152,18 @@ public class Content {
     public Comments getComments() {
         return comments;
     }
-    
+
     public Boolean isRealtime() {
         return realtime;
     }
-    
+
     public String getPublishReference() {
         return publishReference;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    public Date getLastModified() {
+        return lastModified;
     }
 
     @Override
@@ -179,6 +187,7 @@ public class Content {
                 .add("comments", comments)
                 .add("realtime", realtime)
                 .add("publishReference", publishReference)
+                .add("lastModified", lastModified)
                 .toString();
     }
 
@@ -206,12 +215,13 @@ public class Content {
                 && Objects.equal(this.mainImage, that.mainImage)
                 && Objects.equal(this.comments, that.comments)
                 && Objects.equal(this.realtime, that.realtime)
-                && Objects.equal(this.publishReference, that.publishReference);
+                && Objects.equal(this.publishReference, that.publishReference)
+                && Objects.equal(this.lastModified, that.lastModified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, publishReference);
+        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, publishReference, lastModified);
     }
 
     public static Builder builder() {
@@ -239,6 +249,7 @@ public class Content {
         private Comments comments;
         private Boolean realtime;
         private String transactionId;
+        private Date lastModified;
 
         public Builder withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -251,12 +262,12 @@ public class Content {
         }
 
         public Builder withTitles(List<String> titles) {
-        	this.titles = titles;
-        	if(titles != null) {
-        		Collections.sort(titles, new LengthComparator());
-        	}
-        	return this;
-		}
+            this.titles = titles;
+            if (titles != null) {
+                Collections.sort(titles, new LengthComparator());
+            }
+            return this;
+        }
 
         public Builder withByline(String byline) {
             this.byline = byline;
@@ -327,22 +338,27 @@ public class Content {
             this.comments = comments;
             return this;
         }
-        
+
         public Builder withRealtime(Boolean realtime) {
             this.realtime = realtime;
             return this;
         }
-        
+
         public Builder withPublishReference(String transactionId) {
             this.transactionId = transactionId;
             return this;
         }
 
+        public Builder withLastModifiedDate(Date lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
         public Builder withValuesFrom(Content content) {
             return withTitle(content.getTitle())
-            		.withTitles(content.getTitles())
-            		.withByline(content.getByline())
-            		.withBrands(content.getBrands())
+                    .withTitles(content.getTitles())
+                    .withByline(content.getByline())
+                    .withBrands(content.getBrands())
                     .withIdentifiers(content.getIdentifiers())
                     .withUuid(UUID.fromString(content.getUuid()))
                     .withPublishedDate(content.getPublishedDate())
@@ -357,18 +373,19 @@ public class Content {
                     .withMainImage(content.getMainImage())
                     .withComments(content.getComments())
                     .withRealtime(content.isRealtime())
-                    .withPublishReference(content.getPublishReference());
+                    .withPublishReference(content.getPublishReference())
+                    .withLastModifiedDate(content.getLastModified());
         }
 
-		public Content build() {
-            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, transactionId);
+        public Content build() {
+            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, transactionId, lastModified);
         }
     }
 
     private static final class LengthComparator implements Comparator<String> {
-		@Override
-		public int compare(String o1, String o2) {
-			return o1.length() - o2.length();
-		}
+        @Override
+        public int compare(String o1, String o2) {
+            return o1.length() - o2.length();
+        }
     }
 }
