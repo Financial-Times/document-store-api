@@ -39,6 +39,7 @@ public class ContentBodyProcessingService {
                 .withPublishReference(content.getPublishReference())
                 .withPixelWidth(content.getPixelWidth())
                 .withPixelHeight(content.getPixelHeight())
+                .withLastModifiedDate(content.getLastModified())
                 .build();
     }
 }

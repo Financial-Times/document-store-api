@@ -35,6 +35,7 @@ public class MongoDocumentStoreContentServiceTest {
 
     private UUID uuid;
     private Date lastPublicationDate;
+    private Date lastModifiedDate;
 
     private MongoCollection<Document> collection;
 
@@ -49,6 +50,7 @@ public class MongoDocumentStoreContentServiceTest {
         collection = db.getCollection("content");
         uuid = UUID.randomUUID();
         lastPublicationDate = new Date();
+        lastModifiedDate = new Date();
 
         content = new HashMap<>();
         content.put("uuid", uuid.toString());
@@ -57,6 +59,7 @@ public class MongoDocumentStoreContentServiceTest {
         content.put("bodyXML", "xmlBody");
         content.put("publishedDate", lastPublicationDate);
         content.put("publishReference", "Some String");
+        content.put("lastModified", lastModifiedDate);
 
         outboundContent = new HashMap<>();
         outboundContent.put("uuid", uuid.toString());
@@ -65,6 +68,7 @@ public class MongoDocumentStoreContentServiceTest {
         outboundContent.put("bodyXML", "xmlBody");
         outboundContent.put("publishedDate", lastPublicationDate);
         outboundContent.put("publishReference", "Some String");
+        outboundContent.put("lastModified", lastModifiedDate);
     }
 
 
@@ -76,7 +80,8 @@ public class MongoDocumentStoreContentServiceTest {
                 .append("byline", "By Bob Woodward")
                 .append("bodyXML", "xmlBody")
                 .append("publishedDate", lastPublicationDate)
-                .append("publishReference", "Some String");
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate);
         collection.insertOne(toInsert);
 
 
@@ -103,7 +108,7 @@ public class MongoDocumentStoreContentServiceTest {
         assertThat((String) foundContent.get("bodyXML"), is("xmlBody"));
         assertThat((Date) foundContent.get("publishedDate"), is(lastPublicationDate));
         assertThat((String)foundContent.get("publishReference"), is("Some String"));
-
+        assertThat((Date) foundContent.get("lastModified"), is(lastModifiedDate));
     }
 
     @Test
