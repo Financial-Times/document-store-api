@@ -15,6 +15,8 @@ import javax.xml.stream.events.StartElement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static java.util.Collections.singletonMap;
+
 public class RewriteLinkXMLEventHandler extends BaseXMLEventHandler {
 
     public static final String TYPE_ATTRIBUTE_NAME = "type";
@@ -60,24 +62,31 @@ public class RewriteLinkXMLEventHandler extends BaseXMLEventHandler {
          */
         Preconditions.checkArgument(bodyProcessingContext == context);
 
-        final Map<String, String> remaining = removeFtContentAttributes(event);
+        if(hasAttribute(event,TYPE_ATTRIBUTE_NAME)) {
 
-        final String type = getAttribute(event, TYPE_ATTRIBUTE_NAME, TYPE_ATTR_MISSING_MESSAGE);
-        final String id = getAttribute(event, ID_ATTRIBUTE_NAME, ID_ATTR_MISSING_MESSAGE);
+            final Map<String, String> remaining = removeFtContentAttributes(event);
 
-        ApiUriGenerator uriGenerator = context.getUriGenerator();
+            final String type = getAttribute(event, TYPE_ATTRIBUTE_NAME, TYPE_ATTR_MISSING_MESSAGE);
+            final String id = getAttribute(event, ID_ATTRIBUTE_NAME, ID_ATTR_MISSING_MESSAGE);
 
-        try {
-            final String mergedUrl = uriBuilder.mergeUrl(type,id);
+            ApiUriGenerator uriGenerator = context.getUriGenerator();
 
-            final Map<String, String> rewrittenAttributes = new LinkedHashMap<>();
-            rewrittenAttributes.put(TYPE_ATTRIBUTE_NAME, type);
-            rewrittenAttributes.put(URL_ATTRIBUTE_NAME, uriGenerator.resolve(mergedUrl));
-            rewrittenAttributes.putAll(remaining);
-            eventWriter.writeStartTag(getRewriteElementName(), rewrittenAttributes);
+            try {
+                final String mergedUrl = uriBuilder.mergeUrl(type,id);
 
-        } catch (final Exception e) {
-            throw new BodyTransformationException("Failed to rewrite the body", e);
+                final Map<String, String> rewrittenAttributes = new LinkedHashMap<>();
+                rewrittenAttributes.put(TYPE_ATTRIBUTE_NAME, type);
+                rewrittenAttributes.put(URL_ATTRIBUTE_NAME, uriGenerator.resolve(mergedUrl));
+                rewrittenAttributes.putAll(remaining);
+                eventWriter.writeStartTag(getRewriteElementName(), rewrittenAttributes);
+
+            } catch (final Exception e) {
+                throw new BodyTransformationException("Failed to rewrite the body", e);
+            }
+        } else {
+            // ft-related uses an untyped url for arbitrary destinations
+            final String url = getAttribute(event, URL_ATTRIBUTE_NAME, "Missing url atribute on un-typed link");
+            eventWriter.writeStartTag(getRewriteElementName(), singletonMap(URL_ATTRIBUTE_NAME,url));
         }
     }
 
@@ -100,6 +109,16 @@ public class RewriteLinkXMLEventHandler extends BaseXMLEventHandler {
 
         return value;
     }
+
+    private boolean hasAttribute(final StartElement event, final String name) {
+        final Attribute namedAttribute = event.getAttributeByName(new QName(name));
+        if (namedAttribute == null) {
+            return false;
+        }
+
+        return true;
+    }
+
 
     private Map<String, String> removeFtContentAttributes(final StartElement event) {
         final Map<String, String> existing = getValidAttributesAndValues(event);
