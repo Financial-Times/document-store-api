@@ -28,6 +28,7 @@ public class ContentMapperTest {
     public void testContentMapping() throws Exception {
         final UUID uuid = UUID.randomUUID();
         final Date publishDate = new Date();
+        final Date lastModified = new Date();
         final SortedSet<Identifier> identifiers = new TreeSet<>();
         identifiers.add(new Identifier("authority1", "identifier1"));
         final SortedSet<Brand> brands = new TreeSet<>();
@@ -45,6 +46,7 @@ public class ContentMapperTest {
                 .withIdentifiers(identifiers)
                 .withComments(new Comments(true))
                 .withPublishReference("Publish Reference")
+                .withLastModifiedDate(lastModified)
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
@@ -63,9 +65,11 @@ public class ContentMapperTest {
         assertThat(readContent.getMainImage(), equalTo(new Uri("http://localhost/content/" + mainImageUuid.toString())));
         assertThat(readContent.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
         assertThat(readContent.getPublishReference(), equalTo("Publish Reference"));
+        assertThat(readContent.getLastModified(), equalTo(new DateTime(lastModified.getTime())));
     }
-    
-   
+
+
+
     @Test
     public void testLiveBlogContentMapping() throws Exception {
         final UUID uuid = UUID.randomUUID();
@@ -75,15 +79,15 @@ public class ContentMapperTest {
 
         final SortedSet<Identifier> identifiers = new TreeSet<>();
         identifiers.add(new Identifier("authority1", "identifier1"));
-        
+
         final SortedSet<Brand> brands = new TreeSet<>();
         brands.add(new Brand("Lex"));
         brands.add(new Brand("Chuck Taylor"));
-        
+
         final UUID mainImageUuid = UUID.randomUUID();
-        
+
         final String ref = "Publish Reference";
-        
+
         final Content content = Content.builder()
                 .withUuid(uuid)
                 .withTitle(title)
@@ -116,11 +120,12 @@ public class ContentMapperTest {
 
         assertThat(readContent.isRealtime(),equalTo(true));
     }
-
+    
     @Test
     public void testImageMapping() throws Exception {
         final UUID uuid = UUID.randomUUID();
         final Date publishDate = new Date();
+        final Date lastModified = new Date();
         final SortedSet<Identifier> identifiers = new TreeSet<>();
         identifiers.add(new Identifier("authority1", "identifier1"));
         final Content content = Content.builder()
@@ -132,6 +137,7 @@ public class ContentMapperTest {
                 .withInternalBinaryUrl("http://methode-image-binary-transformer/binary/" + uuid.toString())
                 .withExternalBinaryUrl("http://ft.s3.aws/" + uuid.toString())
                 .withIdentifiers(identifiers)
+                .withLastModifiedDate(lastModified)
                 .withPixelWidth(1536)
                 .withPixelHeight(1538)
                 .withCopyright(new Copyright("© AFP"))
@@ -146,6 +152,8 @@ public class ContentMapperTest {
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         assertThat(readContent.getBinaryUrl() , equalTo("http://ft.s3.aws/" + uuid.toString()));
+        assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));
+        assertThat(readContent.getLastModified(), equalTo(new DateTime(lastModified.getTime())));
         assertThat(readContent.getPixelWidth() , equalTo(1536));
         assertThat(readContent.getPixelHeight() , equalTo(1538));
         assertThat(readContent.getCopyright().getNotice(),equalTo("© AFP"));
@@ -155,6 +163,7 @@ public class ContentMapperTest {
     public void testImageSetMapping() throws Exception {
         final UUID uuid = UUID.randomUUID();
         final Date publishDate = new Date();
+        final Date lastModified = new Date();
         final SortedSet<Identifier> identifiers = new TreeSet<>();
         identifiers.add(new Identifier("authority1", "identifier1"));
         final SortedSet<Member> members = new TreeSet<>();
@@ -168,6 +177,7 @@ public class ContentMapperTest {
                 .withByline("David Jules")
                 .withMembers(members)
                 .withIdentifiers(identifiers)
+                .withLastModifiedDate(lastModified)
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
@@ -179,5 +189,7 @@ public class ContentMapperTest {
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         assertThat(readContent.getMembers().first(), equalTo(new Uri("http://localhost/content/" + memberUuid.toString())));
+        assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));
+        assertThat(readContent.getLastModified(), equalTo(new DateTime(lastModified.getTime())));
     }
 }

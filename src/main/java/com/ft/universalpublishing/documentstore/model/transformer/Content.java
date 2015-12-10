@@ -38,6 +38,7 @@ public class Content {
     private final Boolean realtime;
     private final Copyright copyright;
     private final String publishReference;
+    private final Date lastModified;
 
     private Content(@JsonProperty("uuid") UUID uuid,
             @JsonProperty("title") String title,
@@ -58,7 +59,8 @@ public class Content {
             @JsonProperty("comments") Comments comments,
             @JsonProperty("realtime") Boolean realtime,
             @JsonProperty("copyright") Copyright copyright,
-            @JsonProperty("publishReference") String publishReference) {
+            @JsonProperty("publishReference") String publishReference,
+            @JsonProperty("lastModified") Date lastModified) {
         this.identifiers = identifiers;
         this.body = body;
         this.comments = comments;
@@ -79,6 +81,7 @@ public class Content {
         this.realtime = realtime;
         this.copyright = copyright;
         this.publishReference = publishReference;
+        this.lastModified = lastModified;
     }
 
     @NotNull
@@ -90,21 +93,21 @@ public class Content {
     public String getTitle() {
         return title;
     }
-    
+
     public List<String> getTitles() {
-    	return titles;
+        return titles;
     }
-    
+
     public String getByline() {
-    	return byline;
+        return byline;
     }
 
     public SortedSet<Brand> getBrands() {
-		return brands;
-	}
+        return brands;
+    }
 
     @NotNull
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     public Date getPublishedDate() {
         return publishedDate;
     }
@@ -152,7 +155,7 @@ public class Content {
     public Comments getComments() {
         return comments;
     }
-    
+
     public Boolean isRealtime() {
         return realtime;
     }
@@ -163,6 +166,11 @@ public class Content {
 
     public String getPublishReference() {
         return publishReference;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    public Date getLastModified() {
+        return lastModified;
     }
 
     @Override
@@ -187,6 +195,7 @@ public class Content {
                 .add("realtime", realtime)
                 .add("copyright", copyright)
                 .add("publishReference", publishReference)
+                .add("lastModified", lastModified)
                 .toString();
     }
 
@@ -215,12 +224,34 @@ public class Content {
                 && Objects.equal(this.comments, that.comments)
                 && Objects.equal(this.realtime, that.realtime)
                 && Objects.equal(this.copyright, that.copyright)
-                && Objects.equal(this.publishReference, that.publishReference);
+                && Objects.equal(this.publishReference, that.publishReference)
+                && Objects.equal(this.lastModified, that.lastModified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, copyright, publishReference);
+        return Objects.hashCode(
+                title, 
+                byline, 
+                brands, 
+                identifiers, 
+                uuid, 
+                publishedDate, 
+                body, 
+                description, 
+                mediaType, 
+                pixelWidth, 
+                pixelHeight, 
+                internalBinaryUrl, 
+                externalBinaryUrl, 
+                members, 
+                mainImage, 
+                comments, 
+                realtime, 
+                copyright, 
+                publishReference,
+                lastModified
+        );
     }
 
     public static Builder builder() {
@@ -249,6 +280,7 @@ public class Content {
         private Boolean realtime;
         private Copyright copyright;
         private String transactionId;
+        private Date lastModified;
 
         public Builder withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -261,12 +293,12 @@ public class Content {
         }
 
         public Builder withTitles(List<String> titles) {
-        	this.titles = titles;
-        	if(titles != null) {
-        		Collections.sort(titles, new LengthComparator());
-        	}
-        	return this;
-		}
+            this.titles = titles;
+            if (titles != null) {
+                Collections.sort(titles, new LengthComparator());
+            }
+            return this;
+        }
 
         public Builder withByline(String byline) {
             this.byline = byline;
@@ -353,11 +385,16 @@ public class Content {
             return this;
         }
 
+        public Builder withLastModifiedDate(Date lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
         public Builder withValuesFrom(Content content) {
             return withTitle(content.getTitle())
-            		.withTitles(content.getTitles())
-            		.withByline(content.getByline())
-            		.withBrands(content.getBrands())
+                    .withTitles(content.getTitles())
+                    .withByline(content.getByline())
+                    .withBrands(content.getBrands())
                     .withIdentifiers(content.getIdentifiers())
                     .withUuid(UUID.fromString(content.getUuid()))
                     .withPublishedDate(content.getPublishedDate())
@@ -373,18 +410,41 @@ public class Content {
                     .withComments(content.getComments())
                     .withRealtime(content.isRealtime())
                     .withCopyright(content.getCopyright())
-                    .withPublishReference(content.getPublishReference());
+                    .withPublishReference(content.getPublishReference())
+                    .withLastModifiedDate(content.getLastModified());
         }
 
 		public Content build() {
-            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, copyright, transactionId);
+            return new Content(
+                    uuid, 
+                    title, 
+                    titles, 
+                    byline, 
+                    brands, 
+                    identifiers, 
+                    publishedDate, 
+                    body, 
+                    description, 
+                    mediaType, 
+                    pixelWidth, 
+                    pixelHeight, 
+                    internalBinaryUrl, 
+                    externalBinaryUrl, 
+                    members, 
+                    mainImage, 
+                    comments, 
+                    realtime, 
+                    copyright,
+                    transactionId,
+                    lastModified
+            );
         }
     }
 
     private static final class LengthComparator implements Comparator<String> {
-		@Override
-		public int compare(String o1, String o2) {
-			return o1.length() - o2.length();
-		}
+        @Override
+        public int compare(String o1, String o2) {
+            return o1.length() - o2.length();
+        }
     }
 }

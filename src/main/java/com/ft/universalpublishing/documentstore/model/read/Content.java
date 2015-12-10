@@ -12,22 +12,22 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "realtime", "publishReference"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
 public class Content {
 
-	private String id;
-	private String type;
-	private String bodyXML;
-	private String title;
-	private String byline;
-	private String description;
-	private DateTime publishedDate;
-	private SortedSet<Identifier> identifiers;
-	private SortedSet<Uri> members;
-	private String requestUrl;
-	private String binaryUrl;
-	private SortedSet<String> brands;
-	private Set<Annotation> annotations;
+    private String id;
+    private String type;
+    private String bodyXML;
+    private String title;
+    private String byline;
+    private String description;
+    private DateTime publishedDate;
+    private SortedSet<Identifier> identifiers;
+    private SortedSet<Uri> members;
+    private String requestUrl;
+    private String binaryUrl;
+    private SortedSet<String> brands;
+    private Set<Annotation> annotations;
     private Uri mainImage;
     private Comments comments;
     private Boolean realtime;
@@ -35,6 +35,7 @@ public class Content {
     private String publishReference;
     private Integer pixelWidth;
     private Integer pixelHeight;
+    private DateTime lastModified;
 
     private Content(@JsonProperty("id") String id,
                     @JsonProperty("type") String type,
@@ -55,7 +56,8 @@ public class Content {
                     @JsonProperty("copyright") Copyright copyright,
                     @JsonProperty("publishReference") String publishReference,
                     @JsonProperty("pixelWidth") Integer pixelWidth,
-                    @JsonProperty("pixelHeight") Integer pixelHeight) {
+                    @JsonProperty("pixelHeight") Integer pixelHeight,
+                    @JsonProperty("lastModified") DateTime lastModified) {
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
@@ -76,72 +78,73 @@ public class Content {
         this.publishReference = publishReference;
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
+        this.lastModified = lastModified;
     }
 
     public String getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public String getBodyXML() {
-		return bodyXML;
-	}
+    public String getBodyXML() {
+        return bodyXML;
+    }
 
-	public void setBodyXML(String bodyXML) {
-		this.bodyXML = bodyXML;
-	}
+    public void setBodyXML(String bodyXML) {
+        this.bodyXML = bodyXML;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public String getByline() {
-		return byline;
-	}
+    public String getByline() {
+        return byline;
+    }
 
-	public void setByline(String byline) {
-		this.byline = byline;
-	}
+    public void setByline(String byline) {
+        this.byline = byline;
+    }
 
     @JsonSerialize(using = JsonDateTimeWithMillisSerializer.class)
-	public DateTime getPublishedDate() {
-		return publishedDate;
-	}
+    public DateTime getPublishedDate() {
+        return publishedDate;
+    }
 
-	public void setPublishedDate(DateTime publishedDate) {
-		this.publishedDate = publishedDate;
-	}
+    public void setPublishedDate(DateTime publishedDate) {
+        this.publishedDate = publishedDate;
+    }
 
-	public void setRequestUrl(String requestUrl) {
-		this.requestUrl = requestUrl;
-	}
+    public void setRequestUrl(String requestUrl) {
+        this.requestUrl = requestUrl;
+    }
 
-	public String getRequestUrl() {
-		return requestUrl;
-	}
+    public String getRequestUrl() {
+        return requestUrl;
+    }
 
-	public void setBrands(SortedSet<String> brands) {
-		this.brands = brands;
-	}
+    public void setBrands(SortedSet<String> brands) {
+        this.brands = brands;
+    }
 
-	public SortedSet<String> getBrands() {
-		return brands;
-	}
+    public SortedSet<String> getBrands() {
+        return brands;
+    }
 
     public Set<Annotation> getAnnotations() {
         return annotations;
@@ -151,37 +154,37 @@ public class Content {
         this.annotations = annotations;
     }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public SortedSet<Identifier> getIdentifiers() {
-		return identifiers;
-	}
+    public SortedSet<Identifier> getIdentifiers() {
+        return identifiers;
+    }
 
-	public void setIdentifiers(SortedSet<Identifier> identifiers) {
-		this.identifiers = identifiers;
-	}
+    public void setIdentifiers(SortedSet<Identifier> identifiers) {
+        this.identifiers = identifiers;
+    }
 
-	public SortedSet<Uri> getMembers() {
-		return members;
-	}
+    public SortedSet<Uri> getMembers() {
+        return members;
+    }
 
-	public void setMembers(SortedSet<Uri> members) {
-		this.members = members;
-	}
+    public void setMembers(SortedSet<Uri> members) {
+        this.members = members;
+    }
 
-	public String getBinaryUrl() {
-		return binaryUrl;
-	}
+    public String getBinaryUrl() {
+        return binaryUrl;
+    }
 
-	public void setBinaryUrl(String binaryUrl) {
-		this.binaryUrl = binaryUrl;
-	}
+    public void setBinaryUrl(String binaryUrl) {
+        this.binaryUrl = binaryUrl;
+    }
 
     public Uri getMainImage() {
         return mainImage;
@@ -198,15 +201,14 @@ public class Content {
     public void setComments(Comments comments) {
         this.comments = comments;
     }
-    
+
     public void setRealtime(Boolean realtime) {
         this.realtime = realtime;
     }
-    
+
     public Boolean isRealtime() {
         return realtime;
     }
-
 
     public Copyright getCopyright() {
         return copyright;
@@ -220,7 +222,7 @@ public class Content {
         return publishReference;
     }
 
-    public void  setPublishReference(String publishReference) {
+    public void setPublishReference(String publishReference) {
         this.publishReference = publishReference;
     }
 
@@ -238,6 +240,11 @@ public class Content {
 
     public void setPixelHeight(Integer pixelHeight) {
         this.pixelHeight = pixelHeight;
+    }
+
+    @JsonSerialize(using = JsonDateTimeWithMillisSerializer.class)
+    public DateTime getLastModified() {
+        return lastModified;
     }
 
     public static class Builder {
@@ -262,6 +269,7 @@ public class Content {
         private String transactionId;
         private Integer pixelWidth;
         private Integer pixelHeight;
+        private DateTime lastModified;
 
         public Builder withId(String id) {
             this.id = id;
@@ -337,7 +345,7 @@ public class Content {
             this.comments = comments;
             return this;
         }
-        
+
         public Builder withRealtime(Boolean realtime) {
             this.realtime = realtime;
             return this;
@@ -363,6 +371,11 @@ public class Content {
             return this;
         }
 
+        public Builder withLastModifiedDate(DateTime lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
         public Content build() {
             return new Content(id,
                     type,
@@ -383,7 +396,8 @@ public class Content {
                     copyright,
                     transactionId,
                     pixelWidth,
-                    pixelHeight);
+                    pixelHeight,
+                    lastModified);
         }
     }
 }
