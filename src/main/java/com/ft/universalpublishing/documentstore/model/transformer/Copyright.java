@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ public class Copyright {
 
     private String notice;
 
-    public Copyright(@JsonProperty("notice") String notice) {
+    public Copyright(@JsonProperty("notice") @NotNull String notice) {
         this.notice = notice;
     }
 
