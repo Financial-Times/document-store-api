@@ -36,29 +36,31 @@ public class Content {
     private final String mainImage;
     private final Comments comments;
     private final Boolean realtime;
+    private final Copyright copyright;
     private final String publishReference;
     private final Date lastModified;
 
     private Content(@JsonProperty("uuid") UUID uuid,
-                    @JsonProperty("title") String title,
-                    @JsonProperty("titles") List<String> titles,
-                    @JsonProperty("byline") String byline,
-                    @JsonProperty("brands") SortedSet<Brand> brands,
-                    @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
-                    @JsonProperty("publishedDate") Date publishedDate,
-                    @JsonProperty("body") String body,
-                    @JsonProperty("description") String description,
-                    @JsonProperty("mediaType") String mediaType,
-                    @JsonProperty("pixelWidth") Integer pixelWidth,
-                    @JsonProperty("pixelHeight") Integer pixelHeight,
-                    @JsonProperty("internalBinaryUrl") String internalBinaryUrl,
-                    @JsonProperty("externalBinaryUrl") String externalBinaryUrl,
-                    @JsonProperty("members") SortedSet<Member> members,
-                    @JsonProperty("mainImage") String mainImage,
-                    @JsonProperty("comments") Comments comments,
-                    @JsonProperty("realtime") Boolean realtime,
-                    @JsonProperty("publishReference") String publishReference,
-                    @JsonProperty("lastModified") Date lastModified) {
+            @JsonProperty("title") String title,
+            @JsonProperty("titles") List<String> titles,
+            @JsonProperty("byline") String byline,
+            @JsonProperty("brands") SortedSet<Brand> brands,
+            @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
+            @JsonProperty("publishedDate") Date publishedDate,
+            @JsonProperty("body") String body,
+            @JsonProperty("description") String description,
+            @JsonProperty("mediaType") String mediaType,
+            @JsonProperty("pixelWidth") Integer pixelWidth,
+            @JsonProperty("pixelHeight") Integer pixelHeight,
+            @JsonProperty("internalBinaryUrl") String internalBinaryUrl,
+            @JsonProperty("externalBinaryUrl") String externalBinaryUrl,
+            @JsonProperty("members") SortedSet<Member> members,
+            @JsonProperty("mainImage") String mainImage,
+            @JsonProperty("comments") Comments comments,
+            @JsonProperty("realtime") Boolean realtime,
+            @JsonProperty("copyright") Copyright copyright,
+            @JsonProperty("publishReference") String publishReference,
+            @JsonProperty("lastModified") Date lastModified) {
         this.identifiers = identifiers;
         this.body = body;
         this.comments = comments;
@@ -77,6 +79,7 @@ public class Content {
         this.members = members;
         this.mainImage = mainImage;
         this.realtime = realtime;
+        this.copyright = copyright;
         this.publishReference = publishReference;
         this.lastModified = lastModified;
     }
@@ -157,6 +160,10 @@ public class Content {
         return realtime;
     }
 
+    public Copyright getCopyright() {
+        return copyright;
+    }
+
     public String getPublishReference() {
         return publishReference;
     }
@@ -186,6 +193,7 @@ public class Content {
                 .add("mainImage", mainImage)
                 .add("comments", comments)
                 .add("realtime", realtime)
+                .add("copyright", copyright)
                 .add("publishReference", publishReference)
                 .add("lastModified", lastModified)
                 .toString();
@@ -215,13 +223,35 @@ public class Content {
                 && Objects.equal(this.mainImage, that.mainImage)
                 && Objects.equal(this.comments, that.comments)
                 && Objects.equal(this.realtime, that.realtime)
+                && Objects.equal(this.copyright, that.copyright)
                 && Objects.equal(this.publishReference, that.publishReference)
                 && Objects.equal(this.lastModified, that.lastModified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, publishReference, lastModified);
+        return Objects.hashCode(
+                title, 
+                byline, 
+                brands, 
+                identifiers, 
+                uuid, 
+                publishedDate, 
+                body, 
+                description, 
+                mediaType, 
+                pixelWidth, 
+                pixelHeight, 
+                internalBinaryUrl, 
+                externalBinaryUrl, 
+                members, 
+                mainImage, 
+                comments, 
+                realtime, 
+                copyright, 
+                publishReference,
+                lastModified
+        );
     }
 
     public static Builder builder() {
@@ -248,6 +278,7 @@ public class Content {
         private String mainImage;
         private Comments comments;
         private Boolean realtime;
+        private Copyright copyright;
         private String transactionId;
         private Date lastModified;
 
@@ -339,11 +370,16 @@ public class Content {
             return this;
         }
 
+        public Builder withCopyright(Copyright copyright) {
+            this.copyright = copyright;
+            return this;
+        }
+
         public Builder withRealtime(Boolean realtime) {
             this.realtime = realtime;
             return this;
         }
-
+        
         public Builder withPublishReference(String transactionId) {
             this.transactionId = transactionId;
             return this;
@@ -373,12 +409,35 @@ public class Content {
                     .withMainImage(content.getMainImage())
                     .withComments(content.getComments())
                     .withRealtime(content.isRealtime())
+                    .withCopyright(content.getCopyright())
                     .withPublishReference(content.getPublishReference())
                     .withLastModifiedDate(content.getLastModified());
         }
 
-        public Content build() {
-            return new Content(uuid, title, titles, byline, brands, identifiers, publishedDate, body, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, members, mainImage, comments, realtime, transactionId, lastModified);
+		public Content build() {
+            return new Content(
+                    uuid, 
+                    title, 
+                    titles, 
+                    byline, 
+                    brands, 
+                    identifiers, 
+                    publishedDate, 
+                    body, 
+                    description, 
+                    mediaType, 
+                    pixelWidth, 
+                    pixelHeight, 
+                    internalBinaryUrl, 
+                    externalBinaryUrl, 
+                    members, 
+                    mainImage, 
+                    comments, 
+                    realtime, 
+                    copyright,
+                    transactionId,
+                    lastModified
+            );
         }
     }
 

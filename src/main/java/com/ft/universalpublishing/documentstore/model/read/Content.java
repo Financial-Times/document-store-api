@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "realtime", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
 public class Content {
 
     private String id;
@@ -31,6 +31,7 @@ public class Content {
     private Uri mainImage;
     private Comments comments;
     private Boolean realtime;
+    private Copyright copyright;
     private String publishReference;
     private Integer pixelWidth;
     private Integer pixelHeight;
@@ -52,6 +53,7 @@ public class Content {
                     @JsonProperty("mainImage") Uri mainImage,
                     @JsonProperty("comments") Comments comments,
                     @JsonProperty("realtime") Boolean realtime,
+                    @JsonProperty("copyright") Copyright copyright,
                     @JsonProperty("publishReference") String publishReference,
                     @JsonProperty("pixelWidth") Integer pixelWidth,
                     @JsonProperty("pixelHeight") Integer pixelHeight,
@@ -72,6 +74,7 @@ public class Content {
         this.mainImage = mainImage;
         this.comments = comments;
         this.realtime = realtime;
+        this.copyright = copyright;
         this.publishReference = publishReference;
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
@@ -207,6 +210,14 @@ public class Content {
         return realtime;
     }
 
+    public Copyright getCopyright() {
+        return copyright;
+    }
+
+    public void setCopyright(Copyright copyright) {
+        this.copyright = copyright;
+    }
+
     public String getPublishReference() {
         return publishReference;
     }
@@ -254,6 +265,7 @@ public class Content {
         private Uri mainImage;
         private Comments comments;
         private Boolean realtime;
+        private Copyright copyright;
         private String transactionId;
         private Integer pixelWidth;
         private Integer pixelHeight;
@@ -339,6 +351,11 @@ public class Content {
             return this;
         }
 
+        public Builder withCopyright(Copyright copyright) {
+            this.copyright = copyright;
+            return this;
+        }
+        
         public Builder withPublishReference(String transactionId) {
             this.transactionId = transactionId;
             return this;
@@ -376,6 +393,7 @@ public class Content {
                     mainImage,
                     comments,
                     realtime,
+                    copyright,
                     transactionId,
                     pixelWidth,
                     pixelHeight,

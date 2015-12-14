@@ -51,9 +51,15 @@ public class DocumentResourceTest {
         content.put("title", "Hello!");
         content.put("publishedDate", new Date());
         content.put("mainImage", UUID.randomUUID().toString());
+
         final Map<String, Object> comments = new HashMap<>();
         comments.put("enabled", true);
         content.put("comments", comments);
+
+        final Map<String, Object> copyright = new HashMap<>();
+        copyright.put("notice", "© AFP");
+        content.put("copyright", copyright);
+
         content.put("publishReference", "Some String");
 
         when(mockStore.findByUuid(DocumentResource.CONTENT_COLLECTION, uuid)).thenReturn(content);

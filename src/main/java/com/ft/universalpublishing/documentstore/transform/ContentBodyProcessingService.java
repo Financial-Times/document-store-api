@@ -38,6 +38,7 @@ public class ContentBodyProcessingService {
                 .withRealtime(content.isRealtime())
                 .withPublishReference(content.getPublishReference())
                 .withPixelWidth(content.getPixelWidth())
+                .withCopyright(content.getCopyright())
                 .withPixelHeight(content.getPixelHeight())
                 .withLastModifiedDate(content.getLastModified())
                 .build();
