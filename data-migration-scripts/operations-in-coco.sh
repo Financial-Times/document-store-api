@@ -11,5 +11,6 @@ sudo mv /vol/mongodb/uuids-to-reingest.txt /home/core
 
 echo "Cleaning Coco"
 sudo rm -r /vol/mongodb/dump /vol/mongodb/restore-data.js /vol/mongodb/operations-in-container.sh /vol/mongodb/export-uuids-to-reingest.js /home/core/operations-in-coco.sh
+sudo chown core:core /home/core/uuids-to-reingest.txt
 
 
