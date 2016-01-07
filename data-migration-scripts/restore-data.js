@@ -11,8 +11,6 @@ var NOTIFICATIONS_COLLECTION = "notifications";
 var BACKUP_SUFFIX = "_old";
 var CONTENT_MIGRATION_TIME = new ISODate();
 
-var DB = "upp-store";
-
 function getUuidsInNotificationsBetween(startDate, endDate){
 	return db.getCollection(NOTIFICATIONS_COLLECTION).distinct("uuid",{"changeDate" : {$gte : startDate, $lte : endDate}});
 }
@@ -157,7 +155,6 @@ function backup(collection){
 }
 
 function restoreData(){
-    use DB;
 	backup(LISTS_COLLECTION);
 	mergeDocuments(SOURCE_LISTS_COLLECTION, LISTS_COLLECTION);
 	updateListsModifiedInBackup();
