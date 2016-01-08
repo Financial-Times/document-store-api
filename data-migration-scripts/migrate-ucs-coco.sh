@@ -30,7 +30,7 @@ function runOperationsInCoco {
     ssh core@$COCO_PUBLIC_IP "chmod 750 /home/core/*.sh; /home/core/operations-in-coco.sh"
 }
 
-function getListsOfUuidsToReingest{
+function getListsOfUuidsToReingest {
     rsync -avz --remove-source-files -e ssh core@$COCO_PUBLIC_IP:/home/core/uuids-to-reingest.txt .
 }
 
