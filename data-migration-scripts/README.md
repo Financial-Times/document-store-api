@@ -11,19 +11,19 @@ The procedure to migrate data is the following:
  
 1.  Get public IP of the coco instance that hosts the primary MongoDB container. 
 
-	``
+	```bash
     ssh -A -l core <coco-tunnel>
     fleetctl ssh mongodb@<number-of-primary-instance>.service
-    curl http://169.254.169.254/latest/meta-data/public-ipv4   
-    ``
+    curl http://169.254.169.254/latest/meta-data/public-ipv4
+    ```
     
     The output of `curl` contains the public IP address.
    
 2.  Run the migration process on you localhost:
     
-    ``
+    ```
     ./migrate-ucs-coco.sh <ucs-mongodb-host> <public-ip-coco-primary>
-    ``
+    ```
 
 3.  Reingest articles that can be removed or modified during the migration.
     You will find the list of UUIDs in both:
