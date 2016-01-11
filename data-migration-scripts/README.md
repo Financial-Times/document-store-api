@@ -19,7 +19,7 @@ The procedure to migrate data is the following:
     
     The output of `curl` contains the public IP address.
    
-2.  Run the migration process on you localhost:
+2.  Run the migration process on your localhost:
     
     ```
     ./migrate-ucs-coco.sh <ucs-mongodb-host> <public-ip-coco-primary>
