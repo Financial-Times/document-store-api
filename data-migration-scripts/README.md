@@ -25,8 +25,10 @@ The procedure to migrate data is the following:
     ./migrate-ucs-coco.sh <ucs-mongodb-host> <public-ip-coco-primary>
     ```
 
-3.  Reingest articles that can be removed or modified during the migration.
-    You will find the list of UUIDs in both:
+3.  Reingest articles that can be removed or modified during the migration. 
+    With the fact that article data can be modified during the migration process, the safest way to guarantee data 
+    consistency is to manually reingest a list of articles.
+    After running the former script, you will find the list of UUIDs in both:
     
     * the `content_to_reingest` collection in the COCO MongoDB instance;
     * the `uuids-to-reingest.txt` file in the working directory in which you run the migration script.
