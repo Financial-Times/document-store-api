@@ -59,8 +59,8 @@ function getContentPublishedBetweenInBackup(startDate, endDate){
 	return db.getCollection(CONTENT_COLLECTION + BACKUP_SUFFIX).find({"publishedDate" : {$gte : startDate.toISOString(), $lte : endDate.toISOString()}},{ _id : 0});
 }
 
-function populateExistingContentBetween(startDate, endDate){
-	print("Populating existing content between " + startDate + " and " + endDate);
+function restoreNonArticlesPublishedBetween(startDate, endDate){
+	print("Restoring existing content between " + startDate + " and " + endDate);
 	var docs = getContentPublishedBetweenInBackup(startDate, endDate)
 	print(docs.count());
 	var progressStatus = 0;
@@ -139,26 +139,55 @@ function mergeDocuments(sourceCollection, targetCollection){
 	print("Copied documents: " + progressStatus);
 }
 
-function backup(collection){
-    print("Backup of '"+collection+"' collection for rollback")
-	db.getCollection(collection).renameCollection(collection + BACKUP_SUFFIX, true)
-	if(collection == CONTENT_COLLECTION){
-		CONTENT_MIGRATION_TIME = new ISODate();
-		print("Content migration started at " + CONTENT_MIGRATION_TIME);
-	}
+function move(sourceCollection,targetCollection){
+    print("Moving '"+sourceCollection+"' collection to '"+targetCollection+"' collection");
+	db.getCollection(sourceCollection).renameCollection(targetCollection, true);
 }
 
 function restoreData(){
-	backup(LISTS_COLLECTION);
+
+    // OPERATIONS ON LISTS
+
+    // Make a backup of the "lists" collection by renaming it as "lists_old"
+	move(LISTS_COLLECTION, LISTS_COLLECTION + BACKUP_SUFFIX);
+
+	// The documents from the archive collection are moved to the "lists" collection
 	mergeDocuments(SOURCE_LISTS_COLLECTION, LISTS_COLLECTION);
+
+	// The following function restores lists copied to "lists_old".
 	updateListsModifiedInBackup();
 
-	backup(CONTENT_COLLECTION);
+
+    // OPERATIONS ON CONTENT
+
+    // Make a backup of the "content" collection by renaming it as "content_old"
+	move(CONTENT_COLLECTION, CONTENT_COLLECTION + BACKUP_SUFFIX);
+
+    // The following variable represents the moment in which the migration of content data is started
+	CONTENT_MIGRATION_TIME = new ISODate();
+    print("Content migration started at " + CONTENT_MIGRATION_TIME);
+
+	// The documents from the archive collection are moved to the "content" collection
 	mergeDocuments(SOURCE_CONTENT_COLLECTION, CONTENT_COLLECTION);
+
+	// The newt two lines drop all the articles that have been modified between the publishing of the last piece of
+	//content in the archive and the start of the content migration.
+	// During such period, articles in the archive can be modified, therefore they are out-of-date.
     var lastPublishingDateSourceContentCollection = getLastPublishingDateFrom(SOURCE_CONTENT_COLLECTION);
-	var lastPublishingDateBackupContentCollection = getLastPublishingDateFrom(CONTENT_COLLECTION + BACKUP_SUFFIX);
 	dropArticlesModifiedBetween(lastPublishingDateSourceContentCollection,CONTENT_MIGRATION_TIME);
-    populateExistingContentBetween(lastPublishingDateSourceContentCollection,lastPublishingDateBackupContentCollection);
+
+    // The next two lines restore all non-articles copied to "content_old" between the publishing of the last piece of
+    // content in the archive and the publishing of the last piece of content in "content_old".
+    // Pieces of content that are not articles (e.g., images) are published once and then they are not modified or deleted.
+    // It implies that "content_old" contains consistent data about non-articles that are missing in archive during
+    // the its migration from a different host
+    var lastPublishingDateBackupContentCollection = getLastPublishingDateFrom(CONTENT_COLLECTION + BACKUP_SUFFIX);
+    restoreNonArticlesPublishedBetween(lastPublishingDateSourceContentCollection,lastPublishingDateBackupContentCollection);
+
+    // Articles can be updated or deleted between this process of data migration. This means that manipulation of
+    // such articles can make their data inconsistent.
+    // The only way to make sure that articles are restored properly from the archive is to manually reingest them.
+    // The following function creates the collection of article UUIDs to be reingested in order to have consistent data.
 	createCollectionOfArticlesToBeReingestedBetween(lastPublishingDateSourceContentCollection,CONTENT_MIGRATION_TIME);
 }
 
