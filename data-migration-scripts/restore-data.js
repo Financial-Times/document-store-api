@@ -101,10 +101,6 @@ function dropArticlesModifiedBetween(startDate, endDate) {
 	print("Dropped articles: " + progressStatus);
 }
 
-function sameListIsInCollection(list, collection){
-	return db.getCollection(collection).find(list).count() > 0 ;
-}
-
 function getLastPublishingDateFrom(collection){
 	var lastPublishingDate = db.getCollection(collection).find({}).sort({publishedDate : -1}).limit(1).toArray()[0].publishedDate;
 	return new ISODate(lastPublishingDate);
@@ -119,13 +115,11 @@ function updateListsModifiedInBackup(){
 	var lists = getListsFromBackup();
 	var progressStatus = 0;
 	lists.forEach(function(list){
-		if(!sameListIsInCollection(list, LISTS_COLLECTION)){
-			dropDocumentWithUuidInCollection(list.uuid,LISTS_COLLECTION);
-			restoreFromBackup(list.uuid,LISTS_COLLECTION + BACKUP_SUFFIX, LISTS_COLLECTION);
-			progressStatus++;
-	    	if(progressStatus % 100 == 0) {
-	       		print("Updated lists: " + progressStatus);
-			}
+		dropDocumentWithUuidInCollection(list.uuid,LISTS_COLLECTION);
+		restoreFromBackup(list.uuid,LISTS_COLLECTION + BACKUP_SUFFIX, LISTS_COLLECTION);
+		progressStatus++;
+	    if(progressStatus % 100 == 0) {
+	        print("Updated lists: " + progressStatus);
 		}
 	});
 	print("Updated lists: " + progressStatus);
