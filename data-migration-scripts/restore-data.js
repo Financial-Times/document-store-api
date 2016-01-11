@@ -111,7 +111,7 @@ function getLastPublishingDateFrom(collection){
 }
 
 function getListsFromBackup(){
-	return db.getCollection(LISTS_COLLECTION + BACKUP_SUFFIX).find({});
+	return db.getCollection(LISTS_COLLECTION + BACKUP_SUFFIX).find({},{ _id : 0});
 }
 
 function updateListsModifiedInBackup(){
