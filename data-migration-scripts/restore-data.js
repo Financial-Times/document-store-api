@@ -170,8 +170,8 @@ function restoreData(){
 	// The documents from the archive collection are moved to the "content" collection
 	mergeDocuments(SOURCE_CONTENT_COLLECTION, CONTENT_COLLECTION);
 
-	// The newt two lines drop all the articles that have been modified between the publishing of the last piece of
-	//content in the archive and the start of the content migration.
+	// The next two lines drop all the articles that have been modified between the publishing of the last piece of
+	// content in the archive and the start of the content migration.
 	// During such period, articles in the archive can be modified, therefore they are out-of-date.
     var lastPublishingDateSourceContentCollection = getLastPublishingDateFrom(SOURCE_CONTENT_COLLECTION);
 	dropArticlesModifiedBetween(lastPublishingDateSourceContentCollection,CONTENT_MIGRATION_TIME);
