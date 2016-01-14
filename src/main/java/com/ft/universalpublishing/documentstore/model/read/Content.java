@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ft.ws.lib.serialization.datetime.JsonDateTimeWithMillisSerializer;
+import com.google.common.base.MoreObjects;
 
 import org.joda.time.DateTime;
 
@@ -12,12 +13,13 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "opening", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
 public class Content {
 
     private String id;
     private String type;
     private String bodyXML;
+    private String opening;
     private String title;
     private String byline;
     private String description;
@@ -40,6 +42,7 @@ public class Content {
     private Content(@JsonProperty("id") String id,
                     @JsonProperty("type") String type,
                     @JsonProperty("bodyXML") String bodyXML,
+                    @JsonProperty("opening") String opening,
                     @JsonProperty("title") String title,
                     @JsonProperty("byline") String byline,
                     @JsonProperty("description") String description,
@@ -61,6 +64,7 @@ public class Content {
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
+        this.opening = opening;
         this.title = title;
         this.byline = byline;
         this.description = description;
@@ -79,6 +83,30 @@ public class Content {
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
         this.lastModified = lastModified;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this.getClass())
+                .add("id", id)
+                .add("title", title)
+                .add("byline", byline)
+                .add("brands", brands)
+                .add("identifiers", identifiers)
+                .add("publishedDate", publishedDate)
+                .add("bodyXML", bodyXML)
+                .add("opening", opening)
+                .add("description", description)
+                .add("pixelWidth", pixelWidth)
+                .add("pixelHeight", pixelHeight)
+                .add("members", members)
+                .add("mainImage", mainImage)
+                .add("comments", comments)
+                .add("realtime", realtime)
+                .add("copyright", copyright)
+                .add("publishReference", publishReference)
+                .add("lastModified", lastModified)
+                .toString();
     }
 
     public String getId() {
@@ -104,7 +132,15 @@ public class Content {
     public void setBodyXML(String bodyXML) {
         this.bodyXML = bodyXML;
     }
-
+    
+    public void setOpening(String opening) {
+        this.opening = opening;
+    }
+    
+    public String getOpening() {
+        return opening;
+    }
+    
     public String getTitle() {
         return title;
     }
@@ -252,6 +288,7 @@ public class Content {
         private String id;
         private String type;
         private String bodyXml;
+        private String opening;
         private String title;
         private String byline;
         private String description;
@@ -285,7 +322,12 @@ public class Content {
             this.bodyXml = bodyXml;
             return this;
         }
-
+        
+        public Builder withOpening(String opening) {
+            this.opening = opening;
+            return this;
+        }
+        
         public Builder withBinaryUrl(String binaryUrl) {
             this.binaryUrl = binaryUrl;
             return this;
@@ -380,6 +422,7 @@ public class Content {
             return new Content(id,
                     type,
                     bodyXml,
+                    opening,
                     title,
                     byline,
                     description,

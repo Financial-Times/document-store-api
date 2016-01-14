@@ -37,6 +37,7 @@ public class ContentMapper {
                 .withTitle(source.getTitle())
                 .withDescription(source.getDescription())
                 .withBodyXml(source.getBody())
+                .withOpening(source.getOpening())
                 .withByline(source.getByline())
                 .withPublishedDate(new DateTime(source.getPublishedDate().getTime()))
                 .withRequestUrl(apiUrlPrefix + source.getUuid())

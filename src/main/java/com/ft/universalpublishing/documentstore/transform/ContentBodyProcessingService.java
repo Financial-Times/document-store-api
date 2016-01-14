@@ -29,6 +29,7 @@ public class ContentBodyProcessingService {
                 .withDescription(content.getDescription())
                 .withIdentifiers(content.getIdentifiers())
                 .withBodyXml(transformedBody)
+                .withOpening(content.getOpening())
                 .withBinaryUrl(content.getBinaryUrl())
                 .withMembers(content.getMembers())
                 .withRequestUrl(content.getRequestUrl())
