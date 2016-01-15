@@ -25,6 +25,7 @@ public class Content {
     private final SortedSet<Brand> brands;
     private final Date publishedDate;
     private final String body;
+    private final String opening;
     private final SortedSet<Identifier> identifiers;
     private final String description;
     private final String mediaType;
@@ -48,6 +49,7 @@ public class Content {
             @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
             @JsonProperty("publishedDate") Date publishedDate,
             @JsonProperty("body") String body,
+            @JsonProperty("opening") String opening,
             @JsonProperty("description") String description,
             @JsonProperty("mediaType") String mediaType,
             @JsonProperty("pixelWidth") Integer pixelWidth,
@@ -63,6 +65,7 @@ public class Content {
             @JsonProperty("lastModified") Date lastModified) {
         this.identifiers = identifiers;
         this.body = body;
+        this.opening = opening;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
         this.title = title;
@@ -115,7 +118,11 @@ public class Content {
     public String getBody() {
         return body;
     }
-
+    
+    public String getOpening() {
+        return opening;
+    }
+    
     public SortedSet<Identifier> getIdentifiers() {
         return identifiers;
     }
@@ -183,6 +190,7 @@ public class Content {
                 .add("identifiers", identifiers)
                 .add("publishedDate", publishedDate)
                 .add("body", body)
+                .add("opening", opening)
                 .add("description", description)
                 .add("mediaType", mediaType)
                 .add("pixelWidth", pixelWidth)
@@ -212,6 +220,7 @@ public class Content {
                 && Objects.equal(this.brands, that.brands)
                 && Objects.equal(this.identifiers, that.identifiers)
                 && Objects.equal(this.body, that.body) // TODO maybe this could be better. The strings could be equivalent as xml even though they are different strings
+                && Objects.equal(this.opening, that.opening)
                 && Objects.equal(this.publishedDate, that.publishedDate)
                 && Objects.equal(this.description, that.description)
                 && Objects.equal(this.mediaType, that.mediaType)
@@ -238,6 +247,7 @@ public class Content {
                 uuid, 
                 publishedDate, 
                 body, 
+                opening,
                 description, 
                 mediaType, 
                 pixelWidth, 
@@ -267,6 +277,7 @@ public class Content {
         private SortedSet<Brand> brands;
         private Date publishedDate;
         private String body;
+        private String opening;
         private SortedSet<Identifier> identifiers;
         private String description;
         private String mediaType;
@@ -319,7 +330,12 @@ public class Content {
             this.body = body;
             return this;
         }
-
+        
+        public Builder withOpening(String opening) {
+            this.opening = opening;
+            return this;
+        }
+        
         public Builder withIdentifiers(SortedSet<Identifier> identifiers) {
             this.identifiers = identifiers;
             return this;
@@ -399,6 +415,7 @@ public class Content {
                     .withUuid(UUID.fromString(content.getUuid()))
                     .withPublishedDate(content.getPublishedDate())
                     .withBody(content.getBody())
+                    .withOpening(content.getOpening())
                     .withDescription(content.getDescription())
                     .withMediaType(content.getMediaType())
                     .withPixelWidth(content.getPixelWidth())
@@ -424,6 +441,7 @@ public class Content {
                     identifiers, 
                     publishedDate, 
                     body, 
+                    opening,
                     description, 
                     mediaType, 
                     pixelWidth, 
