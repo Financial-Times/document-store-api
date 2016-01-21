@@ -12,29 +12,24 @@ COCO_PUBLIC_IP="$2"
 function backupFromUcs {
     # Lock the db
     echo "Making dump of UCS data"
-    echo "db.fsyncLock()" | mongo $UCS_MONGODB_HOST
+    echo "db.fsyncLock()" | mongo $UCS_MONGODB_HOST/test
 
     # Dump of the collections
     mongodump -h $UCS_MONGODB_HOST -d upp-store -c lists
     mongodump -h $UCS_MONGODB_HOST -d upp-store -c content
 
     # Unlock the db
-    echo "db.fsyncUnlock()" | mongo $UCS_MONGODB_HOST
+    echo "db.fsyncUnlock()" | mongo $UCS_MONGODB_HOST/test
 }
 
 function copyScriptsAndDumpToCoco {
-    rsync -avz -r -e ssh dump restore-data.js operations-in-coco.sh operations-in-container.sh export-uuids-to-reingest.js core@$COCO_PUBLIC_IP:/home/core
+    rsync -avz -r -e ssh dump restore-data.js operations-in-coco.sh operations-in-container.sh core@$COCO_PUBLIC_IP:/home/core
 }
 
 function runOperationsInCoco {
     ssh core@$COCO_PUBLIC_IP "chmod 750 /home/core/*.sh; /home/core/operations-in-coco.sh"
 }
 
-function getListsOfUuidsToReingest {
-    rsync -avz --remove-source-files -e ssh core@$COCO_PUBLIC_IP:/home/core/uuids-to-reingest.txt .
-}
-
 backupFromUcs
 copyScriptsAndDumpToCoco
 runOperationsInCoco
-getListsOfUuidsToReingest

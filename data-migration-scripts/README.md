@@ -18,17 +18,30 @@ The procedure to migrate data is the following:
     ```
     
     The output of `curl` contains the public IP address.
+    
+2.  Stop the deployer service in COCO:
+    
+    ```
+    fleetctl stop deployer.service
+    ```
+    
+3.  Stop all the content ingester services in COCO:
+    
+    ```
+    fleetctl stop content-ingester@1.service
+    fleetctl stop content-ingester@2.service
+    ...
+    fleetclt stop content-ingester@<n>.service
+    ```
    
-2.  Run the migration process on your localhost:
+4.  Run the migration process on your localhost:
     
     ```
     ./migrate-ucs-coco.sh <ucs-mongodb-host> <public-ip-coco-primary>
     ```
 
-3.  Reingest articles that can be removed or modified during the migration. 
-    With the fact that article data can be modified during the migration process, the safest way to guarantee data 
-    consistency is to manually reingest a list of articles.
-    After running the former script, you will find the list of UUIDs in both:
+5.  Restart the deployer service in COCO:
     
-    * the `content_to_reingest` collection in the COCO MongoDB instance;
-    * the `uuids-to-reingest.txt` file in the working directory in which you run the migration script.
+    ```
+    fleetclt start deployer.service
+    ```
