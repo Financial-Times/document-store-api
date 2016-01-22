@@ -57,7 +57,7 @@ public class ContentMapperTest {
         assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));
         assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_ARTICLE));
         assertThat(readContent.getBodyXML(), equalTo("Why did the chicken cross the street?"));
-        assertThat(readContent.getOpening(), equalTo("Why did the chicken"));
+        assertThat(readContent.getOpeningXML(), equalTo("Why did the chicken"));
         assertThat(readContent.getByline(), equalTo("David Jules"));
         assertThat(readContent.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         final SortedSet<String> expectedBrands = new TreeSet<>();
