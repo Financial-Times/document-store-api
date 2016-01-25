@@ -4,14 +4,15 @@ import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundExcept
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-import com.github.fakemongo.Fongo;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
 import org.bson.Document;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,7 +32,10 @@ import static org.junit.Assert.assertThat;
 
 public class MongoDocumentStoreContentServiceTest {
 
-    private static final String DBNAME = "upp-store";
+    private static final String DB_NAME = "upp-store";
+    private static final String DB_COLLECTION = "content";
+    private static final EmbeddedMongoInitialisationHelper MONGO_HELPER = new EmbeddedMongoInitialisationHelper();
+    private static final MongoClient MONGO_CLIENT = MONGO_HELPER.client();
 
     private Map<String, Object> content;
     private Map<String, Object> outboundContent;
@@ -49,8 +53,8 @@ public class MongoDocumentStoreContentServiceTest {
 
     @Before
     public void setup() {
-        Fongo fongo = new Fongo("embedded");
-        MongoDatabase db = fongo.getDatabase(DBNAME);
+        MongoDatabase db = MONGO_CLIENT.getDatabase(DB_NAME);
+        
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
         collection = db.getCollection("content");
         uuid = UUID.randomUUID();
@@ -74,6 +78,16 @@ public class MongoDocumentStoreContentServiceTest {
         outboundContent.put("publishedDate", lastPublicationDate);
         outboundContent.put("publishReference", "Some String");
         outboundContent.put("lastModified", lastModifiedDate);
+    }
+
+    @After
+    public void removeData() throws InterruptedException {
+        MONGO_CLIENT.getDatabase(DB_NAME).getCollection(DB_COLLECTION).deleteMany(new Document());
+    }
+
+    @AfterClass
+    public static void destroyDatabase() {
+        MONGO_HELPER.shutdownGracefully();
     }
 
 
@@ -102,7 +116,6 @@ public class MongoDocumentStoreContentServiceTest {
     }
 
     @Test
-    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void contentShouldBePersistedOnWrite() {
         DocumentWritten result = mongoDocumentStoreService.write("content", content);
         assertThat(result.getMode(), is(Mode.Created));
@@ -117,7 +130,6 @@ public class MongoDocumentStoreContentServiceTest {
     }
 
     @Test
-    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void contentShouldBeDeletedOnRemove() {
         DocumentWritten result = mongoDocumentStoreService.write("content", content);
         assertThat(result.getMode(), is(Mode.Created));

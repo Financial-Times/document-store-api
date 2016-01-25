@@ -13,9 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+
 import org.bson.Document;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,14 +27,17 @@ import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-import com.github.fakemongo.Fongo;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClient;
 
 public class MongoDocumentStoreContentListServiceTest {
     
-    private static final String DBNAME = "upp-store";
+    private static final String DB_NAME = "upp-store";
+    private static final String DB_COLLECTION = "lists";
+    private static final EmbeddedMongoInitialisationHelper MONGO_HELPER = new EmbeddedMongoInitialisationHelper();
+    private static final MongoClient MONGO_CLIENT = MONGO_HELPER.client();
     private static final String WEBURL = "http://www.bbc.co.uk/";
 
     private MongoDocumentStoreService mongoDocumentStoreService;
@@ -46,12 +51,21 @@ public class MongoDocumentStoreContentListServiceTest {
 
     @Before
     public void setup() {
-        Fongo fongo = new Fongo("embedded");
-        MongoDatabase db = fongo.getDatabase(DBNAME);
-        mongoDocumentStoreService = new MongoDocumentStoreService(db);//, "api.ft.com");
+        MongoDatabase db = MONGO_CLIENT.getDatabase(DB_NAME);
+        mongoDocumentStoreService = new MongoDocumentStoreService(db);
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();
         contentUuid1 = UUID.randomUUID().toString();
+    }
+
+    @After
+    public void removeData() throws InterruptedException {
+        MONGO_CLIENT.getDatabase(DB_NAME).getCollection(DB_COLLECTION).deleteMany(new Document());
+    }
+
+    @AfterClass
+    public static void destroyDatabase() {
+        MONGO_HELPER.shutdownGracefully();
     }
 
     private List<ListItem> mockInboundListItems() {
@@ -98,7 +112,6 @@ public class MongoDocumentStoreContentListServiceTest {
     }
 
     @Test
-    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void contentListShouldBePersistedOnWrite() {
         ContentList list = new ContentList.Builder()
             .withUuid(uuid)
@@ -113,7 +126,6 @@ public class MongoDocumentStoreContentListServiceTest {
     }
 
     @Test
-    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void thatLayoutHintIsPersisted() {
         String hint = "junit-layout";
         ContentList list = new ContentList.Builder()
@@ -157,7 +169,6 @@ public class MongoDocumentStoreContentListServiceTest {
     }
 
     @Test
-    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void thatPublishReferenceIsPersisted() {
         String publishReference = "tid_zxcv7531";
         ContentList list = new ContentList.Builder()
@@ -201,7 +212,6 @@ public class MongoDocumentStoreContentListServiceTest {
     }
 
     @Test
-    @Ignore("Failing due to fongo bug: https://github.com/fakemongo/fongo/issues/118. Please update fongo version when bugfix is released.")
     public void contentListShouldBeDeletedOnRemove() {
         ContentList list = new ContentList.Builder()
             .withUuid(uuid)
