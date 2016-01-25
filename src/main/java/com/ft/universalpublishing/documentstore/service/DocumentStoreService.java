@@ -10,6 +10,8 @@ public interface DocumentStoreService {
 
     Map<String, Object> findByUuid(String resourceType, UUID fromString);
 
+    Map<String, Object> findSingleItemByQueryFields(String resourceType, Map<String,Object> query);
+
     DocumentWritten write(String resourceType, Map<String, Object> content);
 
     void delete(String resourceType, UUID fromString);
