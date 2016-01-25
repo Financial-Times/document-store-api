@@ -4,15 +4,13 @@ import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundExcept
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
 import org.bson.Document;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,11 +29,11 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class MongoDocumentStoreServiceContentTest {
-
+    @ClassRule
+    public static final EmbeddedMongoRule MONGO = new EmbeddedMongoRule(12032);
+    
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "content";
-    private static final EmbeddedMongoInitialisationHelper MONGO_HELPER = new EmbeddedMongoInitialisationHelper();
-    private static final MongoClient MONGO_CLIENT = MONGO_HELPER.client();
 
     private Map<String, Object> content;
     private Map<String, Object> outboundContent;
@@ -53,7 +51,8 @@ public class MongoDocumentStoreServiceContentTest {
 
     @Before
     public void setup() {
-        MongoDatabase db = MONGO_CLIENT.getDatabase(DB_NAME);
+        MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
+        db.getCollection(DB_COLLECTION).drop();
         
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
         collection = db.getCollection("content");
@@ -79,17 +78,6 @@ public class MongoDocumentStoreServiceContentTest {
         outboundContent.put("publishReference", "Some String");
         outboundContent.put("lastModified", lastModifiedDate);
     }
-
-    @After
-    public void removeData() throws InterruptedException {
-        MONGO_CLIENT.getDatabase(DB_NAME).getCollection(DB_COLLECTION).deleteMany(new Document());
-    }
-
-    @AfterClass
-    public static void destroyDatabase() {
-        MONGO_HELPER.shutdownGracefully();
-    }
-
 
     @Test
     public void contentInStoreShouldBeRetrievedSuccessfully() {

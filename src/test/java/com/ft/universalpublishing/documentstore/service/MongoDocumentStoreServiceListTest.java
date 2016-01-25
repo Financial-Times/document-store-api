@@ -15,9 +15,8 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
 import org.bson.Document;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,14 +29,14 @@ import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
+
 
 public class MongoDocumentStoreServiceListTest {
+    @ClassRule
+    public static final EmbeddedMongoRule MONGO = new EmbeddedMongoRule(12032);
     
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "lists";
-    private static final EmbeddedMongoInitialisationHelper MONGO_HELPER = new EmbeddedMongoInitialisationHelper();
-    private static final MongoClient MONGO_CLIENT = MONGO_HELPER.client();
     private static final String WEBURL = "http://www.bbc.co.uk/";
 
     private MongoDocumentStoreService mongoDocumentStoreService;
@@ -51,21 +50,13 @@ public class MongoDocumentStoreServiceListTest {
 
     @Before
     public void setup() {
-        MongoDatabase db = MONGO_CLIENT.getDatabase(DB_NAME);
+        MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
+        db.getCollection(DB_COLLECTION).drop();
+        
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();
         contentUuid1 = UUID.randomUUID().toString();
-    }
-
-    @After
-    public void removeData() throws InterruptedException {
-        MONGO_CLIENT.getDatabase(DB_NAME).getCollection(DB_COLLECTION).deleteMany(new Document());
-    }
-
-    @AfterClass
-    public static void destroyDatabase() {
-        MONGO_HELPER.shutdownGracefully();
     }
 
     private List<ListItem> mockInboundListItems() {

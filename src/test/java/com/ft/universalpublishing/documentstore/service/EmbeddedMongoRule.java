@@ -17,26 +17,30 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+
 /**
  * Created by julia.fernee on 03/11/2015.
  */
-public class EmbeddedMongoInitialisationHelper {
-    private static final String EMBEDDED_MONGODB_HOST = "localhost";
-    private static final int EMBEDDED_MONGODB_SERVER_PORT = 12032;
-
+public class EmbeddedMongoRule
+        implements TestRule {
+    
+    private int port;
     private MongodStarter starter = MongodStarter.getDefaultInstance();
     private MongodExecutable mongodExecutable = null;
 
-    public EmbeddedMongoInitialisationHelper() {
-        createEmbededMongoInstance();
+    public EmbeddedMongoRule(int port) {
+        this.port = port;
     }
 
-    private void createEmbededMongoInstance() {
+    private void createEmbeddedMongoInstance(int port) {
         IMongodConfig mongodConfig = null;
         try {
             mongodConfig = new MongodConfigBuilder()
                     .version(Version.Main.V3_0)
-                    .net(new Net(EMBEDDED_MONGODB_SERVER_PORT, Network.localhostIsIPv6()))
+                    .net(new Net(port, Network.localhostIsIPv6()))
                     .build();
             mongodExecutable = starter.prepare(mongodConfig);
             MongodProcess mongod = mongodExecutable.start();
@@ -52,16 +56,28 @@ public class EmbeddedMongoInitialisationHelper {
         MongoClientOptions.Builder optionsBuilder = MongoClientOptions.builder();
         MongoClientOptions options = optionsBuilder.build();
 
-        List<ServerAddress> mongoServers = Collections.singletonList(new ServerAddress(EMBEDDED_MONGODB_HOST, EMBEDDED_MONGODB_SERVER_PORT));
+        List<ServerAddress> mongoServers = Collections.singletonList(new ServerAddress("localhost", port));
         // cluster configuration
         MongoClient mongoClient = new MongoClient(mongoServers, options);
         
         return mongoClient;
     }
 
-    public void shutdownGracefully() {
-        if (this.mongodExecutable != null) {
-            this.mongodExecutable.stop();
-        }
+    @Override
+    public Statement apply(Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                try {
+                    createEmbeddedMongoInstance(port);
+                    base.evaluate();
+                }
+                finally {
+                    if (mongodExecutable != null) {
+                        mongodExecutable.stop();
+                    }
+                }
+            }
+        };
     }
 }
