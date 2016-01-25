@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class MongoDocumentStoreContentServiceTest {
+public class MongoDocumentStoreServiceContentTest {
 
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "content";

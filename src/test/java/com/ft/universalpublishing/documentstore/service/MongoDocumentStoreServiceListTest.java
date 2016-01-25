@@ -32,7 +32,7 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 
-public class MongoDocumentStoreContentListServiceTest {
+public class MongoDocumentStoreServiceListTest {
     
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "lists";
