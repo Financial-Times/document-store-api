@@ -2,6 +2,8 @@ package com.ft.universalpublishing.documentstore.transform;
 
 import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
+import com.google.common.base.Strings;
+
 
 public class ContentBodyProcessingService {
 
@@ -16,10 +18,18 @@ public class ContentBodyProcessingService {
             return content;
         }
         final String transformedBody = transformer.transform(content.getBodyXML(), new DocumentProcessingContext(currentUriGenerator));
-        return buildContentWithNewBody(content, transformedBody);
+        
+        String openingXml = content.getOpeningXML();
+        if (!Strings.isNullOrEmpty(openingXml)) {
+            openingXml = transformer.transform(openingXml, new DocumentProcessingContext(currentUriGenerator));
+        }
+        
+        return buildContentWithNewBody(content, transformedBody, openingXml);
     }
 
-    private Content buildContentWithNewBody(final Content content, final String transformedBody) {
+    private Content buildContentWithNewBody(final Content content,
+                                            final String transformedBody, final String transformedOpening) {
+        
         return new Content.Builder()
                 .withId(content.getId())
                 .withType(content.getType())
@@ -29,7 +39,7 @@ public class ContentBodyProcessingService {
                 .withDescription(content.getDescription())
                 .withIdentifiers(content.getIdentifiers())
                 .withBodyXml(transformedBody)
-                .withOpening(content.getOpening())
+                .withOpeningXml(transformedOpening)
                 .withBinaryUrl(content.getBinaryUrl())
                 .withMembers(content.getMembers())
                 .withRequestUrl(content.getRequestUrl())

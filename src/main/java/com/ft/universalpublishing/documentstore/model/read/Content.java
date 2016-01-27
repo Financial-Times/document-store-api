@@ -13,13 +13,13 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "opening", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "openingXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
 public class Content {
 
     private String id;
     private String type;
     private String bodyXML;
-    private String opening;
+    private String openingXML;
     private String title;
     private String byline;
     private String description;
@@ -42,7 +42,7 @@ public class Content {
     private Content(@JsonProperty("id") String id,
                     @JsonProperty("type") String type,
                     @JsonProperty("bodyXML") String bodyXML,
-                    @JsonProperty("opening") String opening,
+                    @JsonProperty("openingXML") String openingXML,
                     @JsonProperty("title") String title,
                     @JsonProperty("byline") String byline,
                     @JsonProperty("description") String description,
@@ -64,7 +64,7 @@ public class Content {
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
-        this.opening = opening;
+        this.openingXML = openingXML;
         this.title = title;
         this.byline = byline;
         this.description = description;
@@ -95,7 +95,7 @@ public class Content {
                 .add("identifiers", identifiers)
                 .add("publishedDate", publishedDate)
                 .add("bodyXML", bodyXML)
-                .add("opening", opening)
+                .add("openingXML", openingXML)
                 .add("description", description)
                 .add("pixelWidth", pixelWidth)
                 .add("pixelHeight", pixelHeight)
@@ -133,12 +133,12 @@ public class Content {
         this.bodyXML = bodyXML;
     }
     
-    public void setOpening(String opening) {
-        this.opening = opening;
+    public void setOpeningXML(String openingXML) {
+        this.openingXML = openingXML;
     }
     
-    public String getOpening() {
-        return opening;
+    public String getOpeningXML() {
+        return openingXML;
     }
     
     public String getTitle() {
@@ -288,7 +288,7 @@ public class Content {
         private String id;
         private String type;
         private String bodyXml;
-        private String opening;
+        private String openingXml;
         private String title;
         private String byline;
         private String description;
@@ -323,8 +323,8 @@ public class Content {
             return this;
         }
         
-        public Builder withOpening(String opening) {
-            this.opening = opening;
+        public Builder withOpeningXml(String openingXml) {
+            this.openingXml = openingXml;
             return this;
         }
         
@@ -422,7 +422,7 @@ public class Content {
             return new Content(id,
                     type,
                     bodyXml,
-                    opening,
+                    openingXml,
                     title,
                     byline,
                     description,

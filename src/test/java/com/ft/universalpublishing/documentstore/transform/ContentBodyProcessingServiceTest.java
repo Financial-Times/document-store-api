@@ -48,13 +48,14 @@ public class ContentBodyProcessingServiceTest {
         brands.add("Chuck Taylor");
         
         when(transformer.transform(eq(body), any(DocumentProcessingContext.class))).thenReturn(body);
+        when(transformer.transform(eq(opening), any(DocumentProcessingContext.class))).thenReturn(opening);
         
         final Content content = (new Content.Builder())
                 .withId(THING + uuid)
                 .withTitle("Philosopher")
                 .withPublishedDate(publishDate)
                 .withBodyXml(body)
-                .withOpening(opening)
+                .withOpeningXml(opening)
                 .withByline("David Jules")
                 .withBrands(brands)
                 .withIdentifiers(identifiers)
@@ -66,12 +67,13 @@ public class ContentBodyProcessingServiceTest {
         Content actual = service.process(content, null);
         
         verify(transformer).transform(eq(body), any(DocumentProcessingContext.class));
+        verify(transformer).transform(eq(opening), any(DocumentProcessingContext.class));
         
         assertThat(actual.getId(), equalTo(THING + uuid));
         assertThat(actual.getTitle(), equalTo("Philosopher"));
         assertThat(actual.getPublishedDate(), equalTo(publishDate));
         assertThat(actual.getBodyXML(), equalTo(body));
-        assertThat(actual.getOpening(), equalTo(opening));
+        assertThat(actual.getOpeningXML(), equalTo(opening));
         assertThat(actual.getByline(), equalTo("David Jules"));
         assertThat(actual.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         assertThat(actual.getBrands(), equalTo(brands));
