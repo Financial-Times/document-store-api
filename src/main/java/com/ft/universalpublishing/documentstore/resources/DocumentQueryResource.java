@@ -1,10 +1,13 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+
 import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -35,18 +38,19 @@ public class DocumentQueryResource {
     public final Response findContentByIdentifier(@QueryParam("identifierAuthority") String authority, @QueryParam("identifierValue") String identifierValue,
             @Context ApiUriGenerator currentUriGenerator) {
         
-        Map<String,Object> query = new LinkedHashMap<>();
-        query.put("identifiers.identifierValue", identifierValue);
-        if (!Strings.isNullOrEmpty(authority)) {
-            query.put("identifiers.authority", authority);
-        }
-        
-        Map<String,Object> content = documentStoreService.findSingleItemByQueryFields("content", query);
+      if (Strings.isNullOrEmpty(authority) || Strings.isNullOrEmpty(identifierValue)) {
+        return Response.status(SC_BAD_REQUEST).entity(
+          Collections.singletonMap("message",
+            "Query parameters \"identifierAuthority\" and \"identifierValue\" are required."))
+          .build();
+      }
+      
+        Map<String,Object> content = documentStoreService.findByIdentifier("content", authority, identifierValue);
         if (content == null) {
-            return Response.status(404).entity(Collections.singletonMap("message", String.format("Not found: %s.", query))).build();
+            return Response.status(SC_NOT_FOUND).entity(Collections.singletonMap("message", String.format("Not found: %s:%s", authority, identifierValue))).build();
         }
         
         URI location = URI.create(currentUriGenerator.resolve("/content/" + content.get("uuid")));
-        return Response.status(301).location(location).build();
+        return Response.status(SC_MOVED_PERMANENTLY).location(location).build();
     }
 }

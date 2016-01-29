@@ -10,7 +10,7 @@ public interface DocumentStoreService {
 
     Map<String, Object> findByUuid(String resourceType, UUID fromString);
 
-    Map<String, Object> findSingleItemByQueryFields(String resourceType, Map<String,Object> query);
+    Map<String, Object> findByIdentifier(String resourceType, String authority, String identifierValue);
 
     DocumentWritten write(String resourceType, Map<String, Object> content);
 

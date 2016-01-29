@@ -2,7 +2,7 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.anyMapOf;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -30,6 +30,8 @@ public class DocumentQueryResourceEndpointTest {
     private final static DocumentStoreService DOC_STORE = mock(DocumentStoreService.class);
     private static final String API_URL_PREFIX = "localhost:12345";
     private static final String CONTENT = "content";
+    private static final String AUTHORITY = "http://www.example.com/";
+    private static final String IDENTIFIER_VALUE = "http://www.example.com/here-is-the-news";
     
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
@@ -57,14 +59,13 @@ public class DocumentQueryResourceEndpointTest {
     
     @Test
     public void thatReturns301ForFoundDocument() {
-        String identifierValue = "http://www.example.com/here-is-the-news";
-        Map<String,Object> identifierMap = Collections.singletonMap("identifiers.identifierValue", identifierValue);
         String uuid = UUID.randomUUID().toString();
         Map<String,Object> doc = Collections.singletonMap("uuid", uuid);
-        when(DOC_STORE.findSingleItemByQueryFields(CONTENT, identifierMap)).thenReturn(doc);
+        when(DOC_STORE.findByIdentifier(CONTENT, AUTHORITY, IDENTIFIER_VALUE)).thenReturn(doc);
         
         response = client.resource("/content-query")
-                         .queryParam("identifierValue", identifierValue)
+                         .queryParam("identifierAuthority", AUTHORITY)
+                         .queryParam("identifierValue", IDENTIFIER_VALUE)
                          .get(ClientResponse.class);
         
         assertThat("response status", response.getStatus(), equalTo(301));
@@ -73,9 +74,10 @@ public class DocumentQueryResourceEndpointTest {
     
     @Test
     public void thatReturns404ForNotFoundDocument() {
-        when(DOC_STORE.findSingleItemByQueryFields(eq(CONTENT), anyMapOf(String.class, Object.class))).thenReturn(null);
+        when(DOC_STORE.findByIdentifier(eq(CONTENT), anyString(), anyString())).thenReturn(null);
         
         response = client.resource("/content-query")
+                         .queryParam("identifierAuthority", AUTHORITY)
                          .queryParam("identifierValue", "http://www.example.com/no-such-item")
                          .get(ClientResponse.class);
         
@@ -84,12 +86,21 @@ public class DocumentQueryResourceEndpointTest {
     
     @Test(expected = QueryResultNotUniqueException.class)
     public void thatThrowsExceptionForNonUniqueResult() {
-        String identifierValue = "http://www.example.com/here-is-the-news";
-        when(DOC_STORE.findSingleItemByQueryFields(eq(CONTENT), anyMapOf(String.class, Object.class)))
+        when(DOC_STORE.findByIdentifier(eq(CONTENT), anyString(), anyString()))
             .thenThrow(new QueryResultNotUniqueException());
         
         response = client.resource("/content-query")
-                         .queryParam("identifierValue", identifierValue)
+                         .queryParam("identifierAuthority", AUTHORITY)
+                         .queryParam("identifierValue", IDENTIFIER_VALUE)
                          .get(ClientResponse.class);
+    }
+    
+    @Test
+    public void thatReturns400ForMissingQueryParameter() {
+        response = client.resource("/content-query")
+                         .queryParam("identifierValue", IDENTIFIER_VALUE)
+                         .get(ClientResponse.class);
+        
+        assertThat("response status", response.getStatus(), equalTo(400));
     }
 }

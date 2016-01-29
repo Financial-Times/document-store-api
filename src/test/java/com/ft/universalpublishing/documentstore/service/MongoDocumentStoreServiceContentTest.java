@@ -16,10 +16,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,6 +32,8 @@ public class MongoDocumentStoreServiceContentTest {
     
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "content";
+    private static final String AUTHORITY = "http://junit.example.org/";
+    private static final String IDENTIFIER_VALUE = "http://www.example.org/here-is-the-news";
 
     private Map<String, Object> content;
     private Map<String, Object> outboundContent;
@@ -138,13 +138,12 @@ public class MongoDocumentStoreServiceContentTest {
     }
     
     @Test
-    public void thatFindSingleItemByQueryValuesReturnsDocument()
+    public void thatFindByIdentifierReturnsDocument()
             throws Exception {
         
-        String identifierValue = "http://www.example.org/here-is-the-news";
         final Document identifier = (new Document())
-                .append("authority", "http://junit.example.org/")
-                .append("identifierValue", identifierValue);
+                .append("authority", AUTHORITY)
+                .append("identifierValue", IDENTIFIER_VALUE);
         
         final Document toInsert = (new Document())
                 .append("uuid", uuid.toString())
@@ -157,21 +156,18 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("lastModified", lastModifiedDate);
         collection.insertOne(toInsert);
         
-        Map<String,Object> query = Collections.singletonMap("identifiers.identifierValue", identifierValue);
-        Map<String, Object> actual = mongoDocumentStoreService.findSingleItemByQueryFields("content", query);
+        Map<String, Object> actual = mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE);
         
         assertThat(actual.get("uuid"), is((Object)uuid.toString()));
     }
     
     @Test
-    public void thatFindSingleItemByMultipleQueryValuesReturnsDocument()
+    public void thatFindByIdentifierReturnsNullWhenNotFound()
             throws Exception {
         
-        String identifierAuthority = "http://junit.example.org/";
-        String identifierValue = "http://www.example.org/here-is-the-news";
         final Document identifier = (new Document())
-                .append("authority", identifierAuthority)
-                .append("identifierValue", identifierValue);
+                .append("authority", AUTHORITY)
+                .append("identifierValue", IDENTIFIER_VALUE);
         
         final Document toInsert = (new Document())
                 .append("uuid", uuid.toString())
@@ -184,48 +180,18 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("lastModified", lastModifiedDate);
         collection.insertOne(toInsert);
         
-        Map<String,Object> query = new LinkedHashMap<>();
-        query.put("identifiers.authority", identifierAuthority);
-        query.put("identifiers.identifierValue", identifierValue);
-        Map<String, Object> actual = mongoDocumentStoreService.findSingleItemByQueryFields("content", query);
-        
-        assertThat(actual.get("uuid"), is((Object)uuid.toString()));
-    }
-    
-    @Test
-    public void thatFindSingleItemByQueryValuesReturnsNullWhenNotFound()
-            throws Exception {
-        
-        String identifierValue = "http://www.example.org/here-is-the-news";
-        final Document identifier = (new Document())
-                .append("authority", "http://junit.example.org/")
-                .append("identifierValue", identifierValue);
-        
-        final Document toInsert = (new Document())
-                .append("uuid", uuid.toString())
-                .append("identifiers", Arrays.asList(identifier))
-                .append("title", "Here is the news")
-                .append("byline", "By Bob Woodward")
-                .append("bodyXML", "xmlBody")
-                .append("publishedDate", lastPublicationDate)
-                .append("publishReference", "Some String")
-                .append("lastModified", lastModifiedDate);
-        collection.insertOne(toInsert);
-        
-        Map<String,Object> query = Collections.singletonMap("identifiers.identifierValue", identifierValue + "-1");
-        Map<String, Object> actual = mongoDocumentStoreService.findSingleItemByQueryFields("content", query);
+        Map<String, Object> actual = mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE + "-1");
         
         assertThat(actual, is(nullValue()));
     }
     
     @Test(expected = QueryResultNotUniqueException.class)
-    public void thatFindSingleItemByQueryValuesThrowsExceptionOnMultipleMatches()
+    public void thatFindByIdentifierThrowsExceptionOnMultipleMatches()
             throws Exception {
         
-        String identifierValue = "http://www.example.org/here-is-the-news";
         final Document identifier1 = (new Document())
-                .append("authority", "http://junit1.example.org/")
-                .append("identifierValue", identifierValue);
+                .append("authority", AUTHORITY)
+                .append("identifierValue", IDENTIFIER_VALUE);
         
         final Document doc1 = (new Document())
                 .append("uuid", uuid.toString())
@@ -238,22 +204,21 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("lastModified", lastModifiedDate);
         
         final Document identifier2 = (new Document())
-                .append("authority", "http://junit2.example.org/")
-                .append("identifierValue", identifierValue);
+                .append("authority", AUTHORITY)
+                .append("identifierValue", IDENTIFIER_VALUE);
         
         final Document doc2 = (new Document())
                 .append("uuid", uuid.toString())
                 .append("identifiers", Arrays.asList(identifier2))
-                .append("title", "Here is the news")
+                .append("title", "Here is the news again")
                 .append("byline", "By Bob Woodward")
                 .append("bodyXML", "xmlBody")
                 .append("publishedDate", lastPublicationDate)
-                .append("publishReference", "Some String")
+                .append("publishReference", "Some other String")
                 .append("lastModified", lastModifiedDate);
         
         collection.insertMany(Arrays.asList(doc1, doc2));
         
-        Map<String,Object> query = Collections.singletonMap("identifiers.identifierValue", identifierValue);
-        mongoDocumentStoreService.findSingleItemByQueryFields("content", query);
+        mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE);
     }
 }

@@ -50,19 +50,11 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     }
     
     @Override
-    public Map<String,Object> findSingleItemByQueryFields(String resourceType, Map<String,Object> query) {
-        LOG.info("findSingleItemByQueryFields: collection={} query={}", resourceType, query);
-        
-        Bson filter = null;
-        for (Map.Entry<String,Object> en : query.entrySet()) {
-            Bson f = Filters.eq(en.getKey(), en.getValue());
-            if (filter == null) {
-                filter = f;
-            }
-            else {
-                filter = Filters.and(filter, f);
-            }
-        }
+    public Map<String,Object> findByIdentifier(String resourceType, String authority, String identifierValue) {
+        Bson filter = Filters.and(
+            Filters.eq("identifiers.authority", authority),
+            Filters.eq("identifiers.identifierValue", identifierValue)
+            );
         
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
@@ -74,14 +66,13 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                     found.remove("_id");
                 }
                 else {
-                    LOG.warn("found too many results for collection {} query {}: at least {} and {}",
-                            resourceType, query, found, doc);
+                    LOG.warn("found too many results for collection {} identifier {}:{}: at least {} and {}",
+                            resourceType, authority, identifierValue, found, doc);
                     throw new QueryResultNotUniqueException();
                 }
             }
             
             return found;
-            
         }
         catch (MongoException e) {
             throw new ExternalSystemInternalServerException(e);
