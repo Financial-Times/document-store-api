@@ -59,6 +59,9 @@ Body should look like:
 
 Any fields that aren't supported will be ignored. NB: this response body is the same as the response for a GET to a content transformer.
 
+## Content DELETE
+Make a DELETE request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
+
 ## Content GET
 Make a GET request to `http://localhost:14180/content/{uuid}` with `Content-Type` set to `application/json`.
 
@@ -69,8 +72,16 @@ Make a GET request to `http://localhost:14180/content-read/{uuid}` with `Content
 
 Should return the json in the format of APIv2.
 
-## Content DELETE
-Make a DELETE request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
+## Content query by identifier
+Make a GET reqest to `http://localhost:14180/content-query?identifierAuthority={authority}&identifierValue={identifierValue}`. The combination of `authority` and `identifierValue` should be expected to produce a unique result.
+
+Example request:
+`GET /content-query?identifierAuthority=http://api.ft.com/system/FT-LABS-WP-1-335&identifierValue=http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/ HTTP/1.1`
+
+The possible HTTP responses are:
+* `301`: A single document was found matching the query; its URI may be found in the `Location` header.
+* `404`: No match was found.
+* `500`: Multiple matches were found (this is not expected).
 
 ## List PUT
 Make a PUT request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
