@@ -10,6 +10,7 @@ import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
@@ -22,14 +23,17 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 import javax.servlet.DispatcherType;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
@@ -64,6 +68,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final ContentBodyProcessingService bodyProcessing = new ContentBodyProcessingService(transformer);
         final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), configuration.getApiHost());
         environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost(), contentMapper, bodyProcessing));
+        environment.jersey().register(new DocumentQueryResource(documentStoreService));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());
 
