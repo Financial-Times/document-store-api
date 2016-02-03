@@ -49,7 +49,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     @Override
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
-                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/content-read/*", "/lists/*");
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/content-read/*", "/lists/*", "/content-query");
         environment.servlets().addFilter("cache-filter", new CacheControlFilter())
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content-read/*");
 
