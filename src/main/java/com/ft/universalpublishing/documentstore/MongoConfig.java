@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.mongodb.ServerAddress;
+import io.dropwizard.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,9 @@ public class MongoConfig {
 	@NotNull
 	@JsonProperty
 	private String db;
-
+	
+	private Duration idleTimeout;
+	
 	public List<String> getHosts() {
 		return hosts;
 	}
@@ -93,6 +96,14 @@ public class MongoConfig {
     	this.addresses.addAll(addresses);
     }
     
+    public void setIdleTimeout(Duration idleTimeout) {
+      this.idleTimeout = idleTimeout;
+    }
+    
+    public Duration getIdleTimeout() {
+      return idleTimeout;
+    }
+    
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
@@ -100,6 +111,7 @@ public class MongoConfig {
                 .add("host (legacy)", host)
 				.add("port", port)
 				.add("db", db)
+				.add("idleTimeout", idleTimeout)
 				.toString();
 	}
 }

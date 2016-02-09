@@ -21,18 +21,21 @@ import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGenerato
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Duration;
 
 import javax.servlet.DispatcherType;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
@@ -75,16 +78,22 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         documentStoreService.applyIndexes(Arrays.asList(DocumentResource.CONTENT_COLLECTION,
                 DocumentResource.LISTS_COLLECTION));
     }
-
+    
     private MongoClient getMongoClient(MongoConfig config) {
+      MongoClientOptions.Builder builder = MongoClientOptions.builder();
+      
+      Duration idleTimeoutDuration = Optional.ofNullable(config.getIdleTimeout()).orElse(Duration.minutes(10));
+      int idleTimeout = (int)idleTimeoutDuration.toMilliseconds();
+      MongoClientOptions options = builder.maxConnectionIdleTime(idleTimeout).build();
+      
         List<ServerAddress> mongoServers = config.toServerAddresses();
         if (mongoServers.size() == 1) {
             // singleton configuration
             ServerAddress mongoServer = mongoServers.get(0);
-            return new MongoClient(mongoServer);
+            return new MongoClient(mongoServer, options);
         } else {
             // cluster configuration
-            return new MongoClient(mongoServers);
+            return new MongoClient(mongoServers, options);
         }
     }
 }
