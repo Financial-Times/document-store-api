@@ -2,7 +2,7 @@ FROM up-registry.ft.com/coco/dropwizardbase
 
 ADD . /
 
-RUN apk --update add git \
+RUN apk --update add git libstdc++ \
   && HASH=$(git log -1 --pretty=format:%H) \
   && BUILD_NUMBER=$(cat buildnum.txt) \
   && BUILD_URL=$(cat buildurl.txt) \
