@@ -24,8 +24,13 @@ The procedure to migrate data is the following:
     ```
     fleetctl stop deployer.service
     ```
-    
-3.  Stop all the content ingester services in COCO:
+3.  Stop publish-availability-monitor serice in COCO:
+
+    ```
+    fleetctl stop publish-availability-monitor@1.service
+    ```
+
+4.  Stop all the content ingester services in COCO:
     
     ```
     fleetctl stop content-ingester@1.service
@@ -34,13 +39,13 @@ The procedure to migrate data is the following:
     fleetclt stop content-ingester@<n>.service
     ```
    
-4.  Run the migration process on your localhost:
+5.  Run the migration process on your localhost:
     
     ```
-    ./migrate-ucs-coco.sh <ucs-mongodb-host> <public-ip-coco-primary>
+    ./migrate-ucs-coco.sh <ucs-mongodb-secondary-host> <public-ip-coco-primary>
     ```
 
-5.  Restart the deployer service in COCO:
+6.  Restart the deployer service in COCO:
     
     ```
     fleetclt start deployer.service
