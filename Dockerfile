@@ -15,7 +15,7 @@ RUN apk --update add git libstdc++ \
 
 EXPOSE 8080 8081
 
-CMD java -Ddw.server.applicationConnectors[0].port=8080 \
+CMD exec java -Ddw.server.applicationConnectors[0].port=8080 \
          -Ddw.server.adminConnectors[0].port=8081 \
          -Ddw.mongo.addresses=$MONGO_ADDRESSES \
 		 -Ddw.apiHost=$API_HOST \
