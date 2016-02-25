@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -55,6 +58,7 @@ public class MongoDocumentStoreServiceContentTest {
         db.getCollection(DB_COLLECTION).drop();
         
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
+        mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("content");
         uuid = UUID.randomUUID();
         lastPublicationDate = new Date();
@@ -220,5 +224,18 @@ public class MongoDocumentStoreServiceContentTest {
         collection.insertMany(Arrays.asList(doc1, doc2));
         
         mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE);
+    }
+    
+    @Test
+    public void thatIndexesAreConfigured() {
+      Supplier<Stream<Document>> indexes = () -> StreamSupport.stream(collection.listIndexes().spliterator(), false);
+      
+      Document uuidKey = new Document("uuid", 1);
+      assertThat("UUID index", indexes.get().anyMatch(doc -> uuidKey.equals(doc.get("key"))), is(true));
+      
+      Document identifierKey = new Document();
+      identifierKey.put("identifiers.authority", 1);
+      identifierKey.put("identifiers.identifierValue", 1);
+      assertThat("Identifiers index", indexes.get().anyMatch(doc -> identifierKey.equals(doc.get("key"))), is(true));
     }
 }

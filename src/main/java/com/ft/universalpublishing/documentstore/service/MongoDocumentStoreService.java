@@ -20,12 +20,14 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class MongoDocumentStoreService implements DocumentStoreService {
     private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
+    
+    private static final String IDENT_AUTHORITY = "identifiers.authority";
+    private static final String IDENT_VALUE = "identifiers.identifierValue";
     
     private final MongoDatabase db;
 
@@ -115,9 +117,25 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public void applyIndexes(final List<String> collectionNames) {
-        collectionNames.stream()
-                .forEach(name -> db.getCollection(name).createIndex(new Document("uuid", 1)));
+    public void applyIndexes() {
+      MongoCollection content = db.getCollection(CONTENT_COLLECTION);
+      createUuidIndex(content);
+      createIdentifierIndex(content);
+      
+      MongoCollection lists = db.getCollection(LISTS_COLLECTION);
+      createUuidIndex(lists);
+    }
+    
+    private void createUuidIndex(MongoCollection<?> collection) {
+      collection.createIndex(new Document("uuid", 1));
+    }
+    
+    private void createIdentifierIndex(MongoCollection<?> collection) {
+      Document queryByIdentifierIndex = new Document();
+      queryByIdentifierIndex.put(IDENT_AUTHORITY, 1);
+      queryByIdentifierIndex.put(IDENT_VALUE, 1);
+      collection.createIndex(queryByIdentifierIndex);
     }
 }

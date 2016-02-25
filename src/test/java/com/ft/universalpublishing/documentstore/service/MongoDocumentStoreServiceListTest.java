@@ -8,6 +8,9 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
@@ -54,6 +57,7 @@ public class MongoDocumentStoreServiceListTest {
         db.getCollection(DB_COLLECTION).drop();
         
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
+        mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();
         contentUuid1 = UUID.randomUUID().toString();
@@ -224,5 +228,13 @@ public class MongoDocumentStoreServiceListTest {
         exception.expectMessage(String.format("Document with uuid : %s not found!", uuid));
 
         mongoDocumentStoreService.delete("lists", uuid);
+    }
+    
+    @Test
+    public void thatIndexesAreConfigured() {
+      Supplier<Stream<Document>> indexes = () -> StreamSupport.stream(collection.listIndexes().spliterator(), false);
+      
+      Document uuidKey = new Document("uuid", 1);
+      assertThat("UUID index", indexes.get().anyMatch(doc -> uuidKey.equals(doc.get("key"))), is(true));
     }
 }

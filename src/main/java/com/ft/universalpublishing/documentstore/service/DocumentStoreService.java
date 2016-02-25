@@ -1,12 +1,13 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 
 public interface DocumentStoreService {
+  static final String CONTENT_COLLECTION = "content";
+  static final String LISTS_COLLECTION = "lists";
 
     Map<String, Object> findByUuid(String resourceType, UUID fromString);
 
@@ -16,5 +17,5 @@ public interface DocumentStoreService {
 
     void delete(String resourceType, UUID fromString);
 
-    void applyIndexes(final List<String> collectionNames);
+    void applyIndexes();
 }
