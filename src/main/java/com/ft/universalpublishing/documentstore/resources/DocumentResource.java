@@ -1,5 +1,8 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.CONTENT_COLLECTION;
+import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.LISTS_COLLECTION;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,8 +42,6 @@ import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
-    public static final String CONTENT_COLLECTION = "content";
-    public static final String LISTS_COLLECTION = "lists";
 	
 	private ContentListValidator contentListValidator;
     private DocumentStoreService documentStoreService;

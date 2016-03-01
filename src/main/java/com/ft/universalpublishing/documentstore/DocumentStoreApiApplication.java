@@ -75,8 +75,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
         environment.jersey().register(new RuntimeExceptionMapper());
 
-        documentStoreService.applyIndexes(Arrays.asList(DocumentResource.CONTENT_COLLECTION,
-                DocumentResource.LISTS_COLLECTION));
+        documentStoreService.applyIndexes();
     }
     
     private MongoClient getMongoClient(MongoConfig config) {

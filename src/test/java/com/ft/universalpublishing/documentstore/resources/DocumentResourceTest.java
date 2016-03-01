@@ -62,7 +62,7 @@ public class DocumentResourceTest {
 
         content.put("publishReference", "Some String");
 
-        when(mockStore.findByUuid(DocumentResource.CONTENT_COLLECTION, uuid)).thenReturn(content);
+        when(mockStore.findByUuid(DocumentStoreService.CONTENT_COLLECTION, uuid)).thenReturn(content);
         Content rContent = resource.getContentReadByUuid(uuid.toString(), mockedUriGenerator);
         assertThat(rContent.getId(),containsString(uuid.toString()));
     }
