@@ -4,7 +4,7 @@ This readme file describes how to migrate lists and content between from UCS to 
 The migration scripts assume the following:
 
 * articles can be published, updated, deleted and republished with the same UUID;
-* other pices of content (e.g. images) can be published once, but not updated or deleted;
+* other pieces of content (e.g. images) can be published once, but not updated or deleted;
 * the `notification` collection in COCO is up-to-date.
  
 The procedure to migrate data is the following:      
@@ -40,9 +40,10 @@ The procedure to migrate data is the following:
     ```
    
 5.  Run the migration process on your localhost:
+    `prefer-archive`: bool flag. set this to `true` if you want the archived version of content to be preferred over the existing one. otherwise the existing one will be restored.
     
     ```
-    ./migrate-ucs-coco.sh <ucs-mongodb-secondary-host> <public-ip-coco-primary>
+    ./migrate-ucs-coco.sh <ucs-mongodb-secondary-host> <public-ip-coco-primary> <prefer-archive>
     ```
 
 6.  Restart the deployer service in COCO:

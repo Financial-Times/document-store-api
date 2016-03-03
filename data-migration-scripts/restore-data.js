@@ -92,8 +92,10 @@ function restoreData(){
 	// Documents from the archive collection are moved to the "lists" collection
 	mergeDocuments(SOURCE_LISTS_COLLECTION, LISTS_COLLECTION);
 
-	// The following function restores recent lists copied to "lists_old".
-    restoreListsFromBackup();
+	if (!PREFER_ARCHIVE) {
+		// The following function restores recent lists copied to "lists_old".
+		restoreListsFromBackup();
+	}
 
 
     // OPERATIONS ON CONTENT
@@ -103,8 +105,10 @@ function restoreData(){
     // Documents from the archive collection are moved to the "content" collection
     mergeDocuments(SOURCE_CONTENT_COLLECTION, CONTENT_COLLECTION);
 
-    // The following function restores recent pice of copied to "lists_old".
-    restoreContentFromBackup();
+	if (!PREFER_ARCHIVE) {
+		// The following function restores recent pieces of contents copied to "content_old".
+		restoreContentFromBackup();
+	}
 
 }
 
