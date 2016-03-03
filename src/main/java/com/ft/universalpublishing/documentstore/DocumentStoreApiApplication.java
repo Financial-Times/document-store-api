@@ -54,7 +54,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/content-read/*", "/lists/*", "/content-query");
         environment.servlets().addFilter("cache-filter", new CacheControlFilter())
-                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content-read/*");
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content-read/*", "/lists/*");
 
         environment.jersey().register(new BuildInfoResource());
 
