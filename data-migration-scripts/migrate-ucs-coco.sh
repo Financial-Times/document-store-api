@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
     echo "Illegal number of parameters"
-    echo "Usage migrate-ucs-coco.sh <ucs-primary-mongo-host> <public-IP-of-primary-mongo-coco>"
+    echo "Usage migrate-ucs-coco.sh <ucs-primary-mongo-host> <public-IP-of-primary-mongo-coco> <prefer-archive>"
     exit 0
 fi
 
+if [ "$3" != "true" ] && [ "$3" != "false" ]; then
+    echo "Invalid <prefer-archive> value: [$3]. It must be [true|false]."
+    exit 0
+fi
+
+
 UCS_MONGODB_HOST="$1"
 COCO_PUBLIC_IP="$2"
+PREFER_ARCHIVE=$3
+
+echo -e "Running config:\n\t-mongo: $UCS_MONGODB_HOST\n\t-coco: $COCO_PUBLIC_IP\n\t-prefer-archive: $PREFER_ARCHIVE"
 
 function backupFromUcs {
     # Lock the db
@@ -27,7 +36,7 @@ function copyScriptsAndDumpToCoco {
 }
 
 function runOperationsInCoco {
-    ssh core@$COCO_PUBLIC_IP "chmod 750 /home/core/*.sh; /home/core/operations-in-coco.sh"
+    ssh core@$COCO_PUBLIC_IP "chmod 750 /home/core/*.sh; /home/core/operations-in-coco.sh $PREFER_ARCHIVE"
 }
 
 backupFromUcs

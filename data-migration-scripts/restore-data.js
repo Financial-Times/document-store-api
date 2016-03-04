@@ -85,26 +85,35 @@ function move(sourceCollection,targetCollection){
 
 function restoreData(){
 
+	print("Existing nr of lists entries: ", db.getCollection(LISTS_COLLECTION).count());
+	print("Archived nr of lists entries: ", db.getCollection(SOURCE_LISTS_COLLECTION).count());
     // OPERATIONS ON LISTS
     // Make a backup of the "lists" collection by renaming it as "lists_old"
 	move(LISTS_COLLECTION, LISTS_COLLECTION + BACKUP_SUFFIX);
 
 	// Documents from the archive collection are moved to the "lists" collection
 	mergeDocuments(SOURCE_LISTS_COLLECTION, LISTS_COLLECTION);
+	print("Total nr of lists entries: ", db.getCollection(LISTS_COLLECTION).count());
 
-	// The following function restores recent lists copied to "lists_old".
-    restoreListsFromBackup();
+	if (!PREFER_ARCHIVE) {
+		// The following function restores recent lists copied to "lists_old".
+		restoreListsFromBackup();
+	}
 
-
+	print("Existing nr of content: ", db.getCollection(CONTENT_COLLECTION).count());
+	print("Archived nr of content: ", db.getCollection(SOURCE_CONTENT_COLLECTION).count());
     // OPERATIONS ON CONTENT
     // Make a backup of the "content" collection by renaming it as "content_old"
 	move(CONTENT_COLLECTION, CONTENT_COLLECTION + BACKUP_SUFFIX);
 
     // Documents from the archive collection are moved to the "content" collection
     mergeDocuments(SOURCE_CONTENT_COLLECTION, CONTENT_COLLECTION);
+	print("Total nr of content: ", db.getCollection(CONTENT_COLLECTION).count());
 
-    // The following function restores recent pice of copied to "lists_old".
-    restoreContentFromBackup();
+	if (!PREFER_ARCHIVE) {
+		// The following function restores recent pieces of contents copied to "content_old".
+		restoreContentFromBackup();
+	}
 
 }
 
