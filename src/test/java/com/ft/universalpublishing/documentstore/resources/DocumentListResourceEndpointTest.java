@@ -10,6 +10,7 @@ import com.ft.universalpublishing.documentstore.model.ContentList;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.ListItem;
+import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
@@ -106,6 +107,7 @@ public class DocumentListResourceEndpointTest {
                                     new IdentifierMapper(),
                                     new TypeResolver(),
                                     new BrandsMapper(),
+                                    new StandoutMapper(),
                                     "localhost"),
                             new ContentBodyProcessingService(
                                     new ModelBodyXmlTransformer(

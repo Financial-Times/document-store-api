@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "openingXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "openingXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified", "standout"})
 public class Content {
 
     private String id;
@@ -38,6 +38,7 @@ public class Content {
     private Integer pixelWidth;
     private Integer pixelHeight;
     private DateTime lastModified;
+    private Standout standout;
 
     private Content(@JsonProperty("id") String id,
                     @JsonProperty("type") String type,
@@ -60,7 +61,8 @@ public class Content {
                     @JsonProperty("publishReference") String publishReference,
                     @JsonProperty("pixelWidth") Integer pixelWidth,
                     @JsonProperty("pixelHeight") Integer pixelHeight,
-                    @JsonProperty("lastModified") DateTime lastModified) {
+                    @JsonProperty("lastModified") DateTime lastModified,
+                    @JsonProperty("standout") Standout standout) {
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
@@ -83,6 +85,7 @@ public class Content {
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
         this.lastModified = lastModified;
+        this.standout = standout;
     }
 
     @Override
@@ -106,6 +109,7 @@ public class Content {
                 .add("copyright", copyright)
                 .add("publishReference", publishReference)
                 .add("lastModified", lastModified)
+                .add("standout", standout)
                 .toString();
     }
 
@@ -283,6 +287,10 @@ public class Content {
         return lastModified;
     }
 
+    public Standout getStandout() {
+        return standout;
+    }
+
     public static class Builder {
 
         private String id;
@@ -307,6 +315,7 @@ public class Content {
         private Integer pixelWidth;
         private Integer pixelHeight;
         private DateTime lastModified;
+        private Standout standout;
 
         public Builder withId(String id) {
             this.id = id;
@@ -418,6 +427,11 @@ public class Content {
             return this;
         }
 
+        public Builder withStandout(Standout standout) {
+            this.standout = standout;
+            return this;
+        }
+
         public Content build() {
             return new Content(id,
                     type,
@@ -440,7 +454,8 @@ public class Content {
                     transactionId,
                     pixelWidth,
                     pixelHeight,
-                    lastModified);
+                    lastModified,
+                    standout);
         }
     }
 }
