@@ -17,15 +17,18 @@ public class ContentMapper {
     private final IdentifierMapper identifierMapper;
     private final TypeResolver typeResolver;
     private final BrandsMapper brandsMapper;
+    private final StandoutMapper standoutMapper;
     private final String apiUrlPrefix;
 
     public ContentMapper(final IdentifierMapper identifierMapper,
                          final TypeResolver typeResolver,
                          final BrandsMapper brandsMapper,
+                         final StandoutMapper standoutMapper,
                          final String apiHost) {
         this.identifierMapper = identifierMapper;
         this.typeResolver = typeResolver;
         this.brandsMapper = brandsMapper;
+        this.standoutMapper = standoutMapper;
         this.apiUrlPrefix = "http://" + apiHost + "/content/";
     }
 
@@ -46,7 +49,8 @@ public class ContentMapper {
                 .withRealtime(source.isRealtime())
                 .withPublishReference(source.getPublishReference())
                 .withPixelWidth(source.getPixelWidth())
-                .withPixelHeight(source.getPixelHeight());
+                .withPixelHeight(source.getPixelHeight())
+                .withStandout(standoutMapper.map(source.getStandout()));
 
         if (source.getLastModified() != null) {
             builder = builder.withLastModifiedDate(new DateTime(source.getLastModified().getTime()));

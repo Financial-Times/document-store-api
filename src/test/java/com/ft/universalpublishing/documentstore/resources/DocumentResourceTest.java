@@ -3,6 +3,7 @@ package com.ft.universalpublishing.documentstore.resources;
 import com.ft.universalpublishing.documentstore.model.BrandsMapper;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.model.read.Content;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
@@ -33,7 +34,7 @@ public class DocumentResourceTest {
     public void test() {
         final DocumentStoreService mockStore = mock(DocumentStoreService.class);
         final ContentListValidator mockValidator = mock(ContentListValidator.class);
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), "localhost");
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), new StandoutMapper(), "localhost");
         final Map<String, String> templates = new HashMap<>();
         templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
         templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");

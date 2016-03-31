@@ -40,6 +40,7 @@ public class Content {
     private final Copyright copyright;
     private final String publishReference;
     private final Date lastModified;
+    private final Standout standout;
 
     private Content(@JsonProperty("uuid") UUID uuid,
             @JsonProperty("title") String title,
@@ -62,7 +63,8 @@ public class Content {
             @JsonProperty("realtime") Boolean realtime,
             @JsonProperty("copyright") Copyright copyright,
             @JsonProperty("publishReference") String publishReference,
-            @JsonProperty("lastModified") Date lastModified) {
+            @JsonProperty("lastModified") Date lastModified,
+            @JsonProperty("standout") Standout standout) {
         this.identifiers = identifiers;
         this.body = body;
         this.opening = opening;
@@ -85,6 +87,7 @@ public class Content {
         this.copyright = copyright;
         this.publishReference = publishReference;
         this.lastModified = lastModified;
+        this.standout = standout;
     }
 
     @NotNull
@@ -180,6 +183,10 @@ public class Content {
         return lastModified;
     }
 
+    public Standout getStandout() {
+        return standout;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this.getClass())
@@ -204,6 +211,7 @@ public class Content {
                 .add("copyright", copyright)
                 .add("publishReference", publishReference)
                 .add("lastModified", lastModified)
+                .add("standout", standout)
                 .toString();
     }
 
@@ -234,7 +242,8 @@ public class Content {
                 && Objects.equal(this.realtime, that.realtime)
                 && Objects.equal(this.copyright, that.copyright)
                 && Objects.equal(this.publishReference, that.publishReference)
-                && Objects.equal(this.lastModified, that.lastModified);
+                && Objects.equal(this.lastModified, that.lastModified)
+                && Objects.equal(this.standout, that.standout);
     }
 
     @Override
@@ -260,7 +269,8 @@ public class Content {
                 realtime, 
                 copyright, 
                 publishReference,
-                lastModified
+                lastModified,
+                standout
         );
     }
 
@@ -292,6 +302,7 @@ public class Content {
         private Copyright copyright;
         private String transactionId;
         private Date lastModified;
+        private Standout standout;
 
         public Builder withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -406,6 +417,11 @@ public class Content {
             return this;
         }
 
+        public Builder withStandout(Standout standout) {
+            this.standout = standout;
+            return this;
+        }
+
         public Builder withValuesFrom(Content content) {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
@@ -428,7 +444,8 @@ public class Content {
                     .withRealtime(content.isRealtime())
                     .withCopyright(content.getCopyright())
                     .withPublishReference(content.getPublishReference())
-                    .withLastModifiedDate(content.getLastModified());
+                    .withLastModifiedDate(content.getLastModified())
+                    .withStandout(content.standout);
         }
 
 		public Content build() {
@@ -454,7 +471,8 @@ public class Content {
                     realtime, 
                     copyright,
                     transactionId,
-                    lastModified
+                    lastModified,
+                    standout
             );
         }
     }

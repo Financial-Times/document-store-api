@@ -8,6 +8,7 @@ import com.ft.universalpublishing.documentstore.model.transformer.Copyright;
 import com.ft.universalpublishing.documentstore.model.transformer.Identifier;
 import com.ft.universalpublishing.documentstore.model.transformer.Member;
 
+import com.ft.universalpublishing.documentstore.model.transformer.Standout;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -22,7 +23,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ContentMapperTest {
 
-    private final ContentMapper mapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), "localhost");
+    private final ContentMapper mapper = new ContentMapper(new IdentifierMapper(),
+            new TypeResolver(),
+            new BrandsMapper(),
+            new StandoutMapper(),
+            "localhost");
 
     @Test
     public void testContentMapping() throws Exception {
@@ -35,6 +40,7 @@ public class ContentMapperTest {
         brands.add(new Brand("Lex"));
         brands.add(new Brand("Chuck Taylor"));
         final UUID mainImageUuid = UUID.randomUUID();
+        final Standout standout = new Standout(true, true, true);
         final Content content = Content.builder()
                 .withUuid(uuid)
                 .withTitle("Philosopher")
@@ -48,6 +54,7 @@ public class ContentMapperTest {
                 .withComments(new Comments(true))
                 .withPublishReference("Publish Reference")
                 .withLastModifiedDate(lastModified)
+                .withStandout(standout)
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
@@ -68,6 +75,7 @@ public class ContentMapperTest {
         assertThat(readContent.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
         assertThat(readContent.getPublishReference(), equalTo("Publish Reference"));
         assertThat(readContent.getLastModified(), equalTo(new DateTime(lastModified.getTime())));
+        assertThat(readContent.getStandout(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Standout(true, true, true)));
     }
 
 

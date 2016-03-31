@@ -8,6 +8,7 @@ import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.model.BrandsMapper;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
@@ -69,7 +70,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final ModelBodyXmlTransformer transformer = new ModelBodyXmlTransformer(uriBuilder);
         environment.jersey().register(new ContextBackedApiUriGeneratorProvider(configuration.getApiHost()));
         final ContentBodyProcessingService bodyProcessing = new ContentBodyProcessingService(transformer);
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), configuration.getApiHost());
+        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), new StandoutMapper(), configuration.getApiHost());
         environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost(), contentMapper, bodyProcessing));
         environment.jersey().register(new DocumentQueryResource(documentStoreService));
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));

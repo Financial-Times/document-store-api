@@ -7,6 +7,7 @@ import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.BrandsMapper;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
@@ -88,6 +89,7 @@ public class DocumentContentResourceEndpointTest {
                             new IdentifierMapper(),
                             new TypeResolver(),
                             new BrandsMapper(),
+                            new StandoutMapper(),
                             "localhost"
                     ),
                     new ContentBodyProcessingService(
