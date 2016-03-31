@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import com.ft.universalpublishing.documentstore.model.read.Standout;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +47,7 @@ public class ContentBodyProcessingServiceTest {
         final SortedSet<String> brands = new TreeSet<>();
         brands.add("Lex");
         brands.add("Chuck Taylor");
+        final Standout standout = new Standout(true, true, true);
         
         when(transformer.transform(eq(body), any(DocumentProcessingContext.class))).thenReturn(body);
         when(transformer.transform(eq(opening), any(DocumentProcessingContext.class))).thenReturn(opening);
@@ -62,6 +64,7 @@ public class ContentBodyProcessingServiceTest {
                 .withComments(new Comments(true))
                 .withPublishReference("Publish Reference")
                 .withLastModifiedDate(lastModified)
+                .withStandout(standout)
                 .build();
         
         Content actual = service.process(content, null);
@@ -80,5 +83,6 @@ public class ContentBodyProcessingServiceTest {
         assertThat(actual.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
         assertThat(actual.getPublishReference(), equalTo("Publish Reference"));
         assertThat(actual.getLastModified(), equalTo(lastModified));
+        assertThat(actual.getStandout(), equalTo(standout));
     }
 }
