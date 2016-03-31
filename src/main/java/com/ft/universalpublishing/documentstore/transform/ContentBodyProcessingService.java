@@ -52,6 +52,7 @@ public class ContentBodyProcessingService {
                 .withCopyright(content.getCopyright())
                 .withPixelHeight(content.getPixelHeight())
                 .withLastModifiedDate(content.getLastModified())
+                .withStandout(content.getStandout())
                 .build();
     }
 }

@@ -1,5 +1,5 @@
 mongo:
-  hosts: ["localhost"]
+  hosts: ["ftper07935-lvpr-uk-int"]
   port: 27017
   db: upp-store
   
