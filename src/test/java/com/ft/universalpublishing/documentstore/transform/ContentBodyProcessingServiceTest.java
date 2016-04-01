@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import com.ft.universalpublishing.documentstore.model.read.Standout;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +61,7 @@ public class ContentBodyProcessingServiceTest {
                 .withBrands(brands)
                 .withIdentifiers(identifiers)
                 .withComments(new Comments(true))
+                .withStandout(new Standout(true, true, true))
                 .withPublishReference("Publish Reference")
                 .withLastModifiedDate(lastModified)
                 .build();
@@ -78,6 +80,7 @@ public class ContentBodyProcessingServiceTest {
         assertThat(actual.getIdentifiers().first(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Identifier("authority1", "identifier1")));
         assertThat(actual.getBrands(), equalTo(brands));
         assertThat(actual.getComments(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Comments(true)));
+        assertThat(actual.getStandout(), equalTo(new Standout(true, true, true)));
         assertThat(actual.getPublishReference(), equalTo("Publish Reference"));
         assertThat(actual.getLastModified(), equalTo(lastModified));
     }
