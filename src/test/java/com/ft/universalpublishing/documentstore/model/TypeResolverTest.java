@@ -1,8 +1,11 @@
 package com.ft.universalpublishing.documentstore.model;
 
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
+import com.ft.universalpublishing.documentstore.model.transformer.Identifier;
 import org.junit.Test;
 
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -37,6 +40,18 @@ public class TypeResolverTest {
     public void testInternalBinaryUrlMeansItsMediaResource() throws Exception {
         final Content content = Content.builder()
                 .withInternalBinaryUrl("http://methode-image-binary-transformer:8080/binary/98434398394")
+                .build();
+        final String type = resolver.resolveType(content);
+        assertThat(type, equalTo(TypeResolver.TYPE_MEDIA_RESOURCE));
+    }
+
+    @Test
+    public void testBrightcoveAuthorityMeansItsMediaResource() throws Exception {
+        final Identifier identifier = new Identifier(TypeResolver.BRIGHTCOVE_AUTHORITY, "123");
+        final SortedSet<Identifier> identifiers = new TreeSet<>();
+        identifiers.add(identifier);
+        final Content content = Content.builder()
+                .withIdentifiers(identifiers)
                 .build();
         final String type = resolver.resolveType(content);
         assertThat(type, equalTo(TypeResolver.TYPE_MEDIA_RESOURCE));
