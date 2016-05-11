@@ -15,13 +15,18 @@ public class TypeResolver {
                 || ((source.isRealtime() != null) && source.isRealtime().booleanValue())) {
             return TYPE_ARTICLE;
         }
-        if (source.getInternalBinaryUrl() != null ||
-                source.getIdentifiers() != null && !source.getIdentifiers().isEmpty() && source.getIdentifiers().first().getAuthority().equals(BRIGHTCOVE_AUTHORITY)) {
+        if (source.getInternalBinaryUrl() != null || isBrightcoveAuthority(source)) {
             return TYPE_MEDIA_RESOURCE;
         }
         if (source.getMembers() != null) {
             return TYPE_IMAGE_SET;
         }
         return null;
+    }
+
+    boolean isBrightcoveAuthority(final Content source) {
+        return source.getIdentifiers() != null &&
+                !source.getIdentifiers().isEmpty() &&
+                source.getIdentifiers().first().getAuthority().equals(BRIGHTCOVE_AUTHORITY);
     }
 }
