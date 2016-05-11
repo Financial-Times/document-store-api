@@ -27,6 +27,6 @@ public class TypeResolver {
     boolean isBrightcoveAuthority(final Content source) {
         return source.getIdentifiers() != null &&
                 !source.getIdentifiers().isEmpty() &&
-                source.getIdentifiers().first().getAuthority().equals(BRIGHTCOVE_AUTHORITY);
+                BRIGHTCOVE_AUTHORITY.equals(source.getIdentifiers().first().getAuthority());
     }
 }
