@@ -91,6 +91,14 @@ Body should look like:
     { 
         "uuid": "3c99c2ba-a6ae-11e2-95b1-00144feabdc0",
         "title": "Test List",
+        "concept": {
+            "tmeIdentifier": "NzE=-U2VjdGlvbnM=",
+            "prefLabel": "Markets"
+        },
+        "type": {
+            "id": "http://api.ft.com/things/c5de8687-c49f-4904-bbc9-bff4f55e50a0",
+            "prefLabel": "Opinion & Analysis"
+        },
         "items" : [
             {
                 "uuid": "0237b884-d124-11e2-be7b-00144feab7de"
@@ -108,6 +116,11 @@ Any fields that aren't supported will be ignored. NB: this response body is the 
 
 ## List GET
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
+
+## List GET by Concept and Type
+Make a GET request to http://localhost:14180/lists?concept=NzE=-U2VjdGlvbnM=&type=c5de8687-c49f-4904-bbc9-bff4f55e50a0 with Content-Type set to application/json.
+
+You should get a single result back. If there was more than one match, one will be returned and an error will be logged.
 
 ## List DELETE
 Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.

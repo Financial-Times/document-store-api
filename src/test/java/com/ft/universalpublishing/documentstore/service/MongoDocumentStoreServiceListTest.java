@@ -272,8 +272,8 @@ public class MongoDocumentStoreServiceListTest {
         assertThat(actual, is(nullValue()));
     }
     
-    @Test(expected = QueryResultNotUniqueException.class)
-    public void thatFindByConceptAndTypeThrowsExceptionOnMultipleMatches()
+    @Test
+    public void thatFindByConceptAndTypeReturnsFirstMatchOnMultipleMatches()
             throws Exception {
         
         BasicDBList items = new BasicDBList();
@@ -304,7 +304,9 @@ public class MongoDocumentStoreServiceListTest {
         
         collection.insertMany(Arrays.asList(toInsert1, toInsert2));
         
-        mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, TYPE_ID);
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, TYPE_ID);
+        
+        assertThat(actual.get("uuid"), is((Object)uuid.toString()));
     }
 
     

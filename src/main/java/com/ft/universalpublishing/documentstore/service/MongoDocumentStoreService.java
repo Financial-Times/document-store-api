@@ -99,9 +99,9 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                         found.remove("_id");
                     }
                     else {
-                        LOG.warn("found too many results for collection {} identifier {}:{}: at least {} and {}",
+                        LOG.error("found too many results for collection {} identifier {}:{}: at least {} and {}",
                                 resourceType, conceptId, typeId, found, doc);
-                        throw new QueryResultNotUniqueException();
+                        return found; // just return the first one we found (graceful degradation) and log the error
                     }
                 }
                 
