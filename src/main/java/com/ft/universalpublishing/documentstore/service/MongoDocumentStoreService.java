@@ -80,6 +80,37 @@ public class MongoDocumentStoreService implements DocumentStoreService {
             throw new ExternalSystemInternalServerException(e);
         }
     }
+    
+
+    @Override
+    public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String typeId) {
+        Bson filter = Filters.and(
+                Filters.eq("concept.tmeIdentifier", conceptId),
+                Filters.eq("type.id", typeId)
+                );
+            
+            try {
+                MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+                Document found = null;
+                
+                for (Document doc : dbCollection.find(filter).limit(2)) {
+                    if (found == null) {
+                        found = doc;
+                        found.remove("_id");
+                    }
+                    else {
+                        LOG.warn("found too many results for collection {} identifier {}:{}: at least {} and {}",
+                                resourceType, conceptId, typeId, found, doc);
+                        throw new QueryResultNotUniqueException();
+                    }
+                }
+                
+                return found;
+            }
+            catch (MongoException e) {
+                throw new ExternalSystemInternalServerException(e);
+            }
+    }
 
     @Override
     public void delete(String resourceType, UUID uuid) {
@@ -138,4 +169,5 @@ public class MongoDocumentStoreService implements DocumentStoreService {
       queryByIdentifierIndex.put(IDENT_VALUE, 1);
       collection.createIndex(queryByIdentifierIndex);
     }
+
 }

@@ -2,7 +2,12 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.CONTENT_COLLECTION;
 import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.LISTS_COLLECTION;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import java.net.URI;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -37,6 +43,7 @@ import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.google.common.base.Strings;
 
 @Path("/")
 public class DocumentResource {
@@ -97,6 +104,22 @@ public class DocumentResource {
         } catch (IllegalArgumentException e) {
             throw ClientError.status(500).error(e.getMessage()).exception();
         }
+    }
+    
+    @GET
+    @Timed
+    @Path("/lists")
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    public final ContentList getListsByConceptAndType(@QueryParam("conceptId") String conceptId, @QueryParam("typeId") String typeId,  @Context HttpHeaders httpHeaders) {
+        if (Strings.isNullOrEmpty(conceptId) || Strings.isNullOrEmpty(typeId)) {
+            throw ClientError.status(400).error("Query parameters \"conceptId\" and \"typeId\" are required.").exception();
+          }
+          
+        Map<String,Object> result = documentStoreService.findByConceptAndType(LISTS_COLLECTION, conceptId, typeId);
+        if (result == null) {
+            throw ClientError.status(404).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
+        }
+        return convertToContentList(result);
     }
 
     protected ContentList convertToContentList(Map<String, Object> contentMap) {

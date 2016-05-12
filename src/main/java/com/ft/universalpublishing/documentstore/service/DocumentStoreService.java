@@ -12,6 +12,8 @@ public interface DocumentStoreService {
     Map<String, Object> findByUuid(String resourceType, UUID fromString);
 
     Map<String, Object> findByIdentifier(String resourceType, String authority, String identifierValue);
+    
+    Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String typeId);
 
     DocumentWritten write(String resourceType, Map<String, Object> content);
 
