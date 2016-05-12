@@ -1,4 +1,4 @@
-package com.ft.universalpublishing.documentstore.model;
+package com.ft.universalpublishing.documentstore.model.read;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "items", "layoutHint", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "type", "items", "layoutHint", "publishReference", "lastModified"})
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
@@ -34,6 +34,8 @@ public class ContentList {
         private String id;
         private UUID uuid;
         private String apiUrl;
+        private Concept concept;
+        private Type type;
         private String title;
         private List<ListItem> items;
         private String layoutHint;
@@ -59,6 +61,16 @@ public class ContentList {
             this.apiUrl = url;
             return this;
         }
+        
+        public Builder withConcept(Concept concept) {
+            this.concept = concept;
+            return this;
+        }
+        
+        public Builder withType(Type type) {
+            this.type = type;
+            return this;
+        }
 
         public Builder withItems(List<ListItem> items) {
             this.items = items;
@@ -81,7 +93,7 @@ public class ContentList {
         }
 
         public ContentList build() {
-            ContentList list = new ContentList(id, uuid, apiUrl, title, items, layoutHint, publishReference, lastModified);
+            ContentList list = new ContentList(id, uuid, apiUrl, concept, type, title, items, layoutHint, publishReference, lastModified);
             return list;
         }
     }
@@ -90,13 +102,15 @@ public class ContentList {
     private String uuid;
     private String title;
     private String apiUrl;
+    private Concept concept;
+    private Type type;
     private List<ListItem> items;
     private Date publishedDate;
     private String layoutHint;
     private String publishReference;
     private Date lastModified;
 
-    private ContentList(String id, UUID uuid, String apiUrl, String title, List<ListItem> items,
+    private ContentList(String id, UUID uuid, String apiUrl, Concept concept, Type type, String title, List<ListItem> items,
                         String layoutHint, String publishReference, Date lastModified) {
 
         setId(id);
@@ -104,6 +118,8 @@ public class ContentList {
             setUuid(uuid.toString());
         }
         setApiUrl(apiUrl);
+        this.concept = concept;
+        this.type = type;
         this.title = title;
         this.items = items;
         this.layoutHint = layoutHint;
@@ -137,6 +153,22 @@ public class ContentList {
 
     private void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
+    }
+
+    public Concept getConcept() {
+        return concept;
+    }
+
+    public void setConcept(Concept concept) {
+        this.concept = concept;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public List<ListItem> getItems() {
@@ -203,6 +235,8 @@ public class ContentList {
                 .add("uuid", uuid)
                 .add("title", title)
                 .add("apiUrl", apiUrl)
+                .add("concept", concept)
+                .add("type",  type)
                 .add("items", items)
                 .add("publishedDate", publishedDate)
                 .add("layoutHint", layoutHint)
@@ -222,6 +256,8 @@ public class ContentList {
                 && Objects.equal(this.uuid, other.uuid)
                 && Objects.equal(this.title, other.title)
                 && Objects.equal(this.apiUrl, other.apiUrl)
+                && Objects.equal(this.concept, other.concept)
+                && Objects.equal(this.type, other.type)
                 && Objects.equal(this.items, other.items)
                 && Objects.equal(this.publishedDate, other.publishedDate)
                 && Objects.equal(this.layoutHint, other.layoutHint)
@@ -231,7 +267,7 @@ public class ContentList {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, items, publishedDate, layoutHint, publishReference, lastModified);
+        return Objects.hashCode(id, uuid, title, apiUrl, concept, type, items, publishedDate, layoutHint, publishReference, lastModified);
     }
 
 }

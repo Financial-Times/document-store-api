@@ -3,8 +3,8 @@ package com.ft.universalpublishing.documentstore.validators;
 import java.util.List;
 
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.model.ListItem;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
 
 
 public class ContentListValidator {
