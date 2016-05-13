@@ -2,15 +2,19 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.CONTENT_COLLECTION;
 import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.LISTS_COLLECTION;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +49,10 @@ import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.PrimitiveSink;
 
 @Path("/")
 public class DocumentResource {
@@ -101,6 +109,108 @@ public class DocumentResource {
       }
       
       return new ArrayList<>(documentStoreService.findByUuids(CONTENT_COLLECTION, uuidValues));
+    }
+
+    @GET
+    @Timed
+    @Path("/content/{uuidString}/murmur3")
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    public final String getContentHashByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+        validateUuid(uuidString);
+        Map<String,Object> content = findResourceByUuid(CONTENT_COLLECTION, uuidString);
+        
+        HashFunction f = Hashing.murmur3_128();
+        HashCode h = null;
+        for (int i = 0; i < 10000; i++) {
+          h = f.hashObject(content, (src,sink) -> consumeObject(src, sink));
+        }
+        
+        return Long.toHexString(h.asLong());
+    }
+
+    @GET
+    @Timed
+    @Path("/content/{uuidString}/murmur3-sorted")
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    public final String getContentSortedHashByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+        validateUuid(uuidString);
+        Map<String,Object> content = findResourceByUuid(CONTENT_COLLECTION, uuidString);
+        
+        HashFunction f = Hashing.murmur3_128();
+        HashCode h = null;
+        for (int i = 0; i < 10000; i++) {
+          h = f.hashObject(content, (src,sink) -> consumeSortedObject(src, sink));
+        }
+        
+        return Long.toHexString(h.asLong());
+    }
+    
+    private void consumeObject(Map<String,Object> src, PrimitiveSink sink) {
+      sink.putChar('{');
+      
+      boolean empty = true;
+      boolean sorted = (src instanceof SortedMap);
+      for (Map.Entry<String,Object> en : src.entrySet()) {
+        if (!empty) {
+          sink.putChar(',');
+          empty = false;
+        }
+        
+        sink.putString(en.getKey(), UTF_8);
+        sink.putChar(':');
+        
+        consumeValue(en.getValue(), sink, sorted);
+      }
+      sink.putChar('}');
+    }
+    
+    private void consumeSortedObject(Map<String,Object> src, PrimitiveSink sink) {
+      consumeObject(new TreeMap<>(src), sink);
+    }
+    
+    private void consumeCollection(Collection values, PrimitiveSink sink, boolean sorted) {
+      boolean empty = true;
+      sink.putChar('[');
+      
+      for (Object value : values) {
+        if (!empty) {
+          sink.putChar(',');
+          empty = false;
+        }
+        
+        consumeValue(value, sink, sorted);
+      }
+      
+      sink.putChar(']');
+    }
+    
+    private void consumeValue(Object value, PrimitiveSink sink, boolean sorted) {
+      if (value == null) {
+        sink.putString("null", UTF_8);
+      } else {
+        Class<?> cl = value.getClass();
+        
+        if (cl == String.class) {
+          sink.putChar('"');
+          sink.putString((String)value, UTF_8);
+          sink.putChar('"');
+        } else if (Number.class.isAssignableFrom(cl)) {
+          sink.putLong(((Number)value).longValue());
+        } else if (cl == Boolean.class) {
+          sink.putString(Boolean.toString((boolean)value), UTF_8);
+        } else if (Collection.class.isAssignableFrom(cl)) {
+          consumeCollection((Collection)value, sink, sorted);
+        } else if (Map.class.isAssignableFrom(cl)) {
+          sink.putChar('{');
+          if (sorted) {
+            consumeSortedObject((Map)value, sink);
+          } else {
+            consumeObject((Map)value, sink);
+          }
+          sink.putChar('}');
+        }
+      }
+      
     }
 
     @GET
