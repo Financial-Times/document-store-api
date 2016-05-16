@@ -3,11 +3,10 @@ package com.ft.universalpublishing.documentstore.resources;
 import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.CONTENT_COLLECTION;
 import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.LISTS_COLLECTION;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -21,7 +20,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -47,7 +45,6 @@ import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.base.Strings;
 
 @Path("/")
 public class DocumentResource {
@@ -110,7 +107,7 @@ public class DocumentResource {
         try {
             return convertToContentList(contentMap);
         } catch (IllegalArgumentException e) {
-            throw ClientError.status(500).error(e.getMessage()).exception();
+            throw ClientError.status(SC_INTERNAL_SERVER_ERROR).error(e.getMessage()).exception();
         }
     }
     
@@ -122,7 +119,7 @@ public class DocumentResource {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         
         if (queryParameters.size() ==0) {
-            throw ClientError.status(400).error("Expected at least one query parameter").exception();
+            throw ClientError.status(SC_BAD_REQUEST).error("Expected at least one query parameter").exception();
         }
         Set<String> keys = queryParameters.keySet();
         
@@ -137,14 +134,14 @@ public class DocumentResource {
         }
         
         if (listType == null) {
-            throw ClientError.status(400).error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
+            throw ClientError.status(SC_BAD_REQUEST).error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
         }
 
         String conceptId = queryParameters.getFirst(listType);
 
         Map<String,Object> result = documentStoreService.findByConceptAndType(LISTS_COLLECTION, conceptId, listType);
         if (result == null) {
-            throw ClientError.status(404).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
+            throw ClientError.status(SC_NOT_FOUND).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
         }
         return convertToContentList(result);
     }
@@ -180,7 +177,7 @@ public class DocumentResource {
             ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
             contentListValidator.validate(uuidString, contentList);
         } catch (ValidationException | IllegalArgumentException e) {
-            throw ClientError.status(400).error(e.getMessage()).exception();
+            throw ClientError.status(SC_BAD_REQUEST).error(e.getMessage()).exception();
         }
         return writeDocument(LISTS_COLLECTION, contentMap, uriInfo);
     
@@ -203,9 +200,9 @@ public class DocumentResource {
             }
             return response;
         } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(503).error("Service Unavailable").exception(esue);
+            throw ServerError.status(SC_SERVICE_UNAVAILABLE).error("Service Unavailable").exception(esue);
         } catch (ExternalSystemInternalServerException e) {
-            throw ServerError.status(500).error("Internal error communicating with external system").exception(e);
+            throw ServerError.status(SC_INTERNAL_SERVER_ERROR).error("Internal error communicating with external system").exception(e);
         }
     }
     
@@ -230,9 +227,9 @@ public class DocumentResource {
             documentStoreService.delete(resourceType, UUID.fromString(uuidString));
             return Response.ok().build();
         } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(503).error("Service Unavailable").exception(esue);
+            throw ServerError.status(SC_SERVICE_UNAVAILABLE).error("Service Unavailable").exception(esue);
         } catch (ExternalSystemInternalServerException e) {
-            throw ServerError.status(500).error("Internal error communicating with external system").exception(e);
+            throw ServerError.status(SC_INTERNAL_SERVER_ERROR).error("Internal error communicating with external system").exception(e);
         } catch (DocumentNotFoundException e){
             return Response.ok().build();
         }
@@ -242,7 +239,7 @@ public class DocumentResource {
         try {
             uuidValidator.validate(uuidString);
         } catch (ValidationException validationException) {
-            throw ClientError.status(400).error(validationException.getMessage()).exception();
+            throw ClientError.status(SC_BAD_REQUEST).error(validationException.getMessage()).exception();
         }
     }
 
@@ -253,12 +250,12 @@ public class DocumentResource {
             if (foundDocument!= null) {
                 return foundDocument;
             } else {
-                throw ClientError.status(404).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
+                throw ClientError.status(SC_NOT_FOUND).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
             }
         } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(503).error("External system unavailable").exception(esue);
+            throw ServerError.status(SC_SERVICE_UNAVAILABLE).error("External system unavailable").exception(esue);
         } catch (ExternalSystemInternalServerException e) {
-            throw ServerError.status(500).error("Internal error communicating with external system").exception(e);
+            throw ServerError.status(SC_INTERNAL_SERVER_ERROR).error("Internal error communicating with external system").exception(e);
         }
     }
 }
