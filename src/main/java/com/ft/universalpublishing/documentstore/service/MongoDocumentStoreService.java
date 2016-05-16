@@ -83,11 +83,8 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     
 
     @Override
-    public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String typeId) {
-        Bson filter = Filters.and(
-                Filters.eq("concept.tmeIdentifier", conceptId),
-                Filters.eq("type.id", typeId)
-                );
+    public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String listType) {
+        Bson filter = Filters.eq(listType + ".tmeIdentifier", conceptId);
             
             try {
                 MongoCollection<Document> dbCollection = db.getCollection(resourceType);
@@ -100,7 +97,7 @@ public class MongoDocumentStoreService implements DocumentStoreService {
                     }
                     else {
                         LOG.error("found too many results for collection {} identifier {}:{}: at least {} and {}",
-                                resourceType, conceptId, typeId, found, doc);
+                                resourceType, conceptId, listType, found, doc);
                         return found; // just return the first one we found (graceful degradation) and log the error
                     }
                 }

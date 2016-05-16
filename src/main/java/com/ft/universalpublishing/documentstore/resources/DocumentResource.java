@@ -9,7 +9,10 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,6 +25,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -49,6 +53,10 @@ import com.google.common.base.Strings;
 public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
+    
+    private static final String LIST_QUERY_PARAM_TEMPLATE = "curated[a-zA-Z]*For";
+    private static final Pattern LIST_QUERY_PARAM_PATTERN = Pattern.compile(LIST_QUERY_PARAM_TEMPLATE);
+    
 	
 	private ContentListValidator contentListValidator;
     private DocumentStoreService documentStoreService;
@@ -110,12 +118,31 @@ public class DocumentResource {
     @Timed
     @Path("/lists")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final ContentList getListsByConceptAndType(@QueryParam("conceptId") String conceptId, @QueryParam("typeId") String typeId,  @Context HttpHeaders httpHeaders) {
-        if (Strings.isNullOrEmpty(conceptId) || Strings.isNullOrEmpty(typeId)) {
-            throw ClientError.status(400).error("Query parameters \"conceptId\" and \"typeId\" are required.").exception();
-          }
-          
-        Map<String,Object> result = documentStoreService.findByConceptAndType(LISTS_COLLECTION, conceptId, typeId);
+    public final ContentList getListsByConceptAndType(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        
+        if (queryParameters.size() ==0) {
+            throw ClientError.status(400).error("Expected at least one query parameter").exception();
+        }
+        Set<String> keys = queryParameters.keySet();
+        
+        String listType = null;
+        
+        for (String key: keys) {
+            Matcher matcher = LIST_QUERY_PARAM_PATTERN.matcher(key);
+            boolean found = matcher.find();
+            if (found) {
+                listType = key;
+            }
+        }
+        
+        if (listType == null) {
+            throw ClientError.status(400).error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
+        }
+
+        String conceptId = queryParameters.getFirst(listType);
+
+        Map<String,Object> result = documentStoreService.findByConceptAndType(LISTS_COLLECTION, conceptId, listType);
         if (result == null) {
             throw ClientError.status(404).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
         }

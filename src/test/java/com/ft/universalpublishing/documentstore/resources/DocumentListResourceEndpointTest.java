@@ -252,12 +252,11 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn200ForDocumentFoundByConceptAndType() {
         String conceptID = "123";
-        String typeID = "456";
+        String type = "curatedTopStoriesFor";
         
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(typeID))).thenReturn(listAsDocument);
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(listAsDocument);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam("conceptId", conceptID)
-                .queryParam("typeId", typeID)
+                .queryParam(type, conceptID)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -268,15 +267,42 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn404ForDocumentNotFoundByConceptAndType() {
         String conceptID = "123";
-        String typeID = "456";
+        String type = "curatedTopStoriesFor";
         
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(typeID))).thenReturn(null);
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam("conceptId", conceptID)
-                .queryParam("typeId", typeID)
+                .queryParam(type, conceptID)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }
+
+    @Test
+    public void shouldReturn400ForNoQueryParameterSupplied() {
+        String conceptID = "123";
+        String invalidType = "invalidType";
+        
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(invalidType))).thenReturn(null);
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Expected at least one query parameter",  clientResponse);
+    }
+    
+    @Test
+    public void shouldReturn400ForNoValidQueryParameterSupplied() {
+        String conceptID = "123";
+        String invalidType = "invalidType";
+        
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(invalidType))).thenReturn(null);
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .queryParam(invalidType, conceptID)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Expected at least one query parameter of the form \"curated<listType>For\"", clientResponse);
+
     }
 
     //OTHER

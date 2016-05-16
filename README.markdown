@@ -118,7 +118,9 @@ Any fields that aren't supported will be ignored. NB: this response body is the 
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
 
 ## List GET by Concept and Type
-Make a GET request to http://localhost:14180/lists?concept=NzE=-U2VjdGlvbnM=&type=c5de8687-c49f-4904-bbc9-bff4f55e50a0 with Content-Type set to application/json.
+Make a GET request to http://localhost:14180/lists?curatedTopStoriesFor=NzE%3D-U2VjdGlvbnM%3D with Content-Type set to application/json.
+
+The query parameter varies according to the type of the list, for example, the following is also supported: curatedOpinionAndAnalysisFor
 
 You should get a single result back. If there was more than one match, one will be returned and an error will be logged.
 
