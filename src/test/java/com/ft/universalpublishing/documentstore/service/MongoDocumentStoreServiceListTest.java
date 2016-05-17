@@ -42,7 +42,7 @@ public class MongoDocumentStoreServiceListTest {
     private static final String DB_COLLECTION = "lists";
     private static final String WEBURL = "http://www.bbc.co.uk/";
     private static final String CONCEPT_ID = "12345ZND";
-    private static final String LIST_TYPE = "curatedTopStoriesFor";
+    private static final String LIST_TYPE = "TopStories";
 
     private MongoDocumentStoreService mongoDocumentStoreService;
 
@@ -246,7 +246,8 @@ public class MongoDocumentStoreServiceListTest {
         final Document toInsert = new Document()
                 .append("uuid", uuid.toString())
                 .append("publishReference", "tid_concept_and_type")
-                .append(LIST_TYPE, concept)
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
                 .append("items", items);
 
         collection.insertOne(toInsert);
@@ -280,13 +281,15 @@ public class MongoDocumentStoreServiceListTest {
         final Document toInsert1 = new Document()
                 .append("uuid", uuid.toString())
                 .append("publishReference", "tid_concept_and_type")
-                .append(LIST_TYPE, concept)
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
                 .append("items", items);
         
         final Document toInsert2 = new Document()
-        .append("uuid", UUID.randomUUID().toString())
-        .append("publishReference", "tid_concept_and_type")
-        .append(LIST_TYPE, concept)
+                .append("uuid", UUID.randomUUID().toString())
+                .append("publishReference", "tid_concept_and_type")
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
         .append("items", items);
         
         collection.insertMany(Arrays.asList(toInsert1, toInsert2));

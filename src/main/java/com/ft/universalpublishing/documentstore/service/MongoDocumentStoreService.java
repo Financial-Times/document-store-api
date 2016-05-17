@@ -84,7 +84,10 @@ public class MongoDocumentStoreService implements DocumentStoreService {
 
     @Override
     public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String listType) {
-        Bson filter = Filters.eq(listType + ".tmeIdentifier", conceptId);
+        Bson filter = Filters.and(
+                Filters.eq("concept.tmeIdentifier", conceptId),
+                Filters.eq("listType", listType)
+                );
             
             try {
                 MongoCollection<Document> dbCollection = db.getCollection(resourceType);

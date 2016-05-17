@@ -51,7 +51,7 @@ public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
     
-    private static final String LIST_QUERY_PARAM_TEMPLATE = "curated[a-zA-Z]*For";
+    private static final String LIST_QUERY_PARAM_TEMPLATE = "curated([a-zA-Z]*)For";
     private static final Pattern LIST_QUERY_PARAM_PATTERN = Pattern.compile(LIST_QUERY_PARAM_TEMPLATE);
     
 	
@@ -124,20 +124,20 @@ public class DocumentResource {
         Set<String> keys = queryParameters.keySet();
         
         String listType = null;
+        String conceptId = null;
         
         for (String key: keys) {
             Matcher matcher = LIST_QUERY_PARAM_PATTERN.matcher(key);
             boolean found = matcher.find();
             if (found) {
-                listType = key;
+                listType = matcher.group(1);
+                conceptId = queryParameters.getFirst(key);
             }
         }
         
         if (listType == null) {
             throw ClientError.status(SC_BAD_REQUEST).error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
         }
-
-        String conceptId = queryParameters.getFirst(listType);
 
         Map<String,Object> result = documentStoreService.findByConceptAndType(LISTS_COLLECTION, conceptId, listType);
         if (result == null) {

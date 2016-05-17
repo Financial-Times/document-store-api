@@ -1,5 +1,31 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import io.dropwizard.testing.junit.ResourceTestRule;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.ws.rs.core.MediaType;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
@@ -22,33 +48,6 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.google.common.collect.ImmutableList;
 import com.sun.jersey.api.client.ClientResponse;
-
-import io.dropwizard.testing.junit.ResourceTestRule;
-
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import javax.ws.rs.core.MediaType;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DocumentListResourceEndpointTest {
 
@@ -252,11 +251,12 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn200ForDocumentFoundByConceptAndType() {
         String conceptID = "123";
-        String type = "curatedTopStoriesFor";
+        String type = "TopStories";
+        String typeParam = "curatedTopStoriesFor";
         
         when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(listAsDocument);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam(type, conceptID)
+                .queryParam(typeParam, conceptID)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -267,11 +267,12 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn404ForDocumentNotFoundByConceptAndType() {
         String conceptID = "123";
-        String type = "curatedTopStoriesFor";
+        String type = "TopStories";
+        String typeParam = "curatedTopStoriesFor";
         
         when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam(type, conceptID)
+                .queryParam(typeParam, conceptID)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
@@ -280,9 +281,8 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn400ForNoQueryParameterSupplied() {
         String conceptID = "123";
-        String invalidType = "invalidType";
+        String invalidType = "TopStories";
         
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(invalidType))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource("/lists")
                 .get(ClientResponse.class);
 
@@ -293,11 +293,10 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn400ForNoValidQueryParameterSupplied() {
         String conceptID = "123";
-        String invalidType = "invalidType";
+        String invalidTypeParam = "invalidType";
         
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(invalidType))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam(invalidType, conceptID)
+                .queryParam(invalidTypeParam, conceptID)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));

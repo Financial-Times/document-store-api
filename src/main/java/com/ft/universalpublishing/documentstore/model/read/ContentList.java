@@ -13,7 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "type", "items", "layoutHint", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "listType", "items", "layoutHint", "publishReference", "lastModified"})
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
@@ -35,7 +35,7 @@ public class ContentList {
         private UUID uuid;
         private String apiUrl;
         private Concept concept;
-        private Type type;
+        private String listType;
         private String title;
         private List<ListItem> items;
         private String layoutHint;
@@ -67,8 +67,8 @@ public class ContentList {
             return this;
         }
         
-        public Builder withType(Type type) {
-            this.type = type;
+        public Builder withListType(String listType) {
+            this.listType = listType;
             return this;
         }
 
@@ -93,7 +93,7 @@ public class ContentList {
         }
 
         public ContentList build() {
-            ContentList list = new ContentList(id, uuid, apiUrl, concept, type, title, items, layoutHint, publishReference, lastModified);
+            ContentList list = new ContentList(id, uuid, apiUrl, concept, listType, title, items, layoutHint, publishReference, lastModified);
             return list;
         }
     }
@@ -103,14 +103,14 @@ public class ContentList {
     private String title;
     private String apiUrl;
     private Concept concept;
-    private Type type;
+    private String listType;
     private List<ListItem> items;
     private Date publishedDate;
     private String layoutHint;
     private String publishReference;
     private Date lastModified;
 
-    private ContentList(String id, UUID uuid, String apiUrl, Concept concept, Type type, String title, List<ListItem> items,
+    private ContentList(String id, UUID uuid, String apiUrl, Concept concept, String listType, String title, List<ListItem> items,
                         String layoutHint, String publishReference, Date lastModified) {
 
         setId(id);
@@ -119,7 +119,7 @@ public class ContentList {
         }
         setApiUrl(apiUrl);
         this.concept = concept;
-        this.type = type;
+        this.listType = listType;
         this.title = title;
         this.items = items;
         this.layoutHint = layoutHint;
@@ -163,12 +163,12 @@ public class ContentList {
         this.concept = concept;
     }
 
-    public Type getType() {
-        return type;
+    public String getListType() {
+        return listType;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setListType(String listType) {
+        this.listType = listType;
     }
 
     public List<ListItem> getItems() {
@@ -236,7 +236,7 @@ public class ContentList {
                 .add("title", title)
                 .add("apiUrl", apiUrl)
                 .add("concept", concept)
-                .add("type",  type)
+                .add("listType",  listType)
                 .add("items", items)
                 .add("publishedDate", publishedDate)
                 .add("layoutHint", layoutHint)
@@ -257,7 +257,7 @@ public class ContentList {
                 && Objects.equal(this.title, other.title)
                 && Objects.equal(this.apiUrl, other.apiUrl)
                 && Objects.equal(this.concept, other.concept)
-                && Objects.equal(this.type, other.type)
+                && Objects.equal(this.listType, other.listType)
                 && Objects.equal(this.items, other.items)
                 && Objects.equal(this.publishedDate, other.publishedDate)
                 && Objects.equal(this.layoutHint, other.layoutHint)
@@ -267,7 +267,7 @@ public class ContentList {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, concept, type, items, publishedDate, layoutHint, publishReference, lastModified);
+        return Objects.hashCode(id, uuid, title, apiUrl, concept, listType, items, publishedDate, layoutHint, publishReference, lastModified);
     }
 
 }
