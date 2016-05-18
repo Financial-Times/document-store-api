@@ -111,6 +111,8 @@ Body should look like:
     
 Any fields that aren't supported will be ignored. NB: this response body is the same as the response for a GET to a list transformer.
 
+`concept` and `listType` are optional. If `concept` is supplied, then at least the `tmeIdentifier` field must also be supplied.
+
 ## List GET
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
 

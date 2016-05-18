@@ -3,6 +3,7 @@ package com.ft.universalpublishing.documentstore.validators;
 import java.util.List;
 
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
 
@@ -30,6 +31,13 @@ public class ContentListValidator {
             throw new ValidationException(message);
 
         }
+        Concept concept = contentList.getConcept();
+        if (concept != null) {
+            if (concept.getTmeIdentifier() == null || concept.getTmeIdentifier().isEmpty()) {
+                throw new ValidationException("if a concept is supplied it must have a non-empty tmeIdentifier field");
+            }
+        }
+        
         List<ListItem> items = contentList.getItems();
         if (items == null) {
             throw new ValidationException("submitted list should have an 'items' field");
