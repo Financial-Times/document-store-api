@@ -5,17 +5,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 
 import org.bson.Document;
 import org.junit.Before;
@@ -24,14 +20,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.model.ListItem;
-import com.ft.universalpublishing.documentstore.model.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 
 
 public class MongoDocumentStoreServiceListTest {
@@ -41,6 +41,8 @@ public class MongoDocumentStoreServiceListTest {
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "lists";
     private static final String WEBURL = "http://www.bbc.co.uk/";
+    private static final String CONCEPT_ID = "12345ZND";
+    private static final String LIST_TYPE = "TopStories";
 
     private MongoDocumentStoreService mongoDocumentStoreService;
 
@@ -229,6 +231,74 @@ public class MongoDocumentStoreServiceListTest {
 
         mongoDocumentStoreService.delete("lists", uuid);
     }
+    
+    @Test
+    public void thatFindByConceptAndTypeReturnsDocument() throws Exception {
+        
+        BasicDBList items = new BasicDBList();
+        items.add(new BasicDBObject().append("uuid", contentUuid1));
+        items.add(new BasicDBObject().append("webUrl", WEBURL));
+        
+        final Document concept = (new Document())
+                .append("tmeIdentifier", CONCEPT_ID)
+                .append("prefLabel", "Markets");
+
+        final Document toInsert = new Document()
+                .append("uuid", uuid.toString())
+                .append("publishReference", "tid_concept_and_type")
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
+                .append("items", items);
+
+        collection.insertOne(toInsert);
+        
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, LIST_TYPE);
+        
+        assertThat(actual.get("uuid"), is((Object)uuid.toString()));
+    }
+    
+    @Test
+    public void thatFindByConceptAndTypeReturnsNullWhenNotFound()
+            throws Exception {
+        
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, "NON_EXISTENT_TYPE");
+        
+        assertThat(actual, is(nullValue()));
+    }
+    
+    @Test
+    public void thatFindByConceptAndTypeReturnsFirstMatchOnMultipleMatches()
+            throws Exception {
+        
+        BasicDBList items = new BasicDBList();
+        items.add(new BasicDBObject().append("uuid", contentUuid1));
+        items.add(new BasicDBObject().append("webUrl", WEBURL));
+        
+        final Document concept = (new Document())
+                .append("tmeIdentifier", CONCEPT_ID)
+                .append("prefLabel", "Markets");
+
+        final Document toInsert1 = new Document()
+                .append("uuid", uuid.toString())
+                .append("publishReference", "tid_concept_and_type")
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
+                .append("items", items);
+        
+        final Document toInsert2 = new Document()
+                .append("uuid", UUID.randomUUID().toString())
+                .append("publishReference", "tid_concept_and_type")
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
+        .append("items", items);
+        
+        collection.insertMany(Arrays.asList(toInsert1, toInsert2));
+        
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, LIST_TYPE);
+        
+        assertThat(actual.get("uuid"), is((Object)uuid.toString()));
+    }
+
     
     @Test
     public void thatIndexesAreConfigured() {

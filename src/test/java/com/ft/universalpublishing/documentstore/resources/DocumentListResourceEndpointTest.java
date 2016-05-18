@@ -1,39 +1,5 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.BrandsMapper;
-import com.ft.universalpublishing.documentstore.model.ContentList;
-import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
-import com.ft.universalpublishing.documentstore.model.ListItem;
-import com.ft.universalpublishing.documentstore.model.StandoutMapper;
-import com.ft.universalpublishing.documentstore.model.TypeResolver;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
-import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
-import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriBuilder;
-import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.collect.ImmutableList;
-import com.sun.jersey.api.client.ClientResponse;
-import io.dropwizard.testing.junit.ResourceTestRule;
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
@@ -46,13 +12,49 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import io.dropwizard.testing.junit.ResourceTestRule;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.ws.rs.core.MediaType;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.BrandsMapper;
+import com.ft.universalpublishing.documentstore.model.ContentMapper;
+import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.StandoutMapper;
+import com.ft.universalpublishing.documentstore.model.TypeResolver;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
+import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
+import com.ft.universalpublishing.documentstore.transform.UriBuilder;
+import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.google.common.collect.ImmutableList;
+import com.sun.jersey.api.client.ClientResponse;
 
 public class DocumentListResourceEndpointTest {
 
     private String uuid;
-    private Document inboundListAsDocument;
+    private Document listAsDocument;
     private ContentList outboundList;
-    private String writePath;
+    private String uuidPath;
 
     private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
@@ -64,9 +66,9 @@ public class DocumentListResourceEndpointTest {
     public DocumentListResourceEndpointTest() {
         this.uuid = UUID.randomUUID().toString();
         ContentList contentList = getContentList(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        this.inboundListAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
+        this.listAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
         this.outboundList = getOutboundContentList(contentList);
-        this.writePath = "/" + RESOURCE_TYPE + "/" + uuid;
+        this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
     }
 
     private static ContentList getContentList(String listUuid, String firstContentUuid, String secondContentUuid) {
@@ -124,30 +126,30 @@ public class DocumentListResourceEndpointTest {
         reset(documentStoreService);
         reset(contentListValidator);
         reset(uuidValidator);
-        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.created(inboundListAsDocument));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.created(listAsDocument));
     }
 
     //WRITE
 
     @Test
     public void shouldReturn201ForNewDocument() {
-        ClientResponse clientResponse = writeDocument(writePath, inboundListAsDocument);
+        ClientResponse clientResponse = writeDocument(uuidPath, listAsDocument);
         assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
         verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class));
     }
 
     @Test
     public void shouldReturn200ForUpdatedContent() {
-        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.updated(inboundListAsDocument));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.updated(listAsDocument));
 
-        ClientResponse clientResponse = writeDocument(writePath, inboundListAsDocument);
+        ClientResponse clientResponse = writeDocument(uuidPath, listAsDocument);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
 
     @Test
     public void shouldReturn400OnWriteWhenUuidNotValid() {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
-        ClientResponse clientResponse = writeDocument(writePath, inboundListAsDocument);
+        ClientResponse clientResponse = writeDocument(uuidPath, listAsDocument);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Invalid Uuid", clientResponse);
@@ -157,7 +159,7 @@ public class DocumentListResourceEndpointTest {
     public void shouldReturn503WhenCannotAccessExternalSystem() {
         when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
 
-        ClientResponse clientResponse = writeDocument(writePath, inboundListAsDocument);
+        ClientResponse clientResponse = writeDocument(uuidPath, listAsDocument);
 
         assertThat("", clientResponse, hasProperty("status", equalTo(503)));
 
@@ -167,7 +169,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn200WhenDeletedSuccessfully() {
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -177,7 +179,7 @@ public class DocumentListResourceEndpointTest {
     public void shouldReturn200WhenDeletingNonExistentContentList() {
         doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -186,7 +188,7 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn400OnDeleteWhenUuidNotValid() {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
@@ -197,7 +199,7 @@ public class DocumentListResourceEndpointTest {
     public void shouldReturn503OnDeleteWhenMongoIsntReachable() {
         doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .delete(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
@@ -206,8 +208,8 @@ public class DocumentListResourceEndpointTest {
     //READ
     @Test
     public void shouldReturn200WhenReadSuccessfully() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(inboundListAsDocument);
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(listAsDocument);
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -218,7 +220,7 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn404WhenContentNotFound() {
         when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(null);
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
@@ -228,7 +230,7 @@ public class DocumentListResourceEndpointTest {
     @Test
     public void shouldReturn400OnReadWhenUuidNotValid() {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
@@ -239,16 +241,73 @@ public class DocumentListResourceEndpointTest {
     public void shouldReturn503OnReadWhenMongoIsntReachable() {
         doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class));
 
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+    }
+    
+    //FIND LIST BY CONCEPT AND TYPE
+    @Test
+    public void shouldReturn200ForDocumentFoundByConceptAndType() {
+        String conceptID = "123";
+        String type = "TopStories";
+        String typeParam = "curatedTopStoriesFor";
+        
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(listAsDocument);
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .queryParam(typeParam, conceptID)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+        final ContentList retrievedDocument = clientResponse.getEntity(ContentList.class);
+        assertThat("documents were not the same", retrievedDocument, equalTo(outboundList));
+    }
+    
+    @Test
+    public void shouldReturn404ForDocumentNotFoundByConceptAndType() {
+        String conceptID = "123";
+        String type = "TopStories";
+        String typeParam = "curatedTopStoriesFor";
+        
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(null);
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .queryParam(typeParam, conceptID)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }
+
+    @Test
+    public void shouldReturn400ForNoQueryParameterSupplied() {
+        String conceptID = "123";
+        String invalidType = "TopStories";
+        
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Expected at least one query parameter",  clientResponse);
+    }
+    
+    @Test
+    public void shouldReturn400ForNoValidQueryParameterSupplied() {
+        String conceptID = "123";
+        String invalidTypeParam = "invalidType";
+        
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .queryParam(invalidTypeParam, conceptID)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("Expected at least one query parameter of the form \"curated<listType>For\"", clientResponse);
+
     }
 
     //OTHER
     @Test
     public void shouldReturn405ForPost() {
-        ClientResponse clientResponse = resources.client().resource(writePath)
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
                 .post(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(405)));

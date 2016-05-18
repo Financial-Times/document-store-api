@@ -91,6 +91,11 @@ Body should look like:
     { 
         "uuid": "3c99c2ba-a6ae-11e2-95b1-00144feabdc0",
         "title": "Test List",
+        "concept": {
+            "tmeIdentifier": "NzE=-U2VjdGlvbnM=",
+            "prefLabel": "Markets"
+        },
+        "listType": "TopStories",
         "items" : [
             {
                 "uuid": "0237b884-d124-11e2-be7b-00144feab7de"
@@ -106,8 +111,17 @@ Body should look like:
     
 Any fields that aren't supported will be ignored. NB: this response body is the same as the response for a GET to a list transformer.
 
+`concept` and `listType` are optional. If `concept` is supplied, then at least the `tmeIdentifier` field must also be supplied.
+
 ## List GET
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
+
+## List GET by Concept and Type
+Make a GET request to http://localhost:14180/lists?curatedTopStoriesFor=NzE%3D-U2VjdGlvbnM%3D with Content-Type set to application/json.
+
+The query parameter varies according to the type of the list, for example, the following is also supported: curatedOpinionAndAnalysisFor
+
+You should get a single result back. If there was more than one match, one will be returned and an error will be logged.
 
 ## List DELETE
 Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
