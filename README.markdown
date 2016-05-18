@@ -95,10 +95,7 @@ Body should look like:
             "tmeIdentifier": "NzE=-U2VjdGlvbnM=",
             "prefLabel": "Markets"
         },
-        "type": {
-            "id": "http://api.ft.com/things/c5de8687-c49f-4904-bbc9-bff4f55e50a0",
-            "prefLabel": "Opinion & Analysis"
-        },
+        "listType": "TopStories",
         "items" : [
             {
                 "uuid": "0237b884-d124-11e2-be7b-00144feab7de"
