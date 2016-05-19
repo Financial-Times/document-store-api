@@ -40,9 +40,11 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             Document foundDocument = dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
-            if (foundDocument!= null) {
-                foundDocument.remove("_id");
+            if (foundDocument == null) {
+              throw new DocumentNotFoundException(uuid);
             }
+            
+            foundDocument.remove("_id");
             return foundDocument;
         } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);

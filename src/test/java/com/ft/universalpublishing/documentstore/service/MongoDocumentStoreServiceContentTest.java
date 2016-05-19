@@ -101,10 +101,9 @@ public class MongoDocumentStoreServiceContentTest {
         assertThat(contentMap, is(outboundContent));
     }
 
-    @Test
+    @Test(expected = DocumentNotFoundException.class)
     public void contentNotInStoreShouldNotBeReturned() {
-        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("content", uuid);
-        assertThat(contentMap, nullValue());
+        mongoDocumentStoreService.findByUuid("content", uuid);
     }
 
     @Test

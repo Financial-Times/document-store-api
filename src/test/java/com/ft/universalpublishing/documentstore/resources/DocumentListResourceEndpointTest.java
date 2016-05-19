@@ -220,12 +220,14 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn404WhenContentNotFound() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(null);
-        ClientResponse clientResponse = resources.client().resource(uuidPath)
-                .get(ClientResponse.class);
-
-        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-        validateErrorMessage("Requested item does not exist", clientResponse);
+      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
+        .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
+      
+      ClientResponse clientResponse = resources.client().resource(uuidPath)
+          .get(ClientResponse.class);
+      
+      assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+      validateErrorMessage("Requested item does not exist", clientResponse);
     }
 
     @Test

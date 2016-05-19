@@ -5,8 +5,9 @@ import static com.ft.universalpublishing.documentstore.service.DocumentStoreServ
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -31,10 +33,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.LogLevel;
-import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
@@ -79,9 +79,29 @@ public class DocumentResource {
     @Timed
     @Path("/content/{uuidString}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final Map<String, Object> getContentByUuid(@PathParam("uuidString") String uuidString, @Context HttpHeaders httpHeaders) {
+    public final Map<String, Object> getContentByUuid(@PathParam("uuidString") String uuidString) {
 		validateUuid(uuidString);
 	    return findResourceByUuid(CONTENT_COLLECTION, uuidString);
+    }
+
+    @GET
+    @Timed
+    @Path("/content")
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    public final List<Map<String, Object>> getContentByUuids(@QueryParam("uuid") List<String> uuids) {
+      List<Map<String,Object>> result = new ArrayList<>();
+      
+      for (String uuid : uuids) {
+        try {
+          validateUuid(uuid);
+          
+          result.add(findResourceByUuid(CONTENT_COLLECTION, uuid));
+        } catch (ValidationException | DocumentNotFoundException e) {
+          /* ignore */
+        }
+      }
+      
+      return result;
     }
 
     @GET
@@ -181,26 +201,19 @@ public class DocumentResource {
     }
 
     private Response writeDocument(String resourceType, Map<String, Object> content, UriInfo uriInfo) {
-        try {
-            final DocumentWritten written = 
-                    documentStoreService.write(resourceType, content);
-            final Response response;
-            switch (written.getMode()) {
-                case Created:
-                    response = Response.created(uriInfo.getRequestUri()).build();
-                    break;
-                case Updated:
-                    response = Response.ok(written.getDocument()).build();
-                    break;
-                default:
-                    throw new IllegalStateException("unknown write mode " + written.getMode());
-            }
-            return response;
-        } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(SC_SERVICE_UNAVAILABLE).error("Service Unavailable").exception(esue);
-        } catch (ExternalSystemInternalServerException e) {
-            throw ServerError.status(SC_INTERNAL_SERVER_ERROR).error("Internal error communicating with external system").exception(e);
-        }
+      final DocumentWritten written = documentStoreService.write(resourceType, content);
+      final Response response;
+      switch (written.getMode()) {
+        case Created:
+          response = Response.created(uriInfo.getRequestUri()).build();
+          break;
+        case Updated:
+          response = Response.ok(written.getDocument()).build();
+          break;
+        default:
+          throw new IllegalStateException("unknown write mode " + written.getMode());
+      }
+      return response;
     }
     
     @DELETE
@@ -223,10 +236,6 @@ public class DocumentResource {
         try {
             documentStoreService.delete(resourceType, UUID.fromString(uuidString));
             return Response.ok().build();
-        } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(SC_SERVICE_UNAVAILABLE).error("Service Unavailable").exception(esue);
-        } catch (ExternalSystemInternalServerException e) {
-            throw ServerError.status(SC_INTERNAL_SERVER_ERROR).error("Internal error communicating with external system").exception(e);
         } catch (DocumentNotFoundException e){
             return Response.ok().build();
         }
@@ -236,19 +245,8 @@ public class DocumentResource {
       uuidValidator.validate(uuidString);
     }
 
-
     protected Map<String, Object> findResourceByUuid(final String resourceType, final String uuid) {
-        try {
-            final Map<String, Object> foundDocument = documentStoreService.findByUuid(resourceType, UUID.fromString(uuid));
-            if (foundDocument!= null) {
-                return foundDocument;
-            } else {
-                throw ClientError.status(SC_NOT_FOUND).logLevel(LogLevel.DEBUG).error("Requested item does not exist").exception();
-            }
-        } catch (ExternalSystemUnavailableException esue) {
-            throw ServerError.status(SC_SERVICE_UNAVAILABLE).error("External system unavailable").exception(esue);
-        } catch (ExternalSystemInternalServerException e) {
-            throw ServerError.status(SC_INTERNAL_SERVER_ERROR).error("Internal error communicating with external system").exception(e);
-        }
+      final Map<String, Object> foundDocument = documentStoreService.findByUuid(resourceType, UUID.fromString(uuid));
+      return foundDocument;
     }
 }
