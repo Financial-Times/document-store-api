@@ -99,6 +99,7 @@ public class DocumentContentResourceEndpointTest {
                     )
             ))
             .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
+            .addProvider(DocumentStoreExceptionMapper.class)
             .build();
 
     @Before

@@ -35,7 +35,6 @@ import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
@@ -173,12 +172,10 @@ public class DocumentResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response writeLists(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap, @Context UriInfo uriInfo) {
         validateUuid(uuidString);
-        try {
-            ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
-            contentListValidator.validate(uuidString, contentList);
-        } catch (ValidationException | IllegalArgumentException e) {
-            throw ClientError.status(SC_BAD_REQUEST).error(e.getMessage()).exception();
-        }
+        
+        ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
+        contentListValidator.validate(uuidString, contentList);
+        
         return writeDocument(LISTS_COLLECTION, contentMap, uriInfo);
     
     }
@@ -236,11 +233,7 @@ public class DocumentResource {
     }
 
     protected void validateUuid(String uuidString) {
-        try {
-            uuidValidator.validate(uuidString);
-        } catch (ValidationException validationException) {
-            throw ClientError.status(SC_BAD_REQUEST).error(validationException.getMessage()).exception();
-        }
+      uuidValidator.validate(uuidString);
     }
 
 
