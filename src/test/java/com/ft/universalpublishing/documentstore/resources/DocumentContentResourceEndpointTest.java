@@ -29,8 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -205,14 +207,23 @@ public class DocumentContentResourceEndpointTest {
     @Test
     public void thatMultipleUUIDsCanBeRequested() {
       UUID uuid1 = UUID.randomUUID();
+      UUID uuid2 = UUID.randomUUID();
+      
+      Set<UUID> uuids = new LinkedHashSet<>();
+      uuids.add(uuid1);
+      uuids.add(uuid2);
+      
       String id1 = uuid1.toString();
       Document document1 = getContent(id1);
-      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), eq(uuid1))).thenReturn(document1);
       
-      UUID uuid2 = UUID.randomUUID();
       String id2 = uuid2.toString();
       Document document2 = getContent(id2);
-      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), eq(uuid2))).thenReturn(document2);
+      
+      Set<Map<String,Object>> documents = new LinkedHashSet<>();
+      documents.add(document1);
+      documents.add(document2);
+      
+      when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(documents);
       
       ClientResponse clientResponse = resources.client().resource("/content")
           .queryParam("uuid", id1)
@@ -234,12 +245,16 @@ public class DocumentContentResourceEndpointTest {
     public void thatSubsetOfFoundUUIDsIsReturned() {
       UUID uuid1 = UUID.randomUUID();
       String id1 = uuid1.toString();
-      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), eq(uuid1))).thenThrow(new DocumentNotFoundException(uuid1));
       
       UUID uuid2 = UUID.randomUUID();
       String id2 = uuid2.toString();
       Document document2 = getContent(id2);
-      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), eq(uuid2))).thenReturn(document2);
+      
+      Set<UUID> uuids = new LinkedHashSet<>();
+      uuids.add(uuid1);
+      uuids.add(uuid2);
+      
+      when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(Collections.singleton(document2));
       
       ClientResponse clientResponse = resources.client().resource("/content")
           .queryParam("uuid", id1)

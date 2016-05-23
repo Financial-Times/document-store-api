@@ -7,6 +7,7 @@ import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,19 +90,17 @@ public class DocumentResource {
     @Path("/content")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final List<Map<String, Object>> getContentByUuids(@QueryParam("uuid") List<String> uuids) {
-      List<Map<String,Object>> result = new ArrayList<>();
-      
+      Set<UUID> uuidValues = new LinkedHashSet<>();
       for (String uuid : uuids) {
         try {
           validateUuid(uuid);
-          
-          result.add(findResourceByUuid(CONTENT_COLLECTION, uuid));
-        } catch (ValidationException | DocumentNotFoundException e) {
+          uuidValues.add(UUID.fromString(uuid));
+        } catch (ValidationException e) {
           /* ignore */
         }
       }
       
-      return result;
+      return new ArrayList<>(documentStoreService.findByUuids(CONTENT_COLLECTION, uuidValues));
     }
 
     @GET

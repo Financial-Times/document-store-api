@@ -20,8 +20,12 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MongoDocumentStoreService {
     public static final String CONTENT_COLLECTION = "content";
@@ -48,6 +52,34 @@ public class MongoDocumentStoreService {
             
             foundDocument.remove("_id");
             return foundDocument;
+        } catch (MongoSocketException | MongoTimeoutException e) {
+            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            throw new ExternalSystemInternalServerException(e);
+        }
+    }
+
+    public Set<Map<String, Object>> findByUuids(String resourceType, Set<UUID> uuids) {
+        try {
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            
+            Iterable<Document> results = dbCollection.find().filter(
+                Filters.in("uuid", uuids.stream().map(UUID::toString).collect(Collectors.toList())));
+            
+            Map<UUID,Document> mappedResults = new HashMap<>();
+            results.forEach(doc -> mappedResults.put(UUID.fromString((String)doc.get("uuid")), doc));
+            
+            // preserve the order of the queried UUIDs in the found documents
+            Set<Map<String,Object>> documents = new LinkedHashSet<>();
+            uuids.forEach(uuid -> {
+              Document doc = mappedResults.get(uuid);
+              if (doc != null) {
+                doc.remove("_id");
+                documents.add(doc);
+              }
+            });
+            
+            return documents;
         } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
