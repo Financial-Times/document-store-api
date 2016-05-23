@@ -20,14 +20,14 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 
 public class DocumentQueryResourceEndpointTest {
-    private final static DocumentStoreService DOC_STORE = mock(DocumentStoreService.class);
+    private final static MongoDocumentStoreService DOC_STORE = mock(MongoDocumentStoreService.class);
     private static final String API_URL_PREFIX = "localhost:12345";
     private static final String CONTENT = "content";
     private static final String AUTHORITY = "http://www.example.com/";

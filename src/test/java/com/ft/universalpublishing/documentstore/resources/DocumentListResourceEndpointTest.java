@@ -38,7 +38,7 @@ import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
 import com.ft.universalpublishing.documentstore.transform.UriBuilder;
@@ -56,7 +56,7 @@ public class DocumentListResourceEndpointTest {
     private ContentList outboundList;
     private String uuidPath;
 
-    private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
+    private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
     private static final String API_URL_PREFIX_CONTENT = "localhost";
@@ -119,6 +119,7 @@ public class DocumentListResourceEndpointTest {
                     )
             )
             .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
+            .addProvider(DocumentStoreExceptionMapper.class)
             .build();
 
     @Before
@@ -219,12 +220,14 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn404WhenContentNotFound() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(null);
-        ClientResponse clientResponse = resources.client().resource(uuidPath)
-                .get(ClientResponse.class);
-
-        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-        validateErrorMessage("Requested item does not exist", clientResponse);
+      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
+        .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
+      
+      ClientResponse clientResponse = resources.client().resource(uuidPath)
+          .get(ClientResponse.class);
+      
+      assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+      validateErrorMessage("Requested item does not exist", clientResponse);
     }
 
     @Test

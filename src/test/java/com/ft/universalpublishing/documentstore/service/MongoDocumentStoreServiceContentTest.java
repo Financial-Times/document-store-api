@@ -19,12 +19,18 @@ import org.junit.rules.ExpectedException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -102,10 +108,81 @@ public class MongoDocumentStoreServiceContentTest {
         assertThat(contentMap, is(outboundContent));
     }
 
-    @Test
+    @Test(expected = DocumentNotFoundException.class)
     public void contentNotInStoreShouldNotBeReturned() {
-        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("content", uuid);
-        assertThat(contentMap, nullValue());
+        mongoDocumentStoreService.findByUuid("content", uuid);
+    }
+
+    @Test
+    public void thatFindByUuidsReturnsAllAndOnlyMatches() {
+        final Document doc1 = new Document()
+                .append("uuid", uuid.toString())
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate);
+        
+        UUID uuid2 = UUID.randomUUID();
+        final Document doc2 = new Document()
+            .append("uuid", uuid2.toString())
+            .append("title", "Here is the news again")
+            .append("byline", "By Bob Woodward")
+            .append("bodyXML", "xmlBody")
+            .append("publishedDate", lastPublicationDate)
+            .append("publishReference", "Some other String")
+            .append("lastModified", lastModifiedDate);
+        
+        UUID uuid3 = UUID.randomUUID();
+        final Document doc3 = new Document()
+            .append("uuid", uuid3.toString())
+            .append("title", "Here is the news yet again")
+            .append("byline", "By Bob Woodward")
+            .append("bodyXML", "xmlBody")
+            .append("publishedDate", lastPublicationDate)
+            .append("publishReference", "Yet another String")
+            .append("lastModified", lastModifiedDate);
+
+        collection.insertMany(Arrays.asList(doc1, doc2, doc3));
+        
+        Set<UUID> uuids = new LinkedHashSet<>();
+        uuids.add(uuid);
+        uuids.add(uuid2);
+        
+        Set<Map<String, Object>> content = mongoDocumentStoreService.findByUuids("content", uuids);
+        
+        assertThat(content.size(), equalTo(2));
+        
+        List<String> actualUuids = content.stream().map(m -> (String)m.get("uuid")).collect(Collectors.toList());
+        assertThat(actualUuids, contains(uuid.toString(), uuid2.toString()));
+        
+        assertThat(content.stream().filter(m -> m.containsKey("_id")).findAny().isPresent(), equalTo(false));
+    }
+
+    @Test
+    public void thatFindByUuidsReturnsSubsetOfMatches() {
+        final Document doc1 = new Document()
+                .append("uuid", uuid.toString())
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate);
+        
+        UUID uuid2 = UUID.randomUUID();
+
+        collection.insertOne(doc1);
+        
+        Set<UUID> uuids = new LinkedHashSet<>();
+        uuids.add(uuid2);
+        uuids.add(uuid);
+        
+        Set<Map<String, Object>> content = mongoDocumentStoreService.findByUuids("content", uuids);
+        
+        assertThat(content.size(), equalTo(1));
+        assertThat((String)content.iterator().next().get("uuid"), equalTo(uuid.toString()));
     }
 
     @Test

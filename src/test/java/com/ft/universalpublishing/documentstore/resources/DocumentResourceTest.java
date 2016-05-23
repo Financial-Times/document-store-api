@@ -6,7 +6,7 @@ import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.model.read.Content;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
 import com.ft.universalpublishing.documentstore.transform.UriBuilder;
@@ -32,7 +32,7 @@ public class DocumentResourceTest {
 
     @Test
     public void test() {
-        final DocumentStoreService mockStore = mock(DocumentStoreService.class);
+        final MongoDocumentStoreService mockStore = mock(MongoDocumentStoreService.class);
         final ContentListValidator mockValidator = mock(ContentListValidator.class);
         final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), new StandoutMapper(), "localhost");
         final Map<String, String> templates = new HashMap<>();
@@ -63,7 +63,7 @@ public class DocumentResourceTest {
 
         content.put("publishReference", "Some String");
 
-        when(mockStore.findByUuid(DocumentStoreService.CONTENT_COLLECTION, uuid)).thenReturn(content);
+        when(mockStore.findByUuid(MongoDocumentStoreService.CONTENT_COLLECTION, uuid)).thenReturn(content);
         Content rContent = resource.getContentReadByUuid(uuid.toString(), mockedUriGenerator);
         assertThat(rContent.getId(),containsString(uuid.toString()));
     }
