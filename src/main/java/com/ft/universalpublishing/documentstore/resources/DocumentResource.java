@@ -1,7 +1,7 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.CONTENT_COLLECTION;
-import static com.ft.universalpublishing.documentstore.service.DocumentStoreService.LISTS_COLLECTION;
+import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.CONTENT_COLLECTION;
+import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.LISTS_COLLECTION;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -38,7 +38,7 @@ import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
@@ -55,13 +55,13 @@ public class DocumentResource {
     
 	
 	private ContentListValidator contentListValidator;
-    private DocumentStoreService documentStoreService;
+    private MongoDocumentStoreService documentStoreService;
     private UuidValidator uuidValidator;
     private String apiPath;
     private final ContentMapper contentMapper;
     private final ContentBodyProcessingService bodyProcessingService;
 
-    public DocumentResource(DocumentStoreService documentStoreService,
+    public DocumentResource(MongoDocumentStoreService documentStoreService,
                             ContentListValidator contentListValidator,
                             UuidValidator uuidValidator,
                             String apiPath,

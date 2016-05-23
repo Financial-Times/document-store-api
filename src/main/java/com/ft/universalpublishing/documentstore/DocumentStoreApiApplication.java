@@ -13,7 +13,6 @@ import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreServic
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentStoreExceptionMapper;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
@@ -61,7 +60,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final MongoClient mongoClient = getMongoClient(configuration.getMongo());
         MongoDatabase database = mongoClient.getDatabase(configuration.getMongo().getDb());
 
-        final DocumentStoreService documentStoreService = new MongoDocumentStoreService(database);
+        final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(database);
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 

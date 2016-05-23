@@ -38,7 +38,7 @@ import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
 import com.ft.universalpublishing.documentstore.transform.UriBuilder;
@@ -56,7 +56,7 @@ public class DocumentListResourceEndpointTest {
     private ContentList outboundList;
     private String uuidPath;
 
-    private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
+    private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
     private static final String API_URL_PREFIX_CONTENT = "localhost";

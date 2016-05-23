@@ -23,7 +23,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.UUID;
 
-public class MongoDocumentStoreService implements DocumentStoreService {
+public class MongoDocumentStoreService {
+    public static final String CONTENT_COLLECTION = "content";
+    public static final String LISTS_COLLECTION = "lists";
+    
     private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
     
     private static final String IDENT_AUTHORITY = "identifiers.authority";
@@ -35,7 +38,6 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         this.db = db;
     }
 
-    @Override
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
@@ -53,7 +55,6 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         }
     }
     
-    @Override
     public Map<String,Object> findByIdentifier(String resourceType, String authority, String identifierValue) {
         Bson filter = Filters.and(
             Filters.eq("identifiers.authority", authority),
@@ -83,8 +84,6 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         }
     }
     
-
-    @Override
     public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String listType) {
         Bson filter = Filters.and(
                 Filters.eq("concept.tmeIdentifier", conceptId),
@@ -114,7 +113,6 @@ public class MongoDocumentStoreService implements DocumentStoreService {
             }
     }
 
-    @Override
     public void delete(String resourceType, UUID uuid) {
         try {
 
@@ -132,7 +130,6 @@ public class MongoDocumentStoreService implements DocumentStoreService {
         }
     }
 
-    @Override
     public DocumentWritten write(String resourceType, Map<String, Object> content) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
@@ -151,7 +148,6 @@ public class MongoDocumentStoreService implements DocumentStoreService {
     }
 
     @SuppressWarnings("rawtypes")
-    @Override
     public void applyIndexes() {
       MongoCollection content = db.getCollection(CONTENT_COLLECTION);
       createUuidIndex(content);

@@ -19,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
 import com.google.common.base.Strings;
 
@@ -27,9 +27,9 @@ import com.google.common.base.Strings;
 @Path("/content-query")
 @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
 public class DocumentQueryResource {
-    private final DocumentStoreService documentStoreService;
+    private final MongoDocumentStoreService documentStoreService;
     
-    public DocumentQueryResource(DocumentStoreService documentStoreService) {
+    public DocumentQueryResource(MongoDocumentStoreService documentStoreService) {
         this.documentStoreService = documentStoreService;
     }
 

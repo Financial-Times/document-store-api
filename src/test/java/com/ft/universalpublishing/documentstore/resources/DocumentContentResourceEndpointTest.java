@@ -9,7 +9,7 @@ import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
 import com.ft.universalpublishing.documentstore.model.StandoutMapper;
 import com.ft.universalpublishing.documentstore.model.TypeResolver;
-import com.ft.universalpublishing.documentstore.service.DocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
 import com.ft.universalpublishing.documentstore.transform.UriBuilder;
@@ -53,7 +53,7 @@ public class DocumentContentResourceEndpointTest {
     private String uuid;
     private Document document;
     private String contentPath;
-    private final static DocumentStoreService documentStoreService = mock(DocumentStoreService.class);
+    private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
 
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
