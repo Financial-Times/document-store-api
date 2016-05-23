@@ -1,0 +1,10 @@
+# /etc/sysconfig/<%= @module_name %>
+# vim: ts=4 sts=4 sw=4 et sr syntax=sh smartindent:
+# ... gets sourced by init.d script (delivered by ft-runnablejar)
+# Pass JAVA_OPTS or LOG_DIR here - will get sourced and exported pre-start up
+# vim: ts=4 sw=4 et syntax=sh sr smartindent:
+
+memOpts="-Xmx<%= scope.function_hiera(['max_heap_space', '1024m']) -%>"
+heapDumpOpts="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=<%= @dir_heap_dumps -%>"
+
+JAVA_OPTS="$memOpts $heapDumpOpts"
