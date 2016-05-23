@@ -1,9 +1,10 @@
 package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
+
+import com.mongodb.MongoBulkWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertThat;
 public class MongoDocumentStoreServiceContentTest {
     @ClassRule
     public static final EmbeddedMongoRule MONGO = new EmbeddedMongoRule(12032);
-    
+
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "content";
     private static final String AUTHORITY = "http://junit.example.org/";
@@ -62,7 +63,7 @@ public class MongoDocumentStoreServiceContentTest {
     public void setup() {
         MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
         db.getCollection(DB_COLLECTION).drop();
-        
+
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
         mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("content");
@@ -194,7 +195,7 @@ public class MongoDocumentStoreServiceContentTest {
         assertThat((String) foundContent.get("byline"), is("By Bob Woodward"));
         assertThat((String) foundContent.get("bodyXML"), is("xmlBody"));
         assertThat((Date) foundContent.get("publishedDate"), is(lastPublicationDate));
-        assertThat((String)foundContent.get("publishReference"), is("Some String"));
+        assertThat((String) foundContent.get("publishReference"), is("Some String"));
         assertThat((Date) foundContent.get("lastModified"), is(lastModifiedDate));
     }
 
@@ -217,15 +218,15 @@ public class MongoDocumentStoreServiceContentTest {
 
         mongoDocumentStoreService.delete("content", uuid);
     }
-    
+
     @Test
     public void thatFindByIdentifierReturnsDocument()
             throws Exception {
-        
+
         final Document identifier = (new Document())
                 .append("authority", AUTHORITY)
                 .append("identifierValue", IDENTIFIER_VALUE);
-        
+
         final Document toInsert = (new Document())
                 .append("uuid", uuid.toString())
                 .append("identifiers", Arrays.asList(identifier))
@@ -236,20 +237,20 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("publishReference", "Some String")
                 .append("lastModified", lastModifiedDate);
         collection.insertOne(toInsert);
-        
+
         Map<String, Object> actual = mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE);
-        
-        assertThat(actual.get("uuid"), is((Object)uuid.toString()));
+
+        assertThat(actual.get("uuid"), is((Object) uuid.toString()));
     }
-    
+
     @Test
     public void thatFindByIdentifierReturnsNullWhenNotFound()
             throws Exception {
-        
+
         final Document identifier = (new Document())
                 .append("authority", AUTHORITY)
                 .append("identifierValue", IDENTIFIER_VALUE);
-        
+
         final Document toInsert = (new Document())
                 .append("uuid", uuid.toString())
                 .append("identifiers", Arrays.asList(identifier))
@@ -260,20 +261,18 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("publishReference", "Some String")
                 .append("lastModified", lastModifiedDate);
         collection.insertOne(toInsert);
-        
+
         Map<String, Object> actual = mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE + "-1");
-        
+
         assertThat(actual, is(nullValue()));
     }
-    
-    @Test(expected = QueryResultNotUniqueException.class)
-    public void thatFindByIdentifierThrowsExceptionOnMultipleMatches()
-            throws Exception {
-        
+
+    @Test(expected = MongoBulkWriteException.class) // throws bulk write because of the unique constraint on the index.
+    public void thatFindByIdentifierThrowsExceptionOnMultipleMatches() throws Exception {
         final Document identifier1 = (new Document())
                 .append("authority", AUTHORITY)
                 .append("identifierValue", IDENTIFIER_VALUE);
-        
+
         final Document doc1 = (new Document())
                 .append("uuid", uuid.toString())
                 .append("identifiers", Arrays.asList(identifier1))
@@ -283,11 +282,11 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("publishedDate", lastPublicationDate)
                 .append("publishReference", "Some String")
                 .append("lastModified", lastModifiedDate);
-        
+
         final Document identifier2 = (new Document())
                 .append("authority", AUTHORITY)
                 .append("identifierValue", IDENTIFIER_VALUE);
-        
+
         final Document doc2 = (new Document())
                 .append("uuid", uuid.toString())
                 .append("identifiers", Arrays.asList(identifier2))
@@ -297,22 +296,23 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("publishedDate", lastPublicationDate)
                 .append("publishReference", "Some other String")
                 .append("lastModified", lastModifiedDate);
-        
+
         collection.insertMany(Arrays.asList(doc1, doc2));
-        
+
         mongoDocumentStoreService.findByIdentifier(DB_COLLECTION, AUTHORITY, IDENTIFIER_VALUE);
+
     }
-    
+
     @Test
     public void thatIndexesAreConfigured() {
-      Supplier<Stream<Document>> indexes = () -> StreamSupport.stream(collection.listIndexes().spliterator(), false);
-      
-      Document uuidKey = new Document("uuid", 1);
-      assertThat("UUID index", indexes.get().anyMatch(doc -> uuidKey.equals(doc.get("key"))), is(true));
-      
-      Document identifierKey = new Document();
-      identifierKey.put("identifiers.authority", 1);
-      identifierKey.put("identifiers.identifierValue", 1);
-      assertThat("Identifiers index", indexes.get().anyMatch(doc -> identifierKey.equals(doc.get("key"))), is(true));
+        Supplier<Stream<Document>> indexes = () -> StreamSupport.stream(collection.listIndexes().spliterator(), false);
+
+        Document uuidKey = new Document("uuid", 1);
+        assertThat("UUID index", indexes.get().anyMatch(doc -> uuidKey.equals(doc.get("key")) && doc.getBoolean("unique")), is(true));
+
+        Document identifierKey = new Document();
+        identifierKey.put("identifiers.authority", 1);
+        identifierKey.put("identifiers.identifierValue", 1);
+        assertThat("Identifiers index", indexes.get().anyMatch(doc -> identifierKey.equals(doc.get("key"))), is(true));
     }
 }
