@@ -5,9 +5,11 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternal
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -27,12 +29,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class MongoDocumentStoreService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
+
     public static final String CONTENT_COLLECTION = "content";
     public static final String LISTS_COLLECTION = "lists";
-    
-    private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
+
+    private static final String UUID_INDEX = "uuid_1";
 
     private static final String IDENT_AUTHORITY = "identifiers.authority";
     private static final String IDENT_VALUE = "identifiers.identifierValue";
@@ -48,9 +54,9 @@ public class MongoDocumentStoreService {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             Document foundDocument = dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
             if (foundDocument == null) {
-              throw new DocumentNotFoundException(uuid);
+                throw new DocumentNotFoundException(uuid);
             }
-            
+
             foundDocument.remove("_id");
             return foundDocument;
         } catch (MongoSocketException | MongoTimeoutException e) {
@@ -63,23 +69,23 @@ public class MongoDocumentStoreService {
     public Set<Map<String, Object>> findByUuids(String resourceType, Set<UUID> uuids) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-            
+
             Iterable<Document> results = dbCollection.find().filter(
-                Filters.in("uuid", uuids.stream().map(UUID::toString).collect(Collectors.toList())));
-            
-            Map<UUID,Document> mappedResults = new HashMap<>();
-            results.forEach(doc -> mappedResults.put(UUID.fromString((String)doc.get("uuid")), doc));
-            
+                    Filters.in("uuid", uuids.stream().map(UUID::toString).collect(Collectors.toList())));
+
+            Map<UUID, Document> mappedResults = new HashMap<>();
+            results.forEach(doc -> mappedResults.put(UUID.fromString((String) doc.get("uuid")), doc));
+
             // preserve the order of the queried UUIDs in the found documents
-            Set<Map<String,Object>> documents = new LinkedHashSet<>();
+            Set<Map<String, Object>> documents = new LinkedHashSet<>();
             uuids.forEach(uuid -> {
-              Document doc = mappedResults.get(uuid);
-              if (doc != null) {
-                doc.remove("_id");
-                documents.add(doc);
-              }
+                Document doc = mappedResults.get(uuid);
+                if (doc != null) {
+                    doc.remove("_id");
+                    documents.add(doc);
+                }
             });
-            
+
             return documents;
         } catch (MongoSocketException | MongoTimeoutException e) {
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
@@ -114,7 +120,7 @@ public class MongoDocumentStoreService {
             throw new ExternalSystemInternalServerException(e);
         }
     }
-    
+
     public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String listType) {
         Bson filter = Filters.and(
                 Filters.eq("concept.tmeIdentifier", conceptId),
@@ -144,7 +150,6 @@ public class MongoDocumentStoreService {
 
     public void delete(String resourceType, UUID uuid) {
         try {
-
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             DeleteResult deleteResult = dbCollection.deleteOne(Filters.eq("uuid", uuid.toString()));
 
@@ -180,13 +185,33 @@ public class MongoDocumentStoreService {
     public void applyIndexes() {
         MongoCollection content = db.getCollection(CONTENT_COLLECTION);
         createUuidIndex(content);
+        LOG.info("Created UUID index on collection [{}]", CONTENT_COLLECTION);
+
         createIdentifierIndex(content);
 
         MongoCollection lists = db.getCollection(LISTS_COLLECTION);
         createUuidIndex(lists);
+        LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
     }
 
+    private void checkUuidIndex(MongoCollection<?> collection) {
+        ListIndexesIterable<Document> indexes = collection.listIndexes();
+
+        // Check for an incompatible UUID index.
+        if (StreamSupport.stream(indexes.spliterator(), false)
+                .anyMatch(doc ->
+                        doc.getString("name") != null
+                                && doc.getString("name").equals(UUID_INDEX)
+                                && (doc.getBoolean("unique") == null || !doc.getBoolean("unique")))
+                ) {
+            LOG.info("Dropping index due to incompatible options [{}]!", UUID_INDEX);
+            collection.dropIndex(UUID_INDEX);
+        }
+    }
+
+
     private void createUuidIndex(MongoCollection<?> collection) {
+        checkUuidIndex(collection);
         collection.createIndex(new Document("uuid", 1), new IndexOptions().background(true).unique(true));
     }
 
