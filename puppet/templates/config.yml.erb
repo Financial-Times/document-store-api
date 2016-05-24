@@ -1,23 +1,23 @@
 mongo:
-  hosts: {{{mongohosts}}}
-  host: "{{{mongohost}}}"
-  port: {{{mongoport}}}
-  db: "{{{mongodb}}}"
+  hosts: <%=scope.function_hiera(['mongohosts','null'])%>
+  host: "<%=scope.function_hiera(['mongohost','null'])%>"
+  port: <%=scope.function_hiera(['mongoport','null'])%>
+  db: "<%=scope.function_hiera(['mongodb','null'])%>"
   
-apiHost: "{{{apiHost}}}"
+apiHost: "<%=scope.function_hiera(['apiHost','null'])%>"
 
-{{=<% %>=}}
+
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}
   http://www.ft.com/ontology/content/ImageSet: /content/{{id}}
-<%={{ }}=%>
+
 
 healthcheckParameters:
-    name: "{{{healthcheckParameterName}}}"
-    severity: "{{{healthcheckParameterSeverity}}}"
-    businessImpact: "{{{healthcheckParameterBusinessImpact}}}"
-    technicalSummary: "{{{healthcheckParameterTechnicalSummary}}}"
-    panicGuideUrl: "{{{healthcheckParameterPanicGuideUrl}}}"
+    name: "<%=scope.function_hiera(['healthcheckParameterName','null'])%>"
+    severity: "<%=scope.function_hiera(['healthcheckParameterSeverity','null'])%>"
+    businessImpact: "<%=scope.function_hiera(['healthcheckParameterBusinessImpact','null'])%>"
+    technicalSummary: "<%=scope.function_hiera(['healthcheckParameterTechnicalSummary','null'])%>"
+    panicGuideUrl: "<%=scope.function_hiera(['healthcheckParameterPanicGuideUrl','null'])%>"
 
 server:
 
