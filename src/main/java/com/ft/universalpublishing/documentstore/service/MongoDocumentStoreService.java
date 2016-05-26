@@ -9,7 +9,6 @@ import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
-import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class MongoDocumentStoreService {
 
@@ -184,34 +182,19 @@ public class MongoDocumentStoreService {
     @SuppressWarnings("rawtypes")
     public void applyIndexes() {
         MongoCollection content = db.getCollection(CONTENT_COLLECTION);
+        LOG.info("Creating UUID index on collection [{}]", CONTENT_COLLECTION);
         createUuidIndex(content);
         LOG.info("Created UUID index on collection [{}]", CONTENT_COLLECTION);
 
         createIdentifierIndex(content);
 
         MongoCollection lists = db.getCollection(LISTS_COLLECTION);
+        LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
         createUuidIndex(lists);
         LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
     }
 
-    private void checkUuidIndex(MongoCollection<?> collection) {
-        ListIndexesIterable<Document> indexes = collection.listIndexes();
-
-        // Check for an incompatible UUID index.
-        if (StreamSupport.stream(indexes.spliterator(), false)
-                .anyMatch(doc ->
-                        doc.getString("name") != null
-                                && doc.getString("name").equals(UUID_INDEX)
-                                && (doc.getBoolean("unique") == null || !doc.getBoolean("unique")))
-                ) {
-            LOG.info("Dropping index due to incompatible options [{}]!", UUID_INDEX);
-            collection.dropIndex(UUID_INDEX);
-        }
-    }
-
-
     private void createUuidIndex(MongoCollection<?> collection) {
-        checkUuidIndex(collection);
         collection.createIndex(new Document("uuid", 1), new IndexOptions().background(true).unique(true));
     }
 
@@ -221,5 +204,4 @@ public class MongoDocumentStoreService {
         queryByIdentifierIndex.put(IDENT_VALUE, 1);
         collection.createIndex(queryByIdentifierIndex);
     }
-
 }
