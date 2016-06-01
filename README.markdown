@@ -67,6 +67,8 @@ Make a GET request to `http://localhost:14180/content/{uuid}` with `Content-Type
 
 Should return the json right in the format as you PUT it in.
 
+You can request multiple items with a GET request to `http://localhost:14180/content?uuid={uuid1}&uuid={uuid2}...`. This will return a JSON array containing the subset of items that were found (if none were found, the response will be an empty array).
+
 ## Content Read GET
 Make a GET request to `http://localhost:14180/content-read/{uuid}` with `Content-Type` set to `application/json`.
 
