@@ -169,6 +169,7 @@ public class DocumentResource {
         return convertToContentList(result);
     }
 
+    // IMHO this method looks a hack
     protected ContentList convertToContentList(Map<String, Object> contentMap) {
         ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
         contentList.addIds();
