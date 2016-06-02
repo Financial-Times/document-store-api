@@ -121,9 +121,9 @@ public class MongoDocumentStoreService {
         }
     }
 
-    public Map<String, Object> findByConceptAndType(String resourceType, String conceptId, String listType) {
+    public Map<String, Object> findByConceptAndType(String resourceType, UUID conceptId, String listType) {
         Bson filter = Filters.and(
-                Filters.eq("concept.tmeIdentifier", conceptId),
+                Filters.eq("concept.uuid", conceptId.toString()),
                 Filters.eq("listType", listType)
         );
 

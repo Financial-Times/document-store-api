@@ -1,9 +1,5 @@
 package com.ft.universalpublishing.documentstore.model.read;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,6 +7,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "listType", "items", "layoutHint", "publishReference", "lastModified"})
@@ -203,6 +204,9 @@ public class ContentList {
                 }
             }
         }
+        if(concept != null){
+            concept.setId(URI.create(IDENTIFIER_TEMPLATE + concept.getUuid().toString()));
+        }
     }
 
     public void addApiUrls(String apiPath) {
@@ -215,6 +219,9 @@ public class ContentList {
                 }
             }
         }
+        if(concept != null){
+            concept.setApiUrl(URI.create(String.format(API_URL_TEMPLATE, apiPath, "things", concept.getUuid().toString())));
+        }
     }
 
     public void removePrivateFields() {
@@ -225,6 +232,9 @@ public class ContentList {
             for (ListItem item : items) {
                 item.setUuid(null);
             }
+        }
+        if(concept != null){
+            concept.setUuid(null);
         }
     }
 

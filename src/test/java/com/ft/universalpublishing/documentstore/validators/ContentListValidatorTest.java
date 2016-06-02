@@ -1,18 +1,19 @@
 package com.ft.universalpublishing.documentstore.validators;
 
-import java.util.List;
-import java.util.UUID;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.read.Concept;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
+
+import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.read.Concept;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.UUID;
 
 
 public class ContentListValidatorTest {
@@ -92,34 +93,23 @@ public class ContentListValidatorTest {
     }
     
     @Test
-    public void shouldFailValidationIfConceptSuppliedButTmeIdentifierIsNull() {
-        Concept concept = new Concept(null, "LIST_TYPE");
-        ContentList contentList = builder.withConcept(concept).build();
-        
-        expectedException.expect(ValidationException.class);
-        expectedException.expectMessage("if a concept is supplied it must have a non-empty tmeIdentifier field");
-        
-        contentListValidator.validate(uuid, contentList);
-    }
-    
-    @Test
-    public void shouldFailValidationIfConceptSuppliedButTmeIdentifierIsEmpty() {
-        Concept concept = new Concept("", "LIST_TYPE");
-        ContentList contentList = builder.withConcept(concept).build();
-        
-        expectedException.expect(ValidationException.class);
-        expectedException.expectMessage("if a concept is supplied it must have a non-empty tmeIdentifier field");
-        
-        contentListValidator.validate(uuid, contentList);
-    }
-    
-    @Test
     public void shouldFailValidationIfItemsIsNull() {
         ContentList contentList = builder.withItems(null).build();
         
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list should have an 'items' field");
         
+        contentListValidator.validate(uuid, contentList);
+    }
+
+    @Test
+    public void shouldFailValidationIfConceptSuppliedButItsPrefLabelIsNull() {
+        Concept concept = new Concept(null, UUID.fromString(uuid), null, null);
+        ContentList contentList = builder.withConcept(concept).build();
+
+        expectedException.expect(ValidationException.class);
+        expectedException.expectMessage("if a concept is supplied it must have a non-empty prefLabel field");
+
         contentListValidator.validate(uuid, contentList);
     }
     

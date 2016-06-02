@@ -1,10 +1,21 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.CONTENT_COLLECTION;
-import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.LISTS_COLLECTION;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.api.jaxrs.errors.LogLevel;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.ContentMapper;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.transformer.Content;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
+import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+
+import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -30,21 +41,11 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.LogLevel;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.transformer.Content;
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
-import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.CONTENT_COLLECTION;
+import static com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService.LISTS_COLLECTION;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Path("/")
 public class DocumentResource {
@@ -142,14 +143,18 @@ public class DocumentResource {
         Set<String> keys = queryParameters.keySet();
         
         String listType = null;
-        String conceptId = null;
+        UUID conceptId = null;
         
         for (String key: keys) {
             Matcher matcher = LIST_QUERY_PARAM_PATTERN.matcher(key);
             boolean found = matcher.find();
             if (found) {
                 listType = matcher.group(1);
-                conceptId = queryParameters.getFirst(key);
+                try{
+                    conceptId = UUID.fromString(queryParameters.getFirst(key));
+                } catch (IllegalArgumentException e) {
+                    throw ClientError.status(SC_BAD_REQUEST).error("The concept ID is not a valid UUID").exception();
+                }
             }
         }
         
