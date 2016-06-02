@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonPropertyOrder({"id", "apiUrl", "prefLabel"})
+@JsonPropertyOrder({"id", "uuid", "apiUrl", "prefLabel"})
 public class Concept  {
 
     private URI id;
