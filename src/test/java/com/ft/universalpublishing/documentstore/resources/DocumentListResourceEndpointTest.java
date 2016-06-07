@@ -92,9 +92,12 @@ public class DocumentListResourceEndpointTest {
         templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
     }
 
+
     private String uuid;
     private Document listAsDocument;
+    private Document listWithoutConceptAsDocument;
     private ContentList outboundList;
+    private ContentList outboundListWithoutConcept;
     private String uuidPath;
 
     @SuppressWarnings("unchecked")
@@ -103,6 +106,10 @@ public class DocumentListResourceEndpointTest {
         ContentList contentList = getContentList(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
         this.listAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
         this.outboundList = getOutboundContentList(contentList);
+
+        ContentList contentListWithoutConcept = getContentListWithoutConcept(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        this.listWithoutConceptAsDocument = new Document(new ObjectMapper().convertValue(contentListWithoutConcept, Map.class));
+        this.outboundListWithoutConcept = getOutboundContentList(contentListWithoutConcept);
         this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
     }
 
@@ -118,6 +125,19 @@ public class DocumentListResourceEndpointTest {
                 .withUuid(UUID.fromString(listUuid))
                 .withItems(content)
                 .withConcept(concept)
+                .build();
+    }
+
+    private static ContentList getContentListWithoutConcept(String listUuid, String firstContentUuid, String secondContentUuid) {
+        ListItem contentItem1 = new ListItem();
+        contentItem1.setUuid(firstContentUuid);
+        ListItem contentItem2 = new ListItem();
+        contentItem2.setUuid(secondContentUuid);
+        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
+
+        return new ContentList.Builder()
+                .withUuid(UUID.fromString(listUuid))
+                .withItems(content)
                 .build();
     }
 
@@ -222,6 +242,17 @@ public class DocumentListResourceEndpointTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
         final ContentList retrievedDocument = clientResponse.getEntity(ContentList.class);
         assertThat("inboundListAsDocument", retrievedDocument, equalTo(outboundList));
+    }
+
+    @Test
+    public void shouldReturnListWithoutConceptWhenReadSuccessfully() {
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(listWithoutConceptAsDocument);
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+        final ContentList retrievedDocument = clientResponse.getEntity(ContentList.class);
+        assertThat("inboundListAsDocument", retrievedDocument, equalTo(outboundListWithoutConcept));
     }
 
     @Test
