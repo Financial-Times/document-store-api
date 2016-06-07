@@ -61,50 +61,7 @@ public class DocumentListResourceEndpointTest {
     private static final String RESOURCE_TYPE = "lists";
     private static final UUID CONCEPT_UUID = UUID.randomUUID();
     private static final String CONCEPT_PREF_LABEL = "World";
-
-    private String uuid;
-    private Document listAsDocument;
-    private ContentList outboundList;
-    private String uuidPath;
-
-
-    @SuppressWarnings("unchecked")
-    public DocumentListResourceEndpointTest() {
-        this.uuid = UUID.randomUUID().toString();
-        ContentList contentList = getContentList(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        this.listAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
-        this.outboundList = getOutboundContentList(contentList);
-        this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
-    }
-
-    private static ContentList getContentList(String listUuid, String firstContentUuid, String secondContentUuid) {
-        ListItem contentItem1 = new ListItem();
-        contentItem1.setUuid(firstContentUuid);
-        ListItem contentItem2 = new ListItem();
-        contentItem2.setUuid(secondContentUuid);
-        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
-        Concept concept = new Concept(null,CONCEPT_UUID,null,CONCEPT_PREF_LABEL);
-
-        return new ContentList.Builder()
-                .withUuid(UUID.fromString(listUuid))
-                .withItems(content)
-                .withConcept(concept)
-                .build();
-    }
-
-    private static ContentList getOutboundContentList(ContentList contentList) {
-        contentList.addIds();
-        contentList.addApiUrls(API_URL_PREFIX_CONTENT);
-        contentList.removePrivateFields();
-        return contentList;
-    }
-
     private static final Map<String, String> templates = new HashMap<>();
-    static {
-        templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
-        templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
-    }
-
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(
@@ -129,6 +86,47 @@ public class DocumentListResourceEndpointTest {
             .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
             .addProvider(DocumentStoreExceptionMapper.class)
             .build();
+
+    static {
+        templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
+        templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
+    }
+
+    private String uuid;
+    private Document listAsDocument;
+    private ContentList outboundList;
+    private String uuidPath;
+
+    @SuppressWarnings("unchecked")
+    public DocumentListResourceEndpointTest() {
+        this.uuid = UUID.randomUUID().toString();
+        ContentList contentList = getContentList(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        this.listAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
+        this.outboundList = getOutboundContentList(contentList);
+        this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
+    }
+
+    private static ContentList getContentList(String listUuid, String firstContentUuid, String secondContentUuid) {
+        ListItem contentItem1 = new ListItem();
+        contentItem1.setUuid(firstContentUuid);
+        ListItem contentItem2 = new ListItem();
+        contentItem2.setUuid(secondContentUuid);
+        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
+        Concept concept = new Concept(CONCEPT_UUID, CONCEPT_PREF_LABEL);
+
+        return new ContentList.Builder()
+                .withUuid(UUID.fromString(listUuid))
+                .withItems(content)
+                .withConcept(concept)
+                .build();
+    }
+
+    private static ContentList getOutboundContentList(ContentList contentList) {
+        contentList.addIds();
+        contentList.addApiUrls(API_URL_PREFIX_CONTENT);
+        contentList.removePrivateFields();
+        return contentList;
+    }
 
     @Before
     public void setup() {

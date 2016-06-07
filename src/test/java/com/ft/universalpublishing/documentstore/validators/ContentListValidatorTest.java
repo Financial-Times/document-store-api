@@ -18,12 +18,11 @@ import java.util.UUID;
 
 public class ContentListValidatorTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     private ContentListValidator contentListValidator = new ContentListValidator(new UuidValidator());
     private ContentList.Builder builder = new ContentList.Builder();
     private String uuid;
-    
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     
     @Before
     public void setup() {
@@ -104,7 +103,7 @@ public class ContentListValidatorTest {
 
     @Test
     public void shouldFailValidationIfConceptSuppliedButItsPrefLabelIsNull() {
-        Concept concept = new Concept(null, UUID.fromString(uuid), null, null);
+        Concept concept = new Concept(UUID.fromString(uuid), null);
         ContentList contentList = builder.withConcept(concept).build();
 
         expectedException.expect(ValidationException.class);

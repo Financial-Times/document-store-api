@@ -17,13 +17,9 @@ public class Concept  {
     private URI apiUrl;
     private String prefLabel;
 
-    public Concept(@JsonProperty("id") URI id,
-                   @JsonProperty("uuid") UUID uuid,
-                   @JsonProperty("apiUrl") URI apiUrl,
+    public Concept(@JsonProperty("uuid") UUID uuid,
                    @JsonProperty("prefLabel") String prefLabel) {
-        this.id = id;
         this.uuid = uuid;
-        this.apiUrl = apiUrl;
         this.prefLabel = prefLabel;
     }
 
