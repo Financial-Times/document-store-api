@@ -9,6 +9,7 @@ apiHost: "http://apipath.replaceme"
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}
   http://www.ft.com/ontology/content/ImageSet: /content/{{id}}
+  http://www.ft.com/ontology/content/MediaResource: /content/{{id}}
 
 healthcheckParameters:
     name: "Connectivity to MongoDB"
