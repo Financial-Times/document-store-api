@@ -1,11 +1,13 @@
 package com.ft.universalpublishing.documentstore.validators;
 
-import java.util.List;
-
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
+
+import com.google.common.base.Strings;
+
+import java.util.List;
 
 
 public class ContentListValidator {
@@ -33,8 +35,11 @@ public class ContentListValidator {
         }
         Concept concept = contentList.getConcept();
         if (concept != null) {
-            if (concept.getTmeIdentifier() == null || concept.getTmeIdentifier().isEmpty()) {
-                throw new ValidationException("if a concept is supplied it must have a non-empty tmeIdentifier field");
+            if (concept.getUuid() == null) {
+                throw new ValidationException("if a concept is supplied it must have a non-empty uuid field");
+            }
+            if (Strings.isNullOrEmpty(concept.getPrefLabel())) {
+                throw new ValidationException("if a concept is supplied it must have a non-empty prefLabel field");
             }
         }
         

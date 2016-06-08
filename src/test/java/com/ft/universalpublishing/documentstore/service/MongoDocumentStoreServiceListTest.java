@@ -1,9 +1,25 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,25 +29,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-import com.google.common.collect.ImmutableList;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 
 public class MongoDocumentStoreServiceListTest {
@@ -41,7 +42,7 @@ public class MongoDocumentStoreServiceListTest {
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "lists";
     private static final String WEBURL = "http://www.bbc.co.uk/";
-    private static final String CONCEPT_ID = "12345ZND";
+    private static final UUID CONCEPT_UUID = UUID.randomUUID();
     private static final String LIST_TYPE = "TopStories";
 
     private MongoDocumentStoreService mongoDocumentStoreService;
@@ -239,7 +240,7 @@ public class MongoDocumentStoreServiceListTest {
         items.add(new BasicDBObject().append("webUrl", WEBURL));
         
         final Document concept = (new Document())
-                .append("tmeIdentifier", CONCEPT_ID)
+                .append("uuid", CONCEPT_UUID.toString())
                 .append("prefLabel", "Markets");
 
         final Document toInsert = new Document()
@@ -251,7 +252,7 @@ public class MongoDocumentStoreServiceListTest {
 
         collection.insertOne(toInsert);
         
-        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, LIST_TYPE);
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE);
         
         assertThat(actual.get("uuid"), is((Object)uuid.toString()));
     }
@@ -260,7 +261,7 @@ public class MongoDocumentStoreServiceListTest {
     public void thatFindByConceptAndTypeReturnsNullWhenNotFound()
             throws Exception {
         
-        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, "NON_EXISTENT_TYPE");
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, "NON_EXISTENT_TYPE");
         
         assertThat(actual, is(nullValue()));
     }
@@ -274,7 +275,7 @@ public class MongoDocumentStoreServiceListTest {
         items.add(new BasicDBObject().append("webUrl", WEBURL));
         
         final Document concept = (new Document())
-                .append("tmeIdentifier", CONCEPT_ID)
+                .append("uuid", CONCEPT_UUID.toString())
                 .append("prefLabel", "Markets");
 
         final Document toInsert1 = new Document()
@@ -293,9 +294,10 @@ public class MongoDocumentStoreServiceListTest {
         
         collection.insertMany(Arrays.asList(toInsert1, toInsert2));
         
-        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_ID, LIST_TYPE);
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE);
         
         assertThat(actual.get("uuid"), is((Object)uuid.toString()));
+
     }
 
     

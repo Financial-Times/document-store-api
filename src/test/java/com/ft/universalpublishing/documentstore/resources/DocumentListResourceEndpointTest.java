@@ -1,5 +1,44 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.BrandsMapper;
+import com.ft.universalpublishing.documentstore.model.ContentMapper;
+import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
+import com.ft.universalpublishing.documentstore.model.StandoutMapper;
+import com.ft.universalpublishing.documentstore.model.TypeResolver;
+import com.ft.universalpublishing.documentstore.model.read.Concept;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
+import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
+import com.ft.universalpublishing.documentstore.transform.UriBuilder;
+import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.sun.jersey.api.client.ClientResponse;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.ws.rs.core.MediaType;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
@@ -12,91 +51,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import io.dropwizard.testing.junit.ResourceTestRule;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.ws.rs.core.MediaType;
-
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.BrandsMapper;
-import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
-import com.ft.universalpublishing.documentstore.model.StandoutMapper;
-import com.ft.universalpublishing.documentstore.model.TypeResolver;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
-import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriBuilder;
-import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.collect.ImmutableList;
-import com.sun.jersey.api.client.ClientResponse;
 
 public class DocumentListResourceEndpointTest {
-
-    private String uuid;
-    private Document listAsDocument;
-    private ContentList outboundList;
-    private String uuidPath;
 
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
     private static final String API_URL_PREFIX_CONTENT = "localhost";
     private static final String RESOURCE_TYPE = "lists";
-
-    @SuppressWarnings("unchecked")
-    public DocumentListResourceEndpointTest() {
-        this.uuid = UUID.randomUUID().toString();
-        ContentList contentList = getContentList(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        this.listAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
-        this.outboundList = getOutboundContentList(contentList);
-        this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
-    }
-
-    private static ContentList getContentList(String listUuid, String firstContentUuid, String secondContentUuid) {
-        ListItem contentItem1 = new ListItem();
-        contentItem1.setUuid(firstContentUuid);
-        ListItem contentItem2 = new ListItem();
-        contentItem2.setUuid(secondContentUuid);
-        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
-
-        return new ContentList.Builder()
-                .withUuid(UUID.fromString(listUuid))
-                .withItems(content)
-                .build();
-    }
-
-    private static ContentList getOutboundContentList(ContentList contentList) {
-        contentList.addIds();
-        contentList.addApiUrls(API_URL_PREFIX_CONTENT);
-        contentList.removePrivateFields();
-        return contentList;
-    }
-
+    private static final UUID CONCEPT_UUID = UUID.randomUUID();
+    private static final String CONCEPT_PREF_LABEL = "World";
     private static final Map<String, String> templates = new HashMap<>();
-    static {
-        templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
-        templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
-    }
-
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(
@@ -121,6 +86,67 @@ public class DocumentListResourceEndpointTest {
             .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
             .addProvider(DocumentStoreExceptionMapper.class)
             .build();
+
+    static {
+        templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
+        templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
+    }
+
+
+    private String uuid;
+    private Document listAsDocument;
+    private Document listWithoutConceptAsDocument;
+    private ContentList outboundList;
+    private ContentList outboundListWithoutConcept;
+    private String uuidPath;
+
+    @SuppressWarnings("unchecked")
+    public DocumentListResourceEndpointTest() {
+        this.uuid = UUID.randomUUID().toString();
+        ContentList contentList = getContentList(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        this.listAsDocument = new Document(new ObjectMapper().convertValue(contentList, Map.class));
+        this.outboundList = getOutboundContentList(contentList);
+
+        ContentList contentListWithoutConcept = getContentListWithoutConcept(uuid, UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        this.listWithoutConceptAsDocument = new Document(new ObjectMapper().convertValue(contentListWithoutConcept, Map.class));
+        this.outboundListWithoutConcept = getOutboundContentList(contentListWithoutConcept);
+        this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
+    }
+
+    private static ContentList getContentList(String listUuid, String firstContentUuid, String secondContentUuid) {
+        ListItem contentItem1 = new ListItem();
+        contentItem1.setUuid(firstContentUuid);
+        ListItem contentItem2 = new ListItem();
+        contentItem2.setUuid(secondContentUuid);
+        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
+        Concept concept = new Concept(CONCEPT_UUID, CONCEPT_PREF_LABEL);
+
+        return new ContentList.Builder()
+                .withUuid(UUID.fromString(listUuid))
+                .withItems(content)
+                .withConcept(concept)
+                .build();
+    }
+
+    private static ContentList getContentListWithoutConcept(String listUuid, String firstContentUuid, String secondContentUuid) {
+        ListItem contentItem1 = new ListItem();
+        contentItem1.setUuid(firstContentUuid);
+        ListItem contentItem2 = new ListItem();
+        contentItem2.setUuid(secondContentUuid);
+        List<ListItem> content = ImmutableList.of(contentItem1, contentItem2);
+
+        return new ContentList.Builder()
+                .withUuid(UUID.fromString(listUuid))
+                .withItems(content)
+                .build();
+    }
+
+    private static ContentList getOutboundContentList(ContentList contentList) {
+        contentList.addIds();
+        contentList.addApiUrls(API_URL_PREFIX_CONTENT);
+        contentList.removePrivateFields();
+        return contentList;
+    }
 
     @Before
     public void setup() {
@@ -219,6 +245,17 @@ public class DocumentListResourceEndpointTest {
     }
 
     @Test
+    public void shouldReturnListWithoutConceptWhenReadSuccessfully() {
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(listWithoutConceptAsDocument);
+        ClientResponse clientResponse = resources.client().resource(uuidPath)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+        final ContentList retrievedDocument = clientResponse.getEntity(ContentList.class);
+        assertThat("inboundListAsDocument", retrievedDocument, equalTo(outboundListWithoutConcept));
+    }
+
+    @Test
     public void shouldReturn404WhenContentNotFound() {
       when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
         .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
@@ -253,13 +290,12 @@ public class DocumentListResourceEndpointTest {
     //FIND LIST BY CONCEPT AND TYPE
     @Test
     public void shouldReturn200ForDocumentFoundByConceptAndType() {
-        String conceptID = "123";
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
         
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(listAsDocument);
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(listAsDocument);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam(typeParam, conceptID)
+                .queryParam(typeParam, CONCEPT_UUID.toString())
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -269,13 +305,12 @@ public class DocumentListResourceEndpointTest {
     
     @Test
     public void shouldReturn404ForDocumentNotFoundByConceptAndType() {
-        String conceptID = "123";
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
         
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(conceptID), eq(type))).thenReturn(null);
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam(typeParam, conceptID)
+                .queryParam(typeParam, CONCEPT_UUID.toString())
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
@@ -283,9 +318,6 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn400ForNoQueryParameterSupplied() {
-        String conceptID = "123";
-        String invalidType = "TopStories";
-        
         ClientResponse clientResponse = resources.client().resource("/lists")
                 .get(ClientResponse.class);
 
@@ -295,15 +327,28 @@ public class DocumentListResourceEndpointTest {
     
     @Test
     public void shouldReturn400ForNoValidQueryParameterSupplied() {
-        String conceptID = "123";
         String invalidTypeParam = "invalidType";
         
         ClientResponse clientResponse = resources.client().resource("/lists")
-                .queryParam(invalidTypeParam, conceptID)
+                .queryParam(invalidTypeParam, CONCEPT_UUID.toString())
                 .get(ClientResponse.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Expected at least one query parameter of the form \"curated<listType>For\"", clientResponse);
+
+    }
+
+    @Test
+    public void shouldReturn400ForNoValidUUID() {
+        String conceptID = "123";
+        String typeParam = "curatedTopStoriesFor";
+
+        ClientResponse clientResponse = resources.client().resource("/lists")
+                .queryParam(typeParam, conceptID)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        validateErrorMessage("The concept ID is not a valid UUID", clientResponse);
 
     }
 

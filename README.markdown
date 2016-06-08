@@ -94,7 +94,7 @@ Body should look like:
         "uuid": "3c99c2ba-a6ae-11e2-95b1-00144feabdc0",
         "title": "Test List",
         "concept": {
-            "tmeIdentifier": "NzE=-U2VjdGlvbnM=",
+            "uuid": "78d878ac-6226-47e4-84b1-39a127e3cc11",
             "prefLabel": "Markets"
         },
         "listType": "TopStories",
@@ -113,13 +113,13 @@ Body should look like:
     
 Any fields that aren't supported will be ignored. NB: this response body is the same as the response for a GET to a list transformer.
 
-`concept` and `listType` are optional. If `concept` is supplied, then at least the `tmeIdentifier` field must also be supplied.
+`concept` and `listType` are optional. If `concept` is supplied, both `uuid` and `prefLabel` fields must be supplied.
 
 ## List GET
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
 
 ## List GET by Concept and Type
-Make a GET request to http://localhost:14180/lists?curatedTopStoriesFor=NzE%3D-U2VjdGlvbnM%3D with Content-Type set to application/json.
+Make a GET request to http://localhost:14180/lists?curatedTopStoriesFor={concept-uuid} with Content-Type set to application/json.
 
 The query parameter varies according to the type of the list, for example, the following is also supported: curatedOpinionAndAnalysisFor
 
