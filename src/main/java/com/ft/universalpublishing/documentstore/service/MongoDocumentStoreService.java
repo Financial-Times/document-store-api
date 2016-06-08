@@ -31,15 +31,13 @@ import java.util.stream.Collectors;
 
 public class MongoDocumentStoreService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
-
     public static final String CONTENT_COLLECTION = "content";
     public static final String LISTS_COLLECTION = "lists";
-
-    private static final String UUID_INDEX = "uuid_1";
-
+    private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
     private static final String IDENT_AUTHORITY = "identifiers.authority";
     private static final String IDENT_VALUE = "identifiers.identifierValue";
+    private static final String CONCEPT_UUID = "concept.uuid";
+    private static final String LIST_TYPE = "listType";
 
     private final MongoDatabase db;
 
@@ -192,6 +190,8 @@ public class MongoDocumentStoreService {
         LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
         createUuidIndex(lists);
         LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
+
+        createConceptAndListTypeIndex(lists);
     }
 
     private void createUuidIndex(MongoCollection<?> collection) {
@@ -203,5 +203,12 @@ public class MongoDocumentStoreService {
         queryByIdentifierIndex.put(IDENT_AUTHORITY, 1);
         queryByIdentifierIndex.put(IDENT_VALUE, 1);
         collection.createIndex(queryByIdentifierIndex);
+    }
+
+    private void createConceptAndListTypeIndex(MongoCollection<?> collection) {
+        Document queryByIdentifierIndex = new Document();
+        queryByIdentifierIndex.put(CONCEPT_UUID, 1);
+        queryByIdentifierIndex.put(LIST_TYPE, 1);
+        collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true).unique(true));
     }
 }
