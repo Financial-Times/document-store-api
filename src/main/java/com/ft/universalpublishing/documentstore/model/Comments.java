@@ -1,4 +1,4 @@
-package com.ft.universalpublishing.documentstore.model.read;
+package com.ft.universalpublishing.documentstore.model;
 
 public class Comments {
     private boolean enabled;

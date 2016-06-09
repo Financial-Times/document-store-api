@@ -1,11 +1,9 @@
-package com.ft.universalpublishing.documentstore.model.transformer;
+package com.ft.universalpublishing.documentstore.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Standout {
     private final boolean editorsChoice;
     private final boolean exclusive;

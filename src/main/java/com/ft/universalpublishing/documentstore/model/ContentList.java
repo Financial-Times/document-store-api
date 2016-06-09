@@ -1,4 +1,4 @@
-package com.ft.universalpublishing.documentstore.model.read;
+package com.ft.universalpublishing.documentstore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

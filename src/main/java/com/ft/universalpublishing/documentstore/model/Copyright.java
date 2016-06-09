@@ -1,10 +1,6 @@
-package com.ft.universalpublishing.documentstore.model.transformer;
+package com.ft.universalpublishing.documentstore.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
-
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -12,12 +8,11 @@ import java.util.Objects;
  *
  * @author Simon
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Copyright {
 
     private String notice;
 
-    public Copyright(@JsonProperty("notice") @NotNull String notice) {
+    public Copyright(@JsonProperty("notice") String notice) {
         this.notice = notice;
     }
 
@@ -40,10 +35,4 @@ public class Copyright {
         return Objects.hashCode(notice);
     }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this.getClass())
-                .add("notice", notice)
-                .toString();
-    }
 }

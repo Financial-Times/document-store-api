@@ -1,8 +1,8 @@
 package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.model.ContentList;
+import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
 

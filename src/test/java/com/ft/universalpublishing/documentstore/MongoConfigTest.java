@@ -3,6 +3,7 @@ package com.ft.universalpublishing.documentstore;
 import com.mongodb.ServerAddress;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
 
 import java.util.Arrays;
 import java.util.List;

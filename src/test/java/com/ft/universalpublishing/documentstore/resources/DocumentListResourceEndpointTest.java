@@ -4,18 +4,10 @@ import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.BrandsMapper;
-import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
-import com.ft.universalpublishing.documentstore.model.StandoutMapper;
-import com.ft.universalpublishing.documentstore.model.TypeResolver;
-import com.ft.universalpublishing.documentstore.model.read.Concept;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.model.Concept;
+import com.ft.universalpublishing.documentstore.model.ContentList;
+import com.ft.universalpublishing.documentstore.model.ListItem;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
-import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriBuilder;
 import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -69,18 +61,7 @@ public class DocumentListResourceEndpointTest {
                             documentStoreService,
                             contentListValidator,
                             uuidValidator,
-                            API_URL_PREFIX_CONTENT,
-                            new ContentMapper(
-                                    new IdentifierMapper(),
-                                    new TypeResolver(),
-                                    new BrandsMapper(),
-                                    new StandoutMapper(),
-                                    "localhost"),
-                            new ContentBodyProcessingService(
-                                    new ModelBodyXmlTransformer(
-                                            new UriBuilder(templates)
-                                    )
-                            )
+                            API_URL_PREFIX_CONTENT
                     )
             )
             .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
@@ -259,10 +240,10 @@ public class DocumentListResourceEndpointTest {
     public void shouldReturn404WhenContentNotFound() {
       when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
         .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
-      
+
       ClientResponse clientResponse = resources.client().resource(uuidPath)
           .get(ClientResponse.class);
-      
+
       assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
       validateErrorMessage("Requested item does not exist", clientResponse);
     }
@@ -286,13 +267,13 @@ public class DocumentListResourceEndpointTest {
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
     }
-    
+
     //FIND LIST BY CONCEPT AND TYPE
     @Test
     public void shouldReturn200ForDocumentFoundByConceptAndType() {
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
-        
+
         when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(listAsDocument);
         ClientResponse clientResponse = resources.client().resource("/lists")
                 .queryParam(typeParam, CONCEPT_UUID.toString())
@@ -302,12 +283,12 @@ public class DocumentListResourceEndpointTest {
         final ContentList retrievedDocument = clientResponse.getEntity(ContentList.class);
         assertThat("documents were not the same", retrievedDocument, equalTo(outboundList));
     }
-    
+
     @Test
     public void shouldReturn404ForDocumentNotFoundByConceptAndType() {
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
-        
+
         when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(null);
         ClientResponse clientResponse = resources.client().resource("/lists")
                 .queryParam(typeParam, CONCEPT_UUID.toString())
@@ -324,11 +305,11 @@ public class DocumentListResourceEndpointTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Expected at least one query parameter",  clientResponse);
     }
-    
+
     @Test
     public void shouldReturn400ForNoValidQueryParameterSupplied() {
         String invalidTypeParam = "invalidType";
-        
+
         ClientResponse clientResponse = resources.client().resource("/lists")
                 .queryParam(invalidTypeParam, CONCEPT_UUID.toString())
                 .get(ClientResponse.class);

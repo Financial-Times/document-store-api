@@ -45,29 +45,6 @@ public class ContextBackedApiUriGeneratorProviderTest {
     }
 
     @Test
-    public void shouldHandleGatewayHeadersAndSetUpGeneratorToCreateUrisWithNoPort() {
-        filloutContext(EXAMPLE_LOCAL_BASE_URI);
-        when(request.getHeaderValue(ContextBackedApiUriGeneratorProvider.HEADER_API_ROOT_PATH)).thenReturn(EXAMPLE_GATEWAY_HOST);
-        when(request.getHeaderValue(ContextBackedApiUriGeneratorProvider.HEADER_FORWARDED_PROTO)).thenReturn("http");
-        ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider(EXAMPLE_LOCAL_HOST_AND_PORT);
-
-        ApiUriGenerator generator = provider.getValue(context);
-        assertThat(generator.currentUri(),is(EXAMPLE_GATEWAY_BASE_URI + PATH));
-        assertThat(generator.forResource(DocumentResource.class, "getContentReadByUuid").build("theID").toString(),is(EXAMPLE_GATEWAY_BASE_URI + "/content-read/theID"));
-    }
-
-    @Test
-    public void shouldHandleRequestWithNoHeaderAndSetUpGeneratorToCreateUrisWithMatchingPort() {
-        filloutContext(EXAMPLE_LOCAL_BASE_URI);
-        ContextBackedApiUriGeneratorProvider provider = new ContextBackedApiUriGeneratorProvider(EXAMPLE_LOCAL_HOST_AND_PORT);
-
-        ApiUriGenerator generator = provider.getValue(context);
-
-        assertThat(generator.currentUri(),is(EXAMPLE_LOCAL_BASE_URI + "/path"));
-        assertThat(generator.forResource(DocumentResource.class, "getContentReadByUuid").build("theID").toString(),is(EXAMPLE_LOCAL_BASE_URI + "/content-read/theID"));
-    }
-
-    @Test
     public void shouldHandleHttpsRequestWithNoHeaderAndSetUpGeneratorToCreateUrisWithMatchingScheme() {
 
         String httpsLocalUrl = EXAMPLE_LOCAL_BASE_URI.replaceAll("http:", "https:");

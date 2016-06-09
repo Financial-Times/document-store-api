@@ -1,4 +1,4 @@
-package com.ft.universalpublishing.documentstore.model.read;
+package com.ft.universalpublishing.documentstore.model;
 
 import com.google.common.collect.ComparisonChain;
 

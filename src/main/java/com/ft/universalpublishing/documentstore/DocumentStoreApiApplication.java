@@ -4,19 +4,11 @@ import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
-import com.ft.universalpublishing.documentstore.model.BrandsMapper;
-import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
-import com.ft.universalpublishing.documentstore.model.StandoutMapper;
-import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentStoreExceptionMapper;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
-import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
-import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriBuilder;
 import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
@@ -64,14 +56,12 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
-        final UriBuilder uriBuilder = new UriBuilder(configuration.getContentTypeTemplates());
-        final ModelBodyXmlTransformer transformer = new ModelBodyXmlTransformer(uriBuilder);
         environment.jersey().register(new ContextBackedApiUriGeneratorProvider(configuration.getApiHost()));
-        final ContentBodyProcessingService bodyProcessing = new ContentBodyProcessingService(transformer);
-        final ContentMapper contentMapper = new ContentMapper(new IdentifierMapper(), new TypeResolver(), new BrandsMapper(), new StandoutMapper(), configuration.getApiHost());
-        environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost(), contentMapper, bodyProcessing));
+        environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost()));
         environment.jersey().register(new DocumentQueryResource(documentStoreService));
+
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
+
         environment.jersey().register(DocumentStoreExceptionMapper.class);
 
         documentStoreService.applyIndexes();

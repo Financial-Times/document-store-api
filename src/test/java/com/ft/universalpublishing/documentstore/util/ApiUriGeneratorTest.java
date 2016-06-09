@@ -1,22 +1,23 @@
 package com.ft.universalpublishing.documentstore.util;
 
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
+
 import com.google.common.base.Optional;
 import com.sun.jersey.api.uri.UriBuilderImpl;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+
+import java.net.URI;
+import java.util.Collections;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -80,11 +81,6 @@ public class ApiUriGeneratorTest {
     @Theory
     public void givenARequestUrlWhenCurrentHostRequestedShouldReturnTheHost(ApiUriGenerator sit) {
         assertThat(sit.getCurrentHost(), is("example.com"));
-    }
-
-    @Theory
-    public void givenARequestUrlAndResourceShouldGenerateUriBuilderForResource(ApiUriGenerator sit) {
-        assertThat(sit.forResource(DocumentResource.class, "getContentReadByUuid").build("foo").toString(),is("http://example.com/content-read/foo"));
     }
 
     @Theory
