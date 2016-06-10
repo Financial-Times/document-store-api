@@ -1,8 +1,6 @@
 package com.ft.universalpublishing.documentstore.service;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
@@ -23,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -181,31 +180,6 @@ public class MongoDocumentStoreServiceListTest {
         assertThat("publish reference", actual.getPublishReference(), is(publishReference));
     }
 
-    @Test(expected = ExternalSystemInternalServerException.class)
-    public void shouldThrowExceptionWhenAListWithSameConceptAndListTypeIsStored() {
-        String publishReference = "tid_zxcv7531";
-        Concept concept = new Concept(CONCEPT_UUID, CONCEPT_LABEL);
-        ContentList firstList = new ContentList.Builder()
-                .withUuid(uuid)
-                .withItems(mockInboundListItems())
-                .withPublishReference(publishReference)
-                .withConcept(concept)
-                .withListType(LIST_TYPE)
-                .build();
-
-        ContentList secondList = new ContentList.Builder()
-                .withUuid(UUID.randomUUID())
-                .withItems(mockInboundListItems())
-                .withPublishReference(publishReference)
-                .withConcept(concept)
-                .withListType(LIST_TYPE)
-                .build();
-
-        mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(firstList, Map.class));
-        mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(secondList, Map.class));
-    }
-
-
     @Test
     public void thatPublishReferenceIsRetrieved() {
         String publishReference = "tid_zxcv7531";
@@ -265,7 +239,7 @@ public class MongoDocumentStoreServiceListTest {
         
         final Document concept = (new Document())
                 .append("uuid", CONCEPT_UUID.toString())
-                .append("prefLabel", "Markets");
+                .append("prefLabel", CONCEPT_LABEL);
 
         final Document toInsert = new Document()
                 .append("uuid", uuid.toString())
@@ -289,7 +263,41 @@ public class MongoDocumentStoreServiceListTest {
         
         assertThat(actual, is(nullValue()));
     }
-    
+
+    @Test
+    public void thatFindByConceptAndTypeReturnsFirstMatchOnMultipleMatches()
+            throws Exception {
+
+        BasicDBList items = new BasicDBList();
+        items.add(new BasicDBObject().append("uuid", contentUuid1));
+        items.add(new BasicDBObject().append("webUrl", WEBURL));
+
+        final Document concept = (new Document())
+                .append("uuid", CONCEPT_UUID.toString())
+                .append("prefLabel", CONCEPT_LABEL);
+
+        final Document toInsert1 = new Document()
+                .append("uuid", uuid.toString())
+                .append("publishReference", "tid_concept_and_type")
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
+                .append("items", items);
+
+        final Document toInsert2 = new Document()
+                .append("uuid", UUID.randomUUID().toString())
+                .append("publishReference", "tid_concept_and_type")
+                .append("concept", concept)
+                .append("listType", LIST_TYPE)
+                .append("items", items);
+
+        collection.insertMany(Arrays.asList(toInsert1, toInsert2));
+
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE);
+
+        assertThat(actual.get("uuid"), is((Object) uuid.toString()));
+    }
+
+
     @Test
     public void thatIndexesAreConfigured() {
         Supplier<Stream<Document>> indexes = () -> StreamSupport.stream(collection.listIndexes().spliterator(), false);
@@ -300,7 +308,7 @@ public class MongoDocumentStoreServiceListTest {
         Document conceptAndListTypeKey = new Document();
         conceptAndListTypeKey.put("concept.uuid", 1);
         conceptAndListTypeKey.put("listType", 1);
-        assertThat("Concept and List Type index", indexes.get().anyMatch(doc -> conceptAndListTypeKey.equals(doc.get("key")) && doc.getBoolean("unique")), is(true));
+        assertThat("Concept and List Type index", indexes.get().anyMatch(doc -> conceptAndListTypeKey.equals(doc.get("key"))), is(true));
 
     }
 }
