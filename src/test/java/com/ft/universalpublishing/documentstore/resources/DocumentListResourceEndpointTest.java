@@ -2,6 +2,7 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.BrandsMapper;
@@ -189,6 +190,16 @@ public class DocumentListResourceEndpointTest {
         ClientResponse clientResponse = writeDocument(uuidPath, listAsDocument);
 
         assertThat("", clientResponse, hasProperty("status", equalTo(503)));
+
+    }
+
+    @Test
+    public void shouldReturn500WhenExternalSystemHasAnInternalException() {
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(mock(ExternalSystemInternalServerException.class));
+
+        ClientResponse clientResponse = writeDocument(uuidPath, listAsDocument);
+
+        assertThat("", clientResponse, hasProperty("status", equalTo(500)));
 
     }
 
