@@ -182,7 +182,7 @@ public class MongoDocumentStoreServiceListTest {
     }
 
     @Test(expected = ExternalSystemInternalServerException.class)
-    public void shouldThrowExceptionWhenAListWithSameConceptAndListType() {
+    public void shouldThrowExceptionWhenAListWithSameConceptAndListTypeIsStored() {
         String publishReference = "tid_zxcv7531";
         Concept concept = new Concept(CONCEPT_UUID, CONCEPT_LABEL);
         ContentList firstList = new ContentList.Builder()
@@ -190,6 +190,7 @@ public class MongoDocumentStoreServiceListTest {
                 .withItems(mockInboundListItems())
                 .withPublishReference(publishReference)
                 .withConcept(concept)
+                .withListType(LIST_TYPE)
                 .build();
 
         ContentList secondList = new ContentList.Builder()
@@ -197,6 +198,7 @@ public class MongoDocumentStoreServiceListTest {
                 .withItems(mockInboundListItems())
                 .withPublishReference(publishReference)
                 .withConcept(concept)
+                .withListType(LIST_TYPE)
                 .build();
 
         mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(firstList, Map.class));
