@@ -209,6 +209,6 @@ public class MongoDocumentStoreService {
         Document queryByIdentifierIndex = new Document();
         queryByIdentifierIndex.put(CONCEPT_UUID, 1);
         queryByIdentifierIndex.put(LIST_TYPE, 1);
-        collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true).unique(true));
+        collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
     }
 }
