@@ -1,7 +1,7 @@
 # Document Store API
 Document Store API is a Dropwizard application which allows writes to and reads from MongoDB.
 
-Reading content by API users should be done via the /content-read/{uuid} endpoint. This makes sure the format of the response obeys the contract that our api was designed by.
+Reading content by API users should be done via the /content-read/{uuid} endpoint. This makes sure the format of the response obeys the contract that our API was designed by.
 
 The /content/{uuid} endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
 
@@ -21,9 +21,11 @@ To run locally, run:
 ## Building/deploying
 Check in, push, and wait three minutes: [this Jenkins job](http://ftjen06609-lvpr-uk-p:8181/job/document-store-api/) will build and package the application. 
 
-The app will be deployed to Int automatically on successful build.
+The app will be deployed to Test UCS automatically on successful build.
 
-Deploys to Test and Prod can also be done via Jenkins jobs on the [same jenkins instance] (http://ftjen06609-lvpr-uk-p:8181).
+Deploys to Prod UCS can also be done via Jenkins jobs on the [same jenkins instance] (http://ftjen06609-lvpr-uk-p:8181).
+
+The creation of the Docker image for COCO will be automatically triggered after the merge and push in master branch by [this Jenkins job](http://ftaps116-lvpr-uk-d:8080/job/document-store-api/).
 
 ## Content PUT
 Make a PUT request to http://localhost:14180/content/{uuid} with Content-Type set to application/json.
@@ -115,6 +117,9 @@ Any fields that aren't supported will be ignored. NB: this response body is the 
 
 `concept` and `listType` are optional. If `concept` is supplied, both `uuid` and `prefLabel` fields must be supplied.
 
+As business requirement, multiple lists with same `concept` and `listType` are not allowed in the data store. 
+A Splunk alert will be triggered when multiple lists are detected.
+
 ## List GET
 Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
 
@@ -132,5 +137,3 @@ Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type s
 Currently you need to:
 1. Add a new model class or classes, extending Document
 2. Add new resource endpoints in DocumentResource, for PUT, GET and DELETE. Call the helper methods.
-
-## Does this trigger the container?
