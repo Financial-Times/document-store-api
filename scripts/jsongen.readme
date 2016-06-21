@@ -8,7 +8,7 @@ A script that generates a JSON document that can be posted to document-store-api
 ./jsongen.py -i <List UUID> -c <quoted comma-separated list of Content UUIDs> -l <Layout hint> -t <Title or the list, quoted> -x <Transaction ID> 
 ```
 
-Running the script with the following argument values produces the following JSON document.
+Running the script with the following argument values produces the JSON document shown in code block below.
 
  * -i <List UUID>: _520ddb76-e43d-11e4-9e89-00144feab7de_
  * -c <quoted comma-separated list of Content UUIDs>: _"5210a6e2-4074-11e5-9abe-5b335da3a90e,e500b846-40cb-11e5-9abe-5b335da3a90e"_
@@ -36,5 +36,5 @@ Running the script with the following argument values produces the following JSO
  
  ## Support
  
- This script was written by jussi.heinonen@ft.com. Contact me in case of problems.
+ This script was written by jussi.heinonen@ft.com. Contact him in case script has any behavioural issues.
  
