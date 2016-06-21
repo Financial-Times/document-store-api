@@ -104,8 +104,8 @@ class listPut:
 
              
 parser = argparse.ArgumentParser(description='Document Store API - List PUT json document generator')
-parser.add_argument('-c', help='Comma-separated list of content IDs', required=True)
-parser.add_argument('-i', help='List ID', required=True)
+parser.add_argument('-c', help='Comma-separated list of content UUIDs', required=True)
+parser.add_argument('-i', help='List UUID', required=True)
 parser.add_argument('-l', help='Layout hint, e.g. standard', required=True)
 parser.add_argument('-t', help='Title, e.g. UK Top Stories', required=True)
 parser.add_argument('-x', help='Transaction ID, e.g. tid_dj1z4nj1i0', required=True)
