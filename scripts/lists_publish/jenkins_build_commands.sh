@@ -62,7 +62,7 @@ if [[ -n ${coco_credentials} ]]; then
     if [[ "${TEST}" == "false" ]]; then
       curl --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}
     else
-      echo "Upload disabled"
+      echo "Upload disabled, variable TEST='true'
       echo "Curl parameters --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
     fi
 else
