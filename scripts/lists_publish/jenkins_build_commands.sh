@@ -3,7 +3,7 @@
 JSONDOC="publish.json"
 CREDENTIALS='/home/jenkins/coco.txt'
 CONNECT_TIMEOUT="3"
-TEST="true"
+TEST="false"
 
 declare -A BASE_API_URL
 BASE_API_URL['Dynpub']="https://dynpub-uk-up.ft.com/__document-store-api/lists/"
