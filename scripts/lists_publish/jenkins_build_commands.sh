@@ -59,7 +59,7 @@ scripts/lists_publish/jsongen.py -t "${TITLE}" -i "${LIST_ID}" -c "${CONTENT_IDS
 
 coco_credentials=$(getKeyValueFromFile "${CREDENTIALS}" "${ENVIRONMENT}")
 if [[ -n ${coco_credentials} ]]; then
-    CURL_PARAMS="--user "${coco_credentials}" --header "X-Request-Id: ${TRANSACTION_ID}" --header "Content-Type: application/json" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
+    CURL_PARAMS="--user \"${coco_credentials}\" --header \"X-Request-Id: ${TRANSACTION_ID}\" --header \"Content-Type: application/json\" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
     if [[ "${TEST}" == "false" ]]; then
       curl "${CURL_PARAMS}"
     else
