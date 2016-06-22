@@ -3,7 +3,7 @@
 JSONDOC="publish.json"
 CREDENTIALS='/home/jenkins/coco.txt'
 CONNECT_TIMEOUT="3"
-TEST="false"
+TEST="true"
 
 declare -A BASE_API_URL
 BASE_API_URL['Dynpub']="https://dynpub-uk-up.ft.com/__document-store-api/lists/"
@@ -59,11 +59,12 @@ scripts/lists_publish/jsongen.py -t "${TITLE}" -i "${LIST_ID}" -c "${CONTENT_IDS
 
 coco_credentials=$(getKeyValueFromFile "${CREDENTIALS}" "${ENVIRONMENT}")
 if [[ -n ${coco_credentials} ]]; then
+    CURL_PARAMS="--user "${coco_credentials}" --header "X-Request-Id: ${TRANSACTION_ID}" --header "Content-Type: application/json" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
     if [[ "${TEST}" == "false" ]]; then
-      curl --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}
+      curl "${CURL_PARAMS}"
     else
       echo 'Upload disabled, variable TEST="true"'
-      echo "Curl parameters --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
+      echo "Curl parameters ${CURL_PARAMS}"
     fi
 else
     echo "Failed to lookup credentials. Exit 1."
