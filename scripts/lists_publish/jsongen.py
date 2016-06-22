@@ -100,6 +100,14 @@ class listPut:
         jsondoc = jsondoc + self.outputString('"layoutHint" : "' + args.l + '",')
         jsondoc = jsondoc + self.outputString('"publishReference" : "' + args.x + '"')
         jsondoc = jsondoc + self.outputString('}')
+        
+        # VALIDATE JSON DOCUMENT       
+        try:
+            jsonobj = json.loads(jsondoc)
+        except Exception, e:
+            self.print_fail("Wanky Wankerson couldn't load JSON document. Invalid input data: " + str(e))
+            sys.exit(1)
+        # PRINT JSON DOCUMENT
         self.print_ok(jsondoc)
 
              
