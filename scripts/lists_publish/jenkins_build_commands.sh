@@ -6,10 +6,10 @@ CONNECT_TIMEOUT="3"
 TEST="false"
 
 declare -A BASE_API_URL
-BASE_API_URL['Dynpub']="https://dynpub-uk-up.ft.com/__document-store-api/lists/"
-BASE_API_URL['Pre_prod']="https://pre-prod-up.ft.com/__document-store-api/lists/"
-BASE_API_URL['Prod_uk']="https://prod-uk-up.ft.com/__document-store-api/lists/"
-BASE_API_URL['Prod_us']="https://prod-us-up.ft.com/__document-store-api/lists/"
+BASE_API_URL['Dynpub']="https://dynpub-uk-up.ft.com/__document-store-api/lists"
+BASE_API_URL['Pre_prod']="https://pre-prod-up.ft.com/__document-store-api/lists"
+BASE_API_URL['Prod_uk']="https://prod-uk-up.ft.com/__document-store-api/lists"
+BASE_API_URL['Prod_us']="https://prod-us-up.ft.com/__document-store-api/lists"
 
 function getKeyValueFromFile () {
   # Looks up value for key in format of key = value or key : value. 
