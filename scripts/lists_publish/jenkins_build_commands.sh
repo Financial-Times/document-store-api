@@ -59,9 +59,9 @@ scripts/lists_publish/jsongen.py -t "${TITLE}" -i "${LIST_ID}" -c "${CONTENT_IDS
 
 coco_credentials=$(getKeyValueFromFile "${CREDENTIALS}" "${ENVIRONMENT}")
 if [[ -n ${coco_credentials} ]]; then
-      #curl --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}
-      echo "Upload disabled"
-      echo "Curl parameters --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
+      curl --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}
+      #echo "Upload disabled"
+      #echo "Curl parameters --user "${coco_credentials}" -m ${CONNECT_TIMEOUT} --upload-file ${JSONDOC} ${BASE_API_URL[${ENVIRONMENT}]}/${LIST_ID}"
 else
     echo "Failed to lookup credentials. Exit 1."
     exit 1
