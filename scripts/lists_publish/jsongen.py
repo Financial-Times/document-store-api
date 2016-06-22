@@ -107,8 +107,12 @@ class listPut:
         except Exception, e:
             self.print_fail("Wanky Wankerson couldn't load JSON document. Invalid input data: " + str(e))
             sys.exit(1)
-        # PRINT JSON DOCUMENT
-        self.print_ok(jsondoc)
+        if args.f: #WRITE JSON DOCUMENT TO FILE
+            outputfile = open(args.f, 'w')
+            outputfile.write(jsondoc)
+        else: # PRINT JSON DOCUMENT TO STANDARD OUT
+            
+            self.print_ok(jsondoc)
 
              
 parser = argparse.ArgumentParser(description='Document Store API - List PUT json document generator')
@@ -117,6 +121,7 @@ parser.add_argument('-i', help='List UUID', required=True)
 parser.add_argument('-l', help='Layout hint, e.g. standard', required=True)
 parser.add_argument('-t', help='Title, e.g. UK Top Stories', required=True)
 parser.add_argument('-x', help='Transaction ID, e.g. tid_dj1z4nj1i0', required=True)
+parser.add_argument('-f', help='File to write to (optional). If omitted write to standard out.', required=False)
 
 args = parser.parse_args()
 
