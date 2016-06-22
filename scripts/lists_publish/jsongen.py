@@ -64,7 +64,7 @@ class listPut:
         remaining = len(listOfValues)
         for each in listOfValues:
             doc = doc + self.outputString('{ ')
-            doc = doc + self.outputString('"' + key + '"' + ' : ' + '"' + each.strip() + '"')
+            doc = doc + self.outputString('"' + key + '"' + ':' + '"' + each.strip() + '"')
             doc = doc + self.outputString(' }')
             remaining = remaining - 1
             if  remaining > 0:
@@ -94,11 +94,11 @@ class listPut:
         listOfContent = self.loopValuesCsv('uuid', str(args.c))
         jsondoc = jsondoc + self.outputString(listOfContent)
         jsondoc = jsondoc + self.outputString('],')
-        jsondoc = jsondoc + self.outputString('"lastModified" : "' + self.generateLastModified() + '",')
-        jsondoc = jsondoc + self.outputString('"title" : "' + args.t + '",')
-        jsondoc = jsondoc + self.outputString('"uuid" : "' + args.i + '",')
+        jsondoc = jsondoc + self.outputString('"lastModified":"' + self.generateLastModified() + '",')
+        jsondoc = jsondoc + self.outputString('"title":"' + args.t + '",')
+        jsondoc = jsondoc + self.outputString('"uuid":"' + args.i + '",')
         jsondoc = jsondoc + self.outputString('"layoutHint" : "' + args.l + '",')
-        jsondoc = jsondoc + self.outputString('"publishReference" : "' + args.x + '"')
+        jsondoc = jsondoc + self.outputString('"publishReference":"' + args.x + '"')
         jsondoc = jsondoc + self.outputString('}')
         
         # VALIDATE JSON DOCUMENT       
