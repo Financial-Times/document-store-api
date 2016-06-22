@@ -17,7 +17,7 @@ echo "Transaction ID: ${TRANSACTION_ID}"
 
 if [ "${ENVIRONMENT}" =~ "Prod_" && "${PROD_RELEASE}" == "true" ]; then
   echo "Production environment and PROD_RELEASE selected"
-if [ "${ENVIRONMENT}" =~ "Prod_" && "${PROD_RELEASE}" == "false" ]; then
+elif [ "${ENVIRONMENT}" =~ "Prod_" && "${PROD_RELEASE}" == "false" ]; then
   echo "PROD_RELEASE un-selected"
 fi
 
