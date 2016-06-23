@@ -5,8 +5,11 @@ A script [jsongen.py](http://git.svc.ft.com/projects/CP/repos/document-store-api
 Script [jenkins_build_commands.sh](http://git.svc.ft.com/projects/CP/repos/document-store-api/browse/scripts/lists_publish/jenkins_build_commands.sh) contains example of the Curl command that posts JSON document to API.
 
 ### Table of Contents
+
 **[Usage - Jenkins job](#usage-jenkins-job)**
+
 **[Usage - CLI](#usage-cli)**  
+
 **[Support](#support)** 
 
 ## Usage - Jenkins job
