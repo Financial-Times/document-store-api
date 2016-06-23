@@ -55,7 +55,7 @@ elif [[ "${ENVIRONMENT}" =~ "Prod_" && "${PROD_RELEASE}" == "false" ]]; then
   exit 1
 fi
 
-scripts/lists_publish/jsongen.py -t "${TITLE}" -i "${LIST_ID}" -c "${CONTENT_IDS}" -l "${LAYOUT_HINT}" -x "${TRANSACTION_ID}" > ${JSONDOC}
+scripts/lists_publish/jsongen.py -t "${TITLE}" -i "${LIST_ID}" -c "${CONTENT_IDS}" -l "${LAYOUT_HINT}" -x "${TRANSACTION_ID}" -f ${JSONDOC}
 
 coco_credentials=$(getKeyValueFromFile "${CREDENTIALS}" "${ENVIRONMENT}")
 if [[ -n ${coco_credentials} ]]; then
