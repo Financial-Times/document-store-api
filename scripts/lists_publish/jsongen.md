@@ -6,13 +6,13 @@ Script [jenkins_build_commands.sh](http://git.svc.ft.com/projects/CP/repos/docum
 
 ### Table of Contents
 
-**[Usage - Jenkins job](#usage-jenkins-job)**
+**[Republishing Jenkins job](#republishing-jenkins-job)**
 
-**[Usage - CLI](#usage-cli)**  
+**[Command line usage](#commandline-usage)**  
 
 **[Support](#support)** 
 
-## Usage - Jenkins job
+## Republishing Jenkins job
 
 Parameterized build job on Jenkins can be used to gather parameter values and pass them on to the jsongen.py script.
 
@@ -37,7 +37,7 @@ Steps to publish a list using the above Jenkins job:
  * __PROD_RELEASE__: If publishing into __Prod_uk or Prod_us__ make sure to tick this box
    * This checkbox is there to prevent accidental publishing into production environments
 
-## Usage - CLI
+## Command line usage
 
 __NOTE:__ [jsongen.py](http://git.svc.ft.com/projects/CP/repos/document-store-api/browse/scripts/lists_publish/jsongen.py) script only generates a JSON document in current working directory. Script does not make API call.
 
