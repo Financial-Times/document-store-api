@@ -36,6 +36,7 @@ Steps to publish a list using the above Jenkins job:
    * _Example: Prod_uk_
  * __PROD_RELEASE__: If publishing into __Prod_uk or Prod_us__ make sure to tick this box
    * This checkbox is there to prevent accidental publishing into production environments
+ 3. Click __Build__ button
 
 ## Command line usage
 
