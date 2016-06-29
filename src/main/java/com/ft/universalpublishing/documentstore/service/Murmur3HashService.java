@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import com.google.common.base.Strings;
 
-public class HashService {
+public class Murmur3HashService {
   public String hash(Map<String, Object> content) {
     StringBuilder sb = new StringBuilder();
     serializeObject(content, sb);

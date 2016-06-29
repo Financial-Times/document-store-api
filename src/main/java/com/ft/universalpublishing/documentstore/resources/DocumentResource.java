@@ -39,7 +39,7 @@ import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.ContentMapper;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
-import com.ft.universalpublishing.documentstore.service.HashService;
+import com.ft.universalpublishing.documentstore.service.Murmur3HashService;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
 import com.ft.universalpublishing.documentstore.util.ApiUriGenerator;
@@ -62,7 +62,7 @@ public class DocumentResource {
     private String apiPath;
     private final ContentMapper contentMapper;
     private final ContentBodyProcessingService bodyProcessingService;
-    private final HashService hashService = new HashService();
+    private final Murmur3HashService hashService = new Murmur3HashService();
     
     public DocumentResource(MongoDocumentStoreService documentStoreService,
                             ContentListValidator contentListValidator,
