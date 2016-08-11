@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.model;
 
 import com.ft.universalpublishing.documentstore.model.read.Uri;
+import com.ft.universalpublishing.documentstore.model.transformer.AlternativeTitles;
 import com.ft.universalpublishing.documentstore.model.transformer.Brand;
 import com.ft.universalpublishing.documentstore.model.transformer.Comments;
 import com.ft.universalpublishing.documentstore.model.transformer.Content;
@@ -34,6 +35,10 @@ public class ContentMapperTest {
         final UUID uuid = UUID.randomUUID();
         final Date publishDate = new Date();
         final Date lastModified = new Date();
+        final AlternativeTitles alternativeTitles = AlternativeTitles.builder().withPromotionalTitle("promotionalTitle").build();
+        final Copyright copyright = new Copyright("notice");
+        final SortedSet<Member> members=new TreeSet<>();
+        members.add(new Member("uuid"));
         final SortedSet<Identifier> identifiers = new TreeSet<>();
         identifiers.add(new Identifier("authority1", "identifier1"));
         final SortedSet<Brand> brands = new TreeSet<>();
@@ -55,12 +60,18 @@ public class ContentMapperTest {
                 .withPublishReference("Publish Reference")
                 .withLastModifiedDate(lastModified)
                 .withStandout(standout)
+                .withCopyright(copyright)
+                .withMembers(members)
+                .withStandfirst("standfirst")
+                .withAlternativeTitles(alternativeTitles)
                 .build();
 
         final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
+        final Uri expectedUri=new Uri("http://localhost/content/uuid");
 
         assertThat(readContent.getId(), equalTo("http://www.ft.com/thing/" + uuid.toString()));
         assertThat(readContent.getTitle(), equalTo("Philosopher"));
+        assertThat(readContent.getStandfirst(), equalTo("standfirst"));
         assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));
         assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_ARTICLE));
         assertThat(readContent.getBodyXML(), equalTo("Why did the chicken cross the street?"));
@@ -76,7 +87,67 @@ public class ContentMapperTest {
         assertThat(readContent.getPublishReference(), equalTo("Publish Reference"));
         assertThat(readContent.getLastModified(), equalTo(new DateTime(lastModified.getTime())));
         assertThat(readContent.getStandout(), equalTo(new com.ft.universalpublishing.documentstore.model.read.Standout(true, true, true)));
+        assertThat((readContent.getAlternativeTitles()).getPromotionalTitle(), equalTo("promotionalTitle"));
+        assertThat((readContent.getCopyright()).getNotice(), equalTo("notice"));
+        assertThat(((readContent.getMembers()).first()).getId(), equalTo(expectedUri.getId()));
     }
+    
+    
+    @Test
+    public void testContentMappingWithNulls() throws Exception {
+        final UUID uuid = UUID.randomUUID();
+        final Date publishDate = new Date();
+        final Date lastModified = new Date();
+        final AlternativeTitles alternativeTitles = AlternativeTitles.builder().build();
+        final SortedSet<Identifier> identifiers = new TreeSet<>();
+        identifiers.add(new Identifier("authority1", "identifier1"));
+        final SortedSet<Brand> brands = new TreeSet<>();
+        brands.add(new Brand("Lex"));
+        brands.add(new Brand("Chuck Taylor"));
+        final UUID mainImageUuid = UUID.randomUUID();
+        final Standout standout = new Standout(true, true, true);
+        final Content content = Content.builder()
+                .withUuid(uuid)
+                .withTitle(null)
+                .withPublishedDate(publishDate)
+                .withBody("Why did the chicken cross the street?")
+                .withOpening("Why did the chicken")
+                .withByline(null)
+                .withBrands(null)
+                .withPublishReference(null)             
+                .withStandout(null)
+                .withStandfirst(null)
+                .withMainImage(null)
+                .withIdentifiers(null)
+                .withComments(null)
+                .withMembers(null)
+                .withCopyright(null)
+                .withLastModifiedDate(null)
+                .withAlternativeTitles(alternativeTitles)
+                .build();
+
+        final com.ft.universalpublishing.documentstore.model.read.Content readContent = mapper.map(content);
+
+        assertThat(readContent.getId(), equalTo("http://www.ft.com/thing/" + uuid.toString()));
+        assertThat(readContent.getPublishedDate(), equalTo(new DateTime(publishDate.getTime())));;
+        assertThat(readContent.getType(), equalTo(TypeResolver.TYPE_ARTICLE));
+        assertThat(readContent.getBodyXML(), equalTo("Why did the chicken cross the street?"));
+        assertThat(readContent.getOpeningXML(), equalTo("Why did the chicken"));
+        assertThat(readContent.getTitle(), nullValue());
+        assertThat(readContent.getStandfirst(), nullValue());
+        assertThat(readContent.getByline(), nullValue());
+        assertThat(readContent.getBrands(), nullValue());
+        assertThat(readContent.getPublishReference(), nullValue());
+        assertThat(readContent.getIdentifiers(),nullValue());
+        assertThat(readContent.getMainImage(),nullValue());
+        assertThat(readContent.getComments(), nullValue());
+        assertThat(readContent.getLastModified(),nullValue());
+        assertThat(readContent.getMembers(), nullValue());
+        assertThat(readContent.getCopyright(), nullValue());
+        assertThat(readContent.getStandout(),nullValue());
+        assertThat((readContent.getAlternativeTitles()).getPromotionalTitle(), nullValue());
+    }
+
 
 
 

@@ -1,5 +1,6 @@
 package com.ft.universalpublishing.documentstore.model;
 
+import com.ft.universalpublishing.documentstore.model.read.AlternativeTitles;
 import com.ft.universalpublishing.documentstore.model.read.Comments;
 import com.ft.universalpublishing.documentstore.model.read.Content.Builder;
 import com.ft.universalpublishing.documentstore.model.read.Copyright;
@@ -50,7 +51,9 @@ public class ContentMapper {
                 .withPublishReference(source.getPublishReference())
                 .withPixelWidth(source.getPixelWidth())
                 .withPixelHeight(source.getPixelHeight())
-                .withStandout(standoutMapper.map(source.getStandout()));
+                .withStandout(standoutMapper.map(source.getStandout()))
+                .withStandfirst(source.getStandfirst());
+
 
         if (source.getLastModified() != null) {
             builder = builder.withLastModifiedDate(new DateTime(source.getLastModified().getTime()));
@@ -76,6 +79,12 @@ public class ContentMapper {
         if(source.getCopyright() != null) {
             builder.withCopyright(new Copyright(source.getCopyright().getNotice()));
         }
+        
+        if(source.getAlternativeTitles()!=null){
+        	builder.withAlternativeTitles(AlternativeTitles.builder().withPromotionalTitle(source.getAlternativeTitles().getPromotionalTitle()).build());
+        }
+        	
+        
 
         return builder.build();
     }

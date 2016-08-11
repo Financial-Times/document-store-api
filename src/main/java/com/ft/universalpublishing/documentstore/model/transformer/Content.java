@@ -3,15 +3,14 @@ package com.ft.universalpublishing.documentstore.model.transformer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.UUID;
 
@@ -20,7 +19,6 @@ public class Content {
 
     private final String uuid;
     private final String title;
-    private final List<String> titles;
     private final String byline;
     private final SortedSet<Brand> brands;
     private final Date publishedDate;
@@ -41,10 +39,11 @@ public class Content {
     private final String publishReference;
     private final Date lastModified;
     private final Standout standout;
+    private final String standfirst;
+    private final AlternativeTitles alternativeTitles;
 
     private Content(@JsonProperty("uuid") UUID uuid,
             @JsonProperty("title") String title,
-            @JsonProperty("titles") List<String> titles,
             @JsonProperty("byline") String byline,
             @JsonProperty("brands") SortedSet<Brand> brands,
             @JsonProperty("identifiers") SortedSet<Identifier> identifiers,
@@ -64,14 +63,15 @@ public class Content {
             @JsonProperty("copyright") Copyright copyright,
             @JsonProperty("publishReference") String publishReference,
             @JsonProperty("lastModified") Date lastModified,
-            @JsonProperty("standout") Standout standout) {
+            @JsonProperty("standout") Standout standout,
+            @JsonProperty("standfirst") String standfirst,
+            @JsonProperty("alternativeTitles") AlternativeTitles alternativeTitles) {
         this.identifiers = identifiers;
         this.body = body;
         this.opening = opening;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
         this.title = title;
-        this.titles = titles;
         this.byline = byline;
         this.brands = brands;
         this.publishedDate = publishedDate;
@@ -88,6 +88,8 @@ public class Content {
         this.publishReference = publishReference;
         this.lastModified = lastModified;
         this.standout = standout;
+        this.standfirst=standfirst;
+        this.alternativeTitles=alternativeTitles; 
     }
 
     @NotNull
@@ -98,10 +100,6 @@ public class Content {
     @NotEmpty
     public String getTitle() {
         return title;
-    }
-
-    public List<String> getTitles() {
-        return titles;
     }
 
     public String getByline() {
@@ -187,7 +185,15 @@ public class Content {
         return standout;
     }
 
-    @Override
+    public String getStandfirst() {
+		return standfirst;
+	}
+
+	public AlternativeTitles getAlternativeTitles() {
+		return alternativeTitles;
+	}
+
+	@Override
     public String toString() {
         return MoreObjects.toStringHelper(this.getClass())
                 .add("uuid", uuid)
@@ -270,7 +276,8 @@ public class Content {
                 copyright, 
                 publishReference,
                 lastModified,
-                standout
+                standout,
+                standfirst
         );
     }
 
@@ -282,7 +289,6 @@ public class Content {
 
         private UUID uuid;
         private String title;
-        private List<String> titles;
         private String byline;
         private SortedSet<Brand> brands;
         private Date publishedDate;
@@ -302,7 +308,10 @@ public class Content {
         private Copyright copyright;
         private String transactionId;
         private Date lastModified;
+        private String standfirst;
         private Standout standout;
+        private AlternativeTitles alternativeTitles;
+        
 
         public Builder withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -311,14 +320,6 @@ public class Content {
 
         public Builder withTitle(String title) {
             this.title = title;
-            return this;
-        }
-
-        public Builder withTitles(List<String> titles) {
-            this.titles = titles;
-            if (titles != null) {
-                Collections.sort(titles, new LengthComparator());
-            }
             return this;
         }
 
@@ -421,10 +422,19 @@ public class Content {
             this.standout = standout;
             return this;
         }
-
+        
+        public Builder withStandfirst(String standfirst) {
+            this.standfirst = standfirst;
+            return this;
+        }
+        
+        public Builder withAlternativeTitles(AlternativeTitles alternativeTitles) {
+            this.alternativeTitles = alternativeTitles;
+            return this;
+        }
+        
         public Builder withValuesFrom(Content content) {
             return withTitle(content.getTitle())
-                    .withTitles(content.getTitles())
                     .withByline(content.getByline())
                     .withBrands(content.getBrands())
                     .withIdentifiers(content.getIdentifiers())
@@ -445,14 +455,18 @@ public class Content {
                     .withCopyright(content.getCopyright())
                     .withPublishReference(content.getPublishReference())
                     .withLastModifiedDate(content.getLastModified())
-                    .withStandout(content.standout);
+                    .withStandout(content.standout)
+                    .withStandfirst(standfirst)
+                    .withAlternativeTitles(alternativeTitles);
         }
 
 		public Content build() {
+			 if (alternativeTitles == null) {
+				    alternativeTitles = AlternativeTitles.builder().build();
+				  }
             return new Content(
                     uuid, 
                     title, 
-                    titles, 
                     byline, 
                     brands, 
                     identifiers, 
@@ -472,7 +486,9 @@ public class Content {
                     copyright,
                     transactionId,
                     lastModified,
-                    standout
+                    standout,
+                    standfirst,
+                    AlternativeTitles.builder().withValuesFrom(alternativeTitles).build()
             );
         }
     }
@@ -483,4 +499,5 @@ public class Content {
             return o1.length() - o2.length();
         }
     }
+
 }
