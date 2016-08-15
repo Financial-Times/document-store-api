@@ -2,12 +2,15 @@ package com.ft.universalpublishing.documentstore.model.transformer;
 
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
 
 public class AlternativeTitles {
+	
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final String promotionalTitle;
   
   public static Builder builder() {
