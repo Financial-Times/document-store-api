@@ -13,7 +13,8 @@ import java.util.Set;
 import java.util.SortedSet;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "type", "bodyXML", "openingXML", "title", "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands", "annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified", "standout"})
+@JsonPropertyOrder({"id", "type", "bodyXML", "openingXML", "title", "alternativeTitles", "standfirst",  "byline", "description", "publishedDate", "identifiers", "members", "requestUrl", "binaryUrl", "pixelWidth", "pixelHeight", "brands",
+					"annotations", "mainImage", "comments", "copyright", "realtime", "publishReference", "lastModified", "standout"})
 public class Content {
 
     private String id;
@@ -39,6 +40,8 @@ public class Content {
     private Integer pixelHeight;
     private DateTime lastModified;
     private Standout standout;
+    private String standfirst;
+    private AlternativeTitles alternativeTitles;
 
     private Content(@JsonProperty("id") String id,
                     @JsonProperty("type") String type,
@@ -62,7 +65,9 @@ public class Content {
                     @JsonProperty("pixelWidth") Integer pixelWidth,
                     @JsonProperty("pixelHeight") Integer pixelHeight,
                     @JsonProperty("lastModified") DateTime lastModified,
-                    @JsonProperty("standout") Standout standout) {
+                    @JsonProperty("standout") Standout standout,
+                    @JsonProperty("standfirst") String standfirst,
+    				@JsonProperty("alternativeTitles") AlternativeTitles alternativeTitles){
         this.id = id;
         this.type = type;
         this.bodyXML = bodyXML;
@@ -86,6 +91,8 @@ public class Content {
         this.pixelHeight = pixelHeight;
         this.lastModified = lastModified;
         this.standout = standout;
+        this.standfirst=standfirst;
+        this.alternativeTitles=alternativeTitles;
     }
 
     @Override
@@ -110,6 +117,8 @@ public class Content {
                 .add("publishReference", publishReference)
                 .add("lastModified", lastModified)
                 .add("standout", standout)
+                .add("standfirst", standfirst)
+                .add("alternativeTitles", alternativeTitles)
                 .toString();
     }
 
@@ -291,7 +300,15 @@ public class Content {
         return standout;
     }
 
-    public static class Builder {
+    public String getStandfirst() {
+		return standfirst;
+	}
+
+	public AlternativeTitles getAlternativeTitles() {
+		return alternativeTitles;
+	}
+
+	public static class Builder {
 
         private String id;
         private String type;
@@ -316,6 +333,8 @@ public class Content {
         private Integer pixelHeight;
         private DateTime lastModified;
         private Standout standout;
+        private String standfirst;
+        private AlternativeTitles alternativeTitles;
 
         public Builder withId(String id) {
             this.id = id;
@@ -431,8 +450,22 @@ public class Content {
             this.standout = standout;
             return this;
         }
+        
+        public Builder withStandfirst(String standfirst) {
+            this.standfirst = standfirst;
+            return this;
+        }
+        
+        public Builder withAlternativeTitles(AlternativeTitles alternativeTitles) {
+            this.alternativeTitles = alternativeTitles;
+            return this;
+        }
 
         public Content build() {
+        	if (alternativeTitles == null) {
+			    alternativeTitles = AlternativeTitles.builder().build();
+			  }
+        	
             return new Content(id,
                     type,
                     bodyXml,
@@ -455,7 +488,10 @@ public class Content {
                     pixelWidth,
                     pixelHeight,
                     lastModified,
-                    standout);
+                    standout,
+                    standfirst,
+                    AlternativeTitles.builder().withValuesFrom(alternativeTitles).build()
+                    );
         }
     }
 }
