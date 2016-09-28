@@ -5,6 +5,7 @@ mongo:
   db: upp-store
   
 apiHost: "http://apipath.replaceme"
+cacheTtl: 30
 
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}

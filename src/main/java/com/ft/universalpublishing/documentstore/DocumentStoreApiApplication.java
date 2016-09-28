@@ -52,7 +52,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/content-read/*", "/lists/*", "/content-query");
-        environment.servlets().addFilter("cache-filter", new CacheControlFilter())
+
+        environment.servlets().addFilter("cache-filter", new CacheControlFilter("max-age=" + configuration.getCacheTtl()))
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content-read/*", "/lists/*");
 
         environment.jersey().register(new BuildInfoResource());

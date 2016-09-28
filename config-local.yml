@@ -4,6 +4,7 @@ mongo:
   db: upp-store
   
 apiHost: localhost
+cacheTtl: 30
 
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}
