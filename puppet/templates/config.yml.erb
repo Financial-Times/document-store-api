@@ -5,7 +5,7 @@ mongo:
   db: "<%=scope.function_hiera(['mongodb','null'])%>"
   
 apiHost: "<%=scope.function_hiera(['apiHost','null'])%>"
-
+cacheTtl: "<%=scope.function_hiera(['cacheTtl','30'])%>"
 
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}

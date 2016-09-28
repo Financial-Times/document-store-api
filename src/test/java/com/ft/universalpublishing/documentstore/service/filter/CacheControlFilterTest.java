@@ -28,13 +28,13 @@ public class CacheControlFilterTest {
 
     @Before
     public void setUp() {
-        filter = new CacheControlFilter();
+        filter = new CacheControlFilter("max-age=10");
     }
 
     @Test
     public void testHeaderContainsCacheMaxAge() throws IOException, ServletException {
         filter.doFilter(request, response, chain);
-        verify(response).setHeader("Cache-Control", "max-age=30");
+        verify(response).setHeader("Cache-Control", "max-age=10");
         verify(response).setHeader("Vary", "Accept");
         verify(chain).doFilter(request, response);
     }

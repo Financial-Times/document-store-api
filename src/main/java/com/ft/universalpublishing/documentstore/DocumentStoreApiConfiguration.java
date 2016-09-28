@@ -14,17 +14,22 @@ public class DocumentStoreApiConfiguration extends Configuration {
 
     private final String apiHost;
 	private final MongoConfig mongo;
+    private final String cacheTtl;
 
     private Map<String, String> contentTypeTemplates;
     private HealthcheckParameters healthcheckParameters;
 
-    public DocumentStoreApiConfiguration(@JsonProperty("mongo") MongoConfig mongo,
+    public DocumentStoreApiConfiguration(
+            @JsonProperty("mongo") MongoConfig mongo,
             @JsonProperty("apiHost") String apiHost,
+            @JsonProperty("cacheTtl") String cacheTtl,
             @JsonProperty("contentTypeTemplates") final Map<String, String> contentTypeTemplates,
-            @JsonProperty("healthcheckParameters") HealthcheckParameters healthcheckParameters) {
+            @JsonProperty("healthcheckParameters") HealthcheckParameters healthcheckParameters
+    ) {
         super();
         this.mongo = mongo;
         this.apiHost = apiHost;
+        this.cacheTtl = cacheTtl;
         this.contentTypeTemplates = contentTypeTemplates;
         this.healthcheckParameters = healthcheckParameters;
     }
@@ -35,6 +40,10 @@ public class DocumentStoreApiConfiguration extends Configuration {
 
 	public String getApiHost() {
         return apiHost;
+    }
+
+    public String getCacheTtl() {
+        return cacheTtl;
     }
 
     public HealthcheckParameters getHealthcheckParameters() {

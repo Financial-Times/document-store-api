@@ -9,13 +9,19 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class CacheControlFilter implements Filter{
+public class CacheControlFilter implements Filter {
+
+    private final String cacheControl;
+
+    public CacheControlFilter(String cacheControl) {
+        this.cacheControl = cacheControl;
+    }
 
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
 
         HttpServletResponse resp = (HttpServletResponse) response;
-        resp.setHeader("Cache-Control", "max-age=30");
+        resp.setHeader("Cache-Control", cacheControl);
         resp.setHeader("Vary", "Accept");
         chain.doFilter(request, response);
     }
