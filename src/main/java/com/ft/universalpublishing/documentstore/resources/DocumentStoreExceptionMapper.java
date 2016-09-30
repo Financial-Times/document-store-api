@@ -63,7 +63,7 @@ public class DocumentStoreExceptionMapper
     private void logResponse(int status, String reason, Throwable t) {
         String logMessage = format("Document store error. Responding with status <%s> and reason <%s>.", status, reason);
         if (status == 404){
-            LOGGER.warn(logMessage);
+            LOGGER.debug(logMessage, t); // Debug level can be switched on via the Dropwizard Admin page (within the docker container).
         } else if (400 <= status && status < 500) {
             LOGGER.warn(logMessage, t);
         } else {
