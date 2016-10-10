@@ -1,6 +1,5 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
@@ -13,20 +12,25 @@ import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreServic
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import io.dropwizard.testing.junit.ResourceTestRule;
+
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
@@ -35,7 +39,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DocumentListResourceEndpointTest {
 
@@ -240,14 +248,14 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn404WhenContentNotFound() {
-      when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
-        .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
-      
-      Response clientResponse = resources.client().target(uuidPath).request()
-          .get();
-      
-      assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-      validateErrorMessage("Requested item does not exist", clientResponse);
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
+                .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
+
+        Response clientResponse = resources.client().target(uuidPath).request()
+                .get();
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        validateErrorMessage("Requested item does not exist", clientResponse);
     }
 
     @Test
@@ -269,13 +277,13 @@ public class DocumentListResourceEndpointTest {
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
     }
-    
+
     //FIND LIST BY CONCEPT AND TYPE
     @Test
     public void shouldReturn200ForDocumentFoundByConceptAndType() {
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
-        
+
         when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(listAsDocument);
         Response clientResponse = resources.client().target("/lists")
                 .queryParam(typeParam, CONCEPT_UUID.toString())
@@ -286,12 +294,12 @@ public class DocumentListResourceEndpointTest {
         final ContentList retrievedDocument = clientResponse.readEntity(ContentList.class);
         assertThat("documents were not the same", retrievedDocument, equalTo(outboundList));
     }
-    
+
     @Test
     public void shouldReturn404ForDocumentNotFoundByConceptAndType() {
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
-        
+
         when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(null);
         Response clientResponse = resources.client().target("/lists")
                 .queryParam(typeParam, CONCEPT_UUID.toString())
@@ -309,11 +317,11 @@ public class DocumentListResourceEndpointTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Expected at least one query parameter",  clientResponse);
     }
-    
+
     @Test
     public void shouldReturn400ForNoValidQueryParameterSupplied() {
         String invalidTypeParam = "invalidType";
-        
+
         Response clientResponse = resources.client().target("/lists")
                 .queryParam(invalidTypeParam, CONCEPT_UUID.toString())
                 .request()

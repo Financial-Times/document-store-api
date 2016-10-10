@@ -12,7 +12,7 @@ contentTypeTemplates:
   http://www.ft.com/ontology/content/MediaResource: /content/{{id}}
 
 appInfo:
-    systemCode: document-store-api
+    systemCode: upp-document-store-api
     description: "Content R/W for MongoDB"
     runbookUrl: "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi"
 
