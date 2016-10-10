@@ -13,6 +13,8 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import com.google.common.net.HostAndPort;
+import javax.ws.rs.core.UriBuilder;
 
 import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
 import static javax.servlet.http.HttpServletResponse.*;
@@ -22,11 +24,11 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class DocumentQueryResource {
 
     private final MongoDocumentStoreService documentStoreService;
-    private final String apiHost;
+    private final HostAndPort apiHost;
 
     public DocumentQueryResource(MongoDocumentStoreService documentStoreService, String apiHost) {
         this.documentStoreService = documentStoreService;
-        this.apiHost = apiHost;
+        this.apiHost = HostAndPort.fromString(apiHost);
     }
 
     @GET
@@ -38,13 +40,20 @@ public class DocumentQueryResource {
                             "Query parameters \"identifierAuthority\" and \"identifierValue\" are required."))
                     .build();
         }
-
+        
         Map<String, Object> content = documentStoreService.findByIdentifier("content", authority, identifierValue);
         if (content == null) {
             return Response.status(SC_NOT_FOUND).entity(Collections.singletonMap("message", String.format("Not found: %s:%s", authority, identifierValue))).build();
         }
 
-        URI location = URI.create(apiHost + "/content/" + content.get("uuid"));
-        return Response.status(SC_MOVED_PERMANENTLY).location(location).build();
+        return Response.status(SC_MOVED_PERMANENTLY).location(createApiUri(content.get("uuid").toString())).build();
+    }
+    
+    private URI createApiUri(String uuid){
+        return UriBuilder.fromPath("/content/" + uuid)
+                  .scheme("http")
+                  .host(apiHost.getHostText())
+                  .port(apiHost.getPortOrDefault(-1))
+                  .build();
     }
 }

@@ -78,7 +78,7 @@ public class DocumentQueryResourceEndpointTest {
         assertThat("response status", response.getStatus(), equalTo(404));
     }
     
-    @Test(expected = QueryResultNotUniqueException.class)
+    @Test
     public void thatThrowsExceptionForNonUniqueResult() {
         when(DOC_STORE.findByIdentifier(eq(CONTENT), anyString(), anyString()))
             .thenThrow(new QueryResultNotUniqueException());
@@ -88,6 +88,8 @@ public class DocumentQueryResourceEndpointTest {
                          .queryParam("identifierValue", IDENTIFIER_VALUE)
                          .request()
                          .get(Response.class);
+        
+        assertThat("response status", response.getStatus(), equalTo(500));
     }
     
     @Test
