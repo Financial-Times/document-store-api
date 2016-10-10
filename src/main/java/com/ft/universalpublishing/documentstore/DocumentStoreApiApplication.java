@@ -37,6 +37,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     @Override
     public void initialize(final Bootstrap<DocumentStoreApiConfiguration> bootstrap) {
         bootstrap.addBundle(new GoodToGoConfiguredBundle(new DefaultGoodToGoChecker()));
+        bootstrap.addBundle(new AdvancedHealthCheckBundle());
     }
 
     @Override
