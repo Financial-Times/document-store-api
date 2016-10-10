@@ -4,6 +4,7 @@ mongo:
   port: <%=scope.function_hiera(['mongoport','null'])%>
   db: "<%=scope.function_hiera(['mongodb','null'])%>"
 
+apiHost: "<%=scope.function_hiera(['apiHost','null'])%>"
 cacheTtl: "<%=scope.function_hiera(['cacheTtl','30'])%>"
 
 appInfo:
