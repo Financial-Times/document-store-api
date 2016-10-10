@@ -4,51 +4,31 @@ import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.BrandsMapper;
-import com.ft.universalpublishing.documentstore.model.ContentMapper;
-import com.ft.universalpublishing.documentstore.model.IdentifierMapper;
-import com.ft.universalpublishing.documentstore.model.StandoutMapper;
-import com.ft.universalpublishing.documentstore.model.TypeResolver;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.transform.ContentBodyProcessingService;
-import com.ft.universalpublishing.documentstore.transform.ModelBodyXmlTransformer;
-import com.ft.universalpublishing.documentstore.transform.UriBuilder;
-import com.ft.universalpublishing.documentstore.util.ContextBackedApiUriGeneratorProvider;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.sun.jersey.api.client.ClientResponse;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DocumentContentResourceEndpointTest {
 
@@ -90,21 +70,8 @@ public class DocumentContentResourceEndpointTest {
                     documentStoreService,
                     contentListValidator,
                     uuidValidator,
-                    API_URL_PREFIX_CONTENT,
-                    new ContentMapper(
-                            new IdentifierMapper(),
-                            new TypeResolver(),
-                            new BrandsMapper(),
-                            new StandoutMapper(),
-                            "localhost"
-                    ),
-                    new ContentBodyProcessingService(
-                            new ModelBodyXmlTransformer(
-                                    new UriBuilder(templates)
-                            )
-                    )
+                    API_URL_PREFIX_CONTENT
             ))
-            .addProvider(new ContextBackedApiUriGeneratorProvider(API_URL_PREFIX_CONTENT))
             .addProvider(DocumentStoreExceptionMapper.class)
             .build();
 
@@ -120,7 +87,7 @@ public class DocumentContentResourceEndpointTest {
 
     @Test
     public void shouldReturn201ForNewDocument() {
-        ClientResponse clientResponse = writeDocument(contentPath, document);
+        Response clientResponse = writeDocument(contentPath, document);
         assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
         verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class));
     }
@@ -129,14 +96,14 @@ public class DocumentContentResourceEndpointTest {
     public void shouldReturn200ForUpdatedContent() {
         when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.updated(document));
 
-        ClientResponse clientResponse = writeDocument(contentPath, document);
+        Response clientResponse = writeDocument(contentPath, document);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
 
     @Test
     public void shouldReturn400OnWriteWhenUuidNotValid() {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
-        ClientResponse clientResponse = writeDocument(contentPath, document);
+        Response clientResponse = writeDocument(contentPath, document);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Invalid Uuid", clientResponse);
@@ -146,7 +113,7 @@ public class DocumentContentResourceEndpointTest {
     public void shouldReturn503WhenCannotAccessExternalSystem() {
         when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
 
-        ClientResponse clientResponse = writeDocument(contentPath, document);
+        Response clientResponse = writeDocument(contentPath, document);
 
         assertThat("", clientResponse, hasProperty("status", equalTo(503)));
 
@@ -156,8 +123,8 @@ public class DocumentContentResourceEndpointTest {
 
     @Test
     public void shouldReturn200WhenDeletedSuccessfully() {
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .delete(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath).request()
+                .delete();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
@@ -166,8 +133,8 @@ public class DocumentContentResourceEndpointTest {
     public void shouldReturn200WhenDeletingNonExistentContent() {
         doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .delete(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath).request()
+                .delete();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
@@ -175,8 +142,8 @@ public class DocumentContentResourceEndpointTest {
     @Test
     public void shouldReturn400OnDeleteWhenUuidNotValid() {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .delete(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath).request()
+                .delete();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Invalid Uuid", clientResponse);
@@ -186,8 +153,8 @@ public class DocumentContentResourceEndpointTest {
     public void shouldReturn503OnDeleteWhenMongoIsntReachable() {
         doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
 
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .delete(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath).request()
+                .delete();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
     }
@@ -196,11 +163,11 @@ public class DocumentContentResourceEndpointTest {
     @Test
     public void shouldReturn200WhenReadSuccessfully() {
         when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(document);
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .get(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath)
+                .request().get();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-        final Document retrievedDocument = clientResponse.getEntity(Document.class);
+        final Document retrievedDocument = clientResponse.readEntity(Document.class);
         assertThat("document", retrievedDocument, equalTo(document));
     }
 
@@ -225,15 +192,16 @@ public class DocumentContentResourceEndpointTest {
       
       when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(documents);
       
-      ClientResponse clientResponse = resources.client().resource("/content")
+      Response clientResponse = resources.client().target("/content")
           .queryParam("uuid", id1)
           .queryParam("uuid", id2)
-          .get(ClientResponse.class);
+          .request()
+          .get();
       
       assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
       
       @SuppressWarnings("unchecked")
-      final List<Map<String,Object>> actual = clientResponse.getEntity(List.class);
+      final List<Map<String,Object>> actual = clientResponse.readEntity(List.class);
       assertThat("documents", actual.size(), equalTo(2));
       
       List<String> actualIds = actual.stream().map(m -> (String)m.get("uuid")).collect(Collectors.toList());
@@ -256,15 +224,16 @@ public class DocumentContentResourceEndpointTest {
       
       when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(Collections.singleton(document2));
       
-      ClientResponse clientResponse = resources.client().resource("/content")
+      Response clientResponse = resources.client().target("/content")
           .queryParam("uuid", id1)
           .queryParam("uuid", id2)
-          .get(ClientResponse.class);
+          .request()
+          .get();
       
       assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
       
       @SuppressWarnings("unchecked")
-      final List<Map<String,Object>> actual = clientResponse.getEntity(List.class);
+      final List<Map<String,Object>> actual = clientResponse.readEntity(List.class);
       assertThat("documents", actual.size(), equalTo(1));
       
       List<String> actualIds = actual.stream().map(m -> (String)m.get("uuid")).collect(Collectors.toList());
@@ -281,15 +250,16 @@ public class DocumentContentResourceEndpointTest {
       UUID uuid2 = UUID.randomUUID();
       String id2 = uuid2.toString();
       
-      ClientResponse clientResponse = resources.client().resource("/content")
+      Response clientResponse = resources.client().target("/content")
           .queryParam("uuid", id1)
           .queryParam("uuid", id2)
-          .get(ClientResponse.class);
+          .request()
+          .get();
       
       assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
       
       @SuppressWarnings("rawtypes")
-      final List actual = clientResponse.getEntity(List.class);
+      final List actual = clientResponse.readEntity(List.class);
       assertThat("documents", actual.size(), equalTo(0));
     }
 
@@ -298,8 +268,8 @@ public class DocumentContentResourceEndpointTest {
       when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
         .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
       
-      ClientResponse clientResponse = resources.client().resource(contentPath)
-          .get(ClientResponse.class);
+      Response clientResponse = resources.client().target(contentPath).request()
+          .get(Response.class);
       
       assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
       validateErrorMessage("Requested item does not exist", clientResponse);
@@ -308,8 +278,8 @@ public class DocumentContentResourceEndpointTest {
     @Test
     public void shouldReturn400OnReadWhenUuidNotValid() {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString());
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .get(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath).request()
+                .get(Response.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Invalid Uuid", clientResponse);
@@ -319,8 +289,8 @@ public class DocumentContentResourceEndpointTest {
     public void shouldReturn503OnReadWhenMongoIsntReachable() {
         doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class));
 
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .get(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath).request()
+                .get(Response.class);
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
     }
@@ -328,22 +298,22 @@ public class DocumentContentResourceEndpointTest {
     //OTHER
     @Test
     public void shouldReturn405ForPost() {
-        ClientResponse clientResponse = resources.client().resource(contentPath)
-                .post(ClientResponse.class);
+        Response clientResponse = resources.client().target(contentPath)
+                .request()
+                .post(Entity.json(null));
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
     }
 
 
-    private ClientResponse writeDocument(String writePath, Document document) {
+    private Response writeDocument(String writePath, Document document) {
         return resources.client()
-                .resource(writePath)
-                .entity(document, MediaType.APPLICATION_JSON)
-                .put(ClientResponse.class);
+                .target(writePath).request()
+                .put(Entity.entity(document, MediaType.APPLICATION_JSON));
     }
 
-    private void validateErrorMessage(String expectedErrorMessage, ClientResponse clientResponse) {
-        final ErrorEntity responseBodyMessage = clientResponse.getEntity(ErrorEntity.class);
+    private void validateErrorMessage(String expectedErrorMessage, Response clientResponse) {
+        final ErrorEntity responseBodyMessage = clientResponse.readEntity(ErrorEntity.class);
         assertThat("message", responseBodyMessage, hasProperty("message", equalTo(expectedErrorMessage)));
     }
 

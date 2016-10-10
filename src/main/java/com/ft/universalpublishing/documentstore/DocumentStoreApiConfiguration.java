@@ -2,6 +2,8 @@ package com.ft.universalpublishing.documentstore;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.ft.platform.dropwizard.ConfigWithGTG;
+import com.ft.platform.dropwizard.GTGConfig;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
 import io.dropwizard.Configuration;
 
@@ -10,7 +12,10 @@ import java.util.Map;
 
 import static java.util.Collections.unmodifiableMap;
 
-public class DocumentStoreApiConfiguration extends Configuration {
+public class DocumentStoreApiConfiguration extends Configuration implements ConfigWithGTG {
+
+    @JsonProperty
+    private GTGConfig gtg = new GTGConfig();
 
     private final String apiHost;
 	private final MongoConfig mongo;
@@ -44,6 +49,11 @@ public class DocumentStoreApiConfiguration extends Configuration {
 
     public String getCacheTtl() {
         return cacheTtl;
+    }
+
+    @Override
+    public GTGConfig getGtg() {
+        return gtg;
     }
 
     public HealthcheckParameters getHealthcheckParameters() {
