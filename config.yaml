@@ -7,6 +7,11 @@ mongo:
 apiHost: "http://apipath.replaceme"
 cacheTtl: 30
 
+appInfo:
+    systemCode: upp-document-store-api
+    description: "Content R/W for MongoDB"
+    runbookUrl: "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi"
+
 contentTypeTemplates:
   http://www.ft.com/ontology/content/Article: /content/{{id}}
   http://www.ft.com/ontology/content/ImageSet: /content/{{id}}
