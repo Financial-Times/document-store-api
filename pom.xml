@@ -19,7 +19,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dw.version>0.8.1</dw.version>
+        <dw.version>1.0.2</dw.version>
         <advanced-dropwizard-healthcheck.version>4.13.4</advanced-dropwizard-healthcheck.version>
         <jaxrs-build-info-resource.version>1.1</jaxrs-build-info-resource.version>
         <jaxrs.error-handling.version>1.1.2</jaxrs.error-handling.version>
@@ -62,41 +62,58 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.3</version>
         </dependency>
-		<dependency>
-    		<groupId>org.mongojack</groupId>
-    		<artifactId>mongojack</artifactId>
-    		<version>2.1.0</version>
-		 <exclusions>
-		  <exclusion>
-		   <groupId>com.fasterxml.jackson.core</groupId>
-		   <artifactId>jackson-databind</artifactId>
-		  </exclusion>
-		     <exclusion>
-		         <groupId>com.fasterxml.jackson.core</groupId>
-		         <artifactId>jackson-annotations</artifactId>
-		     </exclusion>
-		 </exclusions>
-		</dependency>
+        
+        <dependency>
+            <groupId>org.mongojack</groupId>
+            <artifactId>mongojack</artifactId>
+            <version>2.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.ft</groupId>
             <artifactId>jaxrs-build-info-resource</artifactId>
             <version>${jaxrs-build-info-resource.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.ft</groupId>
             <artifactId>jaxrs-transaction-id-handling</artifactId>
             <version>${jaxrs.transaction-id-handling.version}</version>
             <exclusions>
-            	<exclusion>
-            		<artifactId>jersey-core</artifactId>
-            		<groupId>com.sun.jersey</groupId>
-            	</exclusion>
+                <exclusion>
+                    <artifactId>jersey-core</artifactId>
+                    <groupId>com.sun.jersey</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.ft.jaxrs-error-handling</groupId>
             <artifactId>jaxrs-error-handling-builder</artifactId>
             <version>${jaxrs.error-handling.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.ft.jaxrs-error-handling</groupId>
@@ -163,37 +180,11 @@
             <version>1.50.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>${jersey-version}</version>
-            <exclusions>
-            	<exclusion>
-            		<artifactId>jersey-core</artifactId>
-            		<groupId>com.sun.jersey</groupId>
-            	</exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.ft.bodyprocessing</groupId>
-            <artifactId>body-processing</artifactId>
-            <version>0.1.5</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        
         <dependency>
             <groupId>com.samskivert</groupId>
             <artifactId>jmustache</artifactId>
             <version>1.8</version>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.10.0</version>
         </dependency>
         <dependency>
             <groupId>xmlunit</groupId>

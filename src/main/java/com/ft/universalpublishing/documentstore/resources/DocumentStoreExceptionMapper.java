@@ -12,11 +12,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.core.Response;
 
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -31,6 +33,10 @@ public class DocumentStoreExceptionMapper
     public Response toResponse(RuntimeException exception) {
         if ((exception instanceof ValidationException) || (exception instanceof IllegalArgumentException)) {
             return respondWith(SC_BAD_REQUEST, exception.getMessage(), exception);
+        }
+
+        if (exception instanceof NotAllowedException){
+            return respondWith(SC_METHOD_NOT_ALLOWED, "Method not allowed.", exception);
         }
 
         if (exception instanceof DocumentNotFoundException) {
