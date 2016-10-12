@@ -55,7 +55,7 @@ public class DocumentListResourceEndpointTest {
     private static final UUID CONCEPT_UUID = UUID.randomUUID();
     private static final String CONCEPT_PREF_LABEL = "World";
     private static final Map<String, String> templates = new HashMap<>();
-    
+
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(

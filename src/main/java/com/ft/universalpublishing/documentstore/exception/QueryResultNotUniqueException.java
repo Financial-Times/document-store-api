@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.exception;
 
 import java.util.Collections;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;

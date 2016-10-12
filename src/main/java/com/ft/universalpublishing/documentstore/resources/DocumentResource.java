@@ -116,7 +116,7 @@ public class DocumentResource {
     if (queryParameters.isEmpty()) {
       throw ClientError.status(SC_BAD_REQUEST).error("Expected at least one query parameter").exception();
     }
-    
+
     Set<String> keys = queryParameters.keySet();
 
     String listType = null;
@@ -175,7 +175,7 @@ public class DocumentResource {
 
     ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
     contentListValidator.validate(uuidString, contentList);
-    
+
     return writeDocument(LISTS_COLLECTION, contentMap, uriInfo);
   }
 

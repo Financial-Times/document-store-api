@@ -13,15 +13,15 @@ public class ListItem {
     private String uuid;
     private String apiUrl;
     private String webUrl;
-    
+
     public String getId() {
         return id;
     }
-    
+
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getUuid() {
         return uuid;
     }
@@ -33,7 +33,7 @@ public class ListItem {
     public String getApiUrl() {
         return apiUrl;
     }
-    
+
     public void setApiUrl(String apiUrl) {
         this.apiUrl = apiUrl;
     }
@@ -41,11 +41,11 @@ public class ListItem {
     public String getWebUrl() {
         return webUrl;
     }
-    
+
     public void setWebUrl(String webUrl) {
         this.webUrl = webUrl;
     }
-    
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -54,21 +54,21 @@ public class ListItem {
                 .add("apiUrl", apiUrl)
                 .add("webUrl", webUrl)
                 .toString();
-                
+
     }
-    
+
     @Override
     public boolean equals(Object obj) {
- 
+
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         final ListItem other = (ListItem) obj;
         return Objects.equal(this.id, other.id)
-            && Objects.equal(this.uuid, other.uuid)
-            && Objects.equal(this.apiUrl, other.apiUrl)
-            && Objects.equal(this.webUrl, other.webUrl);
+                && Objects.equal(this.uuid, other.uuid)
+                && Objects.equal(this.apiUrl, other.apiUrl)
+                && Objects.equal(this.webUrl, other.webUrl);
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hashCode(id, uuid, apiUrl, webUrl);
