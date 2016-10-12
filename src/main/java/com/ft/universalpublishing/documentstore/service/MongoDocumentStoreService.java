@@ -56,8 +56,10 @@ public class MongoDocumentStoreService {
             foundDocument.remove("_id");
             return foundDocument;
         } catch (MongoSocketException | MongoTimeoutException e) {
+            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}, uuids {}", resourceType, uuid, e);
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
+            LOG.error("Failed to find document in Mongo! Collection {}, uuids {}", resourceType, uuid, e);
             throw new ExternalSystemInternalServerException(e);
         }
     }
@@ -84,8 +86,10 @@ public class MongoDocumentStoreService {
 
             return documents;
         } catch (MongoSocketException | MongoTimeoutException e) {
+            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}, uuids {}", resourceType, uuids, e);
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
+            LOG.error("Failed to find document(s) in Mongo! Collection {}, uuids {}", resourceType, uuids, e);
             throw new ExternalSystemInternalServerException(e);
         }
     }
@@ -113,6 +117,7 @@ public class MongoDocumentStoreService {
 
             return found;
         } catch (MongoException e) {
+            LOG.error("Failed to find document in Mongo! Collection {}, authority {}, identifierValue {}", resourceType, authority, identifierValue, e);
             throw new ExternalSystemInternalServerException(e);
         }
     }
@@ -140,6 +145,7 @@ public class MongoDocumentStoreService {
 
             return found;
         } catch (MongoException e) {
+            LOG.error("Failed to find document in Mongo! Collection {}, uuid {}, listType {}", resourceType, conceptId, listType, e);
             throw new ExternalSystemInternalServerException(e);
         }
     }
@@ -154,8 +160,10 @@ public class MongoDocumentStoreService {
             }
 
         } catch (MongoSocketException | MongoTimeoutException e) {
+            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}, uuid {}", resourceType, uuid, e);
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
+            LOG.error("Failed to delete document to Mongo! Collection {}, uuid {}", resourceType, uuid, e);
             throw new ExternalSystemInternalServerException(e);
         }
     }
@@ -171,8 +179,10 @@ public class MongoDocumentStoreService {
             }
             return DocumentWritten.created(document);
         } catch (MongoSocketException | MongoTimeoutException e) {
+            LOG.error("MongoDB connection timed out or caused a socket exception during write, please check MongoDB! Collection {}, uuid {}", resourceType, content.get("uuid"), e);
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
+            LOG.error("Failed to write document to Mongo! Collection {}, uuid {}", resourceType, content.get("uuid"), e);
             throw new ExternalSystemInternalServerException(e);
         }
     }

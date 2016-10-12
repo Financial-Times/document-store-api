@@ -87,7 +87,6 @@ public class DocumentContentResourceEndpointTest {
                   uuidValidator,
                   API_URL_PREFIX_CONTENT
           ))
-          .addProvider(DocumentStoreExceptionMapper.class)
           .build();
 
   @Before
@@ -131,7 +130,6 @@ public class DocumentContentResourceEndpointTest {
     Response clientResponse = writeDocument(contentPath, document);
 
     assertThat("", clientResponse, hasProperty("status", equalTo(503)));
-
   }
 
   //DELETE
