@@ -55,7 +55,7 @@ public class DocumentListResourceEndpointTest {
     private static final UUID CONCEPT_UUID = UUID.randomUUID();
     private static final String CONCEPT_PREF_LABEL = "World";
     private static final Map<String, String> templates = new HashMap<>();
-    
+
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(
@@ -66,7 +66,6 @@ public class DocumentListResourceEndpointTest {
                             API_URL_PREFIX_CONTENT
                     )
             )
-            .addProvider(DocumentStoreExceptionMapper.class)
             .build();
 
     static {
@@ -176,12 +175,11 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn500WhenExternalSystemHasAnInternalException() {
-        when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(mock(ExternalSystemInternalServerException.class));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemInternalServerException(new IllegalArgumentException("Some bogus exception")));
 
         Response clientResponse = writeDocument(uuidPath, listAsDocument);
 
         assertThat("", clientResponse, hasProperty("status", equalTo(500)));
-
     }
 
     //DELETE

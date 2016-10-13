@@ -51,7 +51,6 @@ public class DocumentResource {
   private static final String LIST_QUERY_PARAM_TEMPLATE = "curated([a-zA-Z]*)For";
   private static final Pattern LIST_QUERY_PARAM_PATTERN = Pattern.compile(LIST_QUERY_PARAM_TEMPLATE);
 
-
   private ContentListValidator contentListValidator;
   private MongoDocumentStoreService documentStoreService;
   private UuidValidator uuidValidator;
@@ -114,10 +113,10 @@ public class DocumentResource {
   @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
   public final ContentList getListsByConceptAndType(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo) {
     MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-
-    if (queryParameters.size() ==0) {
+    if (queryParameters.isEmpty()) {
       throw ClientError.status(SC_BAD_REQUEST).error("Expected at least one query parameter").exception();
     }
+
     Set<String> keys = queryParameters.keySet();
 
     String listType = null;
@@ -164,9 +163,7 @@ public class DocumentResource {
   public Response writeContent(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap, @Context UriInfo uriInfo) {
     validateUuid(uuidString);
     return writeDocument(CONTENT_COLLECTION, contentMap, uriInfo);
-
   }
-
 
   @PUT
   @Timed
@@ -180,7 +177,6 @@ public class DocumentResource {
     contentListValidator.validate(uuidString, contentList);
 
     return writeDocument(LISTS_COLLECTION, contentMap, uriInfo);
-
   }
 
   private Response writeDocument(String resourceType, Map<String, Object> content, UriInfo uriInfo) {

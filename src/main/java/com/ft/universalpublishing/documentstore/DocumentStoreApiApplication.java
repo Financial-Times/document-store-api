@@ -8,7 +8,6 @@ import com.ft.platform.dropwizard.GoodToGoConfiguredBundle;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
-import com.ft.universalpublishing.documentstore.resources.DocumentStoreExceptionMapper;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
@@ -62,7 +61,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
     environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost()));
     environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
-    environment.jersey().register(DocumentStoreExceptionMapper.class);
 
     environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
 

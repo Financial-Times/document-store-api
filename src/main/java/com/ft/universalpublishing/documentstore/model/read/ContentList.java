@@ -62,12 +62,12 @@ public class ContentList {
             this.apiUrl = url;
             return this;
         }
-        
+
         public Builder withConcept(Concept concept) {
             this.concept = concept;
             return this;
         }
-        
+
         public Builder withListType(String listType) {
             this.listType = listType;
             return this;
