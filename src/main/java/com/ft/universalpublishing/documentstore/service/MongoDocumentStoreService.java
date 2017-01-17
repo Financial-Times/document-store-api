@@ -5,7 +5,6 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternal
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
@@ -16,22 +15,20 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 public class MongoDocumentStoreService {
 
-  public static final String CONTENT_COLLECTION = "content";
   public static final String LISTS_COLLECTION = "lists";
   private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
   private static final String IDENT_AUTHORITY = "identifiers.authority";
@@ -40,9 +37,11 @@ public class MongoDocumentStoreService {
   private static final String LIST_TYPE = "listType";
 
   private final MongoDatabase db;
+  private List<String> plainCollections;
 
-  public MongoDocumentStoreService(final MongoDatabase db) {
+  public MongoDocumentStoreService(final MongoDatabase db, List<String> plainCollections) {
     this.db = db;
+    this.plainCollections = plainCollections;
   }
 
   public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
@@ -189,12 +188,13 @@ public class MongoDocumentStoreService {
 
   @SuppressWarnings("rawtypes")
   public void applyIndexes() {
-    MongoCollection content = db.getCollection(CONTENT_COLLECTION);
-    LOG.info("Creating UUID index on collection [{}]", CONTENT_COLLECTION);
-    createUuidIndex(content);
-    LOG.info("Created UUID index on collection [{}]", CONTENT_COLLECTION);
-
-    createIdentifierIndex(content);
+    plainCollections.forEach(collection -> {
+      MongoCollection content = db.getCollection(collection);
+      LOG.info("Creating UUID index on collection [{}]", collection);
+      createUuidIndex(content);
+      LOG.info("Created UUID index on collection [{}]", collection);
+      createIdentifierIndex(content);
+    });
 
     MongoCollection lists = db.getCollection(LISTS_COLLECTION);
     LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);

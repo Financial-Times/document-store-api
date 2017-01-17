@@ -1,20 +1,16 @@
 package com.ft.universalpublishing.documentstore;
 
+import static java.util.Collections.unmodifiableList;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.platform.dropwizard.AppInfo;
 import com.ft.platform.dropwizard.ConfigWithAppInfo;
 import com.ft.platform.dropwizard.ConfigWithGTG;
 import com.ft.platform.dropwizard.GTGConfig;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
 import io.dropwizard.Configuration;
-
-import static java.util.Collections.unmodifiableMap;
+import java.util.List;
+import javax.validation.constraints.NotNull;
 
 public class DocumentStoreApiConfiguration extends Configuration implements ConfigWithGTG, ConfigWithAppInfo {
 
@@ -28,21 +24,21 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
   private final MongoConfig mongo;
   private final String cacheTtl;
 
-  private Map<String, String> contentTypeTemplates;
+  private List<String> plainCollections;
   private HealthcheckParameters healthcheckParameters;
 
   public DocumentStoreApiConfiguration(
           @JsonProperty("mongo") MongoConfig mongo,
           @JsonProperty("apiHost") String apiHost,
           @JsonProperty("cacheTtl") String cacheTtl,
-          @JsonProperty("contentTypeTemplates") final Map<String, String> contentTypeTemplates,
+      @JsonProperty("plainCollections") List<String> plainCollections,
           @JsonProperty("healthcheckParameters") HealthcheckParameters healthcheckParameters
   ) {
     super();
     this.mongo = mongo;
     this.apiHost = apiHost;
     this.cacheTtl = cacheTtl;
-    this.contentTypeTemplates = contentTypeTemplates;
+    this.plainCollections = plainCollections;
     this.healthcheckParameters = healthcheckParameters;
   }
 
@@ -68,8 +64,8 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
   }
 
   @NotNull
-  public Map<String, String> getContentTypeTemplates() {
-    return unmodifiableMap(contentTypeTemplates);
+  public List<String> getPlainCollections() {
+    return unmodifiableList(plainCollections);
   }
 
   @Override

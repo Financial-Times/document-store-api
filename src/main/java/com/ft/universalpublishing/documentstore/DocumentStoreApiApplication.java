@@ -12,22 +12,20 @@ import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreServic
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-
-import javax.servlet.DispatcherType;
-
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import javax.servlet.DispatcherType;
 
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
@@ -44,8 +42,13 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
   @Override
   public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
+    List<String> transactionUrlPattern = new ArrayList<>(
+        Arrays.asList("/lists/*", "/content-query"));
+    configuration.getPlainCollections()
+        .forEach(collection -> transactionUrlPattern.add("/" + collection + "/*"));
     environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
-            .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/content/*", "/lists/*", "/content-query");
+        .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true,
+            transactionUrlPattern.toArray(new String[0]));
 
     environment.servlets().addFilter("cache-filter", new CacheControlFilter("max-age=" + configuration.getCacheTtl()))
             .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/lists/*");
@@ -55,11 +58,14 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     final MongoClient mongoClient = getMongoClient(configuration.getMongo());
     MongoDatabase database = mongoClient.getDatabase(configuration.getMongo().getDb());
 
-    final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(database);
+    final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(database,
+        configuration.getPlainCollections());
     final UuidValidator uuidValidator = new UuidValidator();
     final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
-    environment.jersey().register(new DocumentResource(documentStoreService, contentListValidator, uuidValidator, configuration.getApiHost()));
+    environment.jersey().register(
+        new DocumentResource(documentStoreService, contentListValidator, uuidValidator,
+            configuration.getApiHost(), configuration.getPlainCollections()));
     environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
 
     environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));

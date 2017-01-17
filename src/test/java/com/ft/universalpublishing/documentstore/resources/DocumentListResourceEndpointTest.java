@@ -1,37 +1,5 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.read.Concept;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
-
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import io.dropwizard.testing.junit.ResourceTestRule;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
@@ -45,6 +13,33 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.model.read.Concept;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.google.common.collect.ImmutableList;
+import io.dropwizard.testing.junit.ResourceTestRule;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 public class DocumentListResourceEndpointTest {
 
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
@@ -54,7 +49,6 @@ public class DocumentListResourceEndpointTest {
     private static final String RESOURCE_TYPE = "lists";
     private static final UUID CONCEPT_UUID = UUID.randomUUID();
     private static final String CONCEPT_PREF_LABEL = "World";
-    private static final Map<String, String> templates = new HashMap<>();
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
@@ -63,16 +57,10 @@ public class DocumentListResourceEndpointTest {
                             documentStoreService,
                             contentListValidator,
                             uuidValidator,
-                            API_URL_PREFIX_CONTENT
-                    )
+                        API_URL_PREFIX_CONTENT,
+                        Collections.emptyList())
             )
             .build();
-
-    static {
-        templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
-        templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
-    }
-
 
     private String uuid;
     private Document listAsDocument;

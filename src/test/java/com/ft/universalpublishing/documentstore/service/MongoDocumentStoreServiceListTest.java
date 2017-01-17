@@ -1,38 +1,36 @@
 package com.ft.universalpublishing.documentstore.service;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 
 public class MongoDocumentStoreServiceListTest {
@@ -56,8 +54,8 @@ public class MongoDocumentStoreServiceListTest {
     public void setup() {
         MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
         db.getCollection(DB_COLLECTION).drop();
-        
-        mongoDocumentStoreService = new MongoDocumentStoreService(db);
+
+        mongoDocumentStoreService = new MongoDocumentStoreService(db, Collections.emptyList());
         mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();

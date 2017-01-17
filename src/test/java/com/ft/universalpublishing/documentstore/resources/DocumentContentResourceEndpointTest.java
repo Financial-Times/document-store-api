@@ -1,36 +1,5 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import io.dropwizard.testing.junit.ResourceTestRule;
-
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
@@ -44,6 +13,34 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import io.dropwizard.testing.junit.ResourceTestRule;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class DocumentContentResourceEndpointTest {
 
@@ -85,8 +82,8 @@ public class DocumentContentResourceEndpointTest {
                   documentStoreService,
                   contentListValidator,
                   uuidValidator,
-                  API_URL_PREFIX_CONTENT
-          ))
+              API_URL_PREFIX_CONTENT,
+              Arrays.asList(RESOURCE_TYPE)))
           .build();
 
   @Before
