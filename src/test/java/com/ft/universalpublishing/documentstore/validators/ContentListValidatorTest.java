@@ -23,7 +23,7 @@ public class ContentListValidatorTest {
     private ContentListValidator contentListValidator = new ContentListValidator(new UuidValidator());
     private ContentList.Builder builder = new ContentList.Builder();
     private String uuid;
-    
+
     @Before
     public void setup() {
         uuid = UUID.randomUUID().toString();
@@ -40,10 +40,10 @@ public class ContentListValidatorTest {
                 .withItems(content)
                 .withPublishReference(publishReference);
     }
-    
+
     @Test
     public void shouldPassIfItemsListIsEmpty() {
-        
+
     }
 
     @Test
@@ -52,52 +52,52 @@ public class ContentListValidatorTest {
 
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
     public void shouldFailValidationIfContentListIsNull() {
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("list must be provided in request body");
-        
+
         contentListValidator.validate(uuid, null);
     }
-    
+
     @Test
     public void shouldFailValidationIfUuidIsNull() {
         ContentList contentList = builder.withUuid(null).build();
-        
+
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty uuid");
-        
+
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
     public void shouldFailValidationIfTitleIsNull() {
         ContentList contentList = builder.withTitle(null).build();
-        
+
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty title");
-        
+
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
     public void shouldFailValidationIfTitleIsEmpty() {
         ContentList contentList = builder.withTitle("").build();
-        
+
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list must provide a non-empty title");
-        
+
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
     public void shouldFailValidationIfItemsIsNull() {
         ContentList contentList = builder.withItems(null).build();
-        
+
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("submitted list should have an 'items' field");
-        
+
         contentListValidator.validate(uuid, contentList);
     }
 
@@ -111,33 +111,33 @@ public class ContentListValidatorTest {
 
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
     public void shouldFailValidationIfItemsHaveNeitherUuidOrWebUrl() {
         ListItem listItemWithInvalidUuid = new ListItem();
         listItemWithInvalidUuid.setUuid("invalid");
         List<ListItem> contentItems = ImmutableList.of(listItemWithInvalidUuid);
         ContentList contentList = builder.withItems(contentItems).build();
-        
+
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("invalid UUID: invalid, does not conform to RFC 4122");
-        
+
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
     public void shouldFailValidationIfItemsHaveInvalidUuid() {
         List<ListItem> contentItems = ImmutableList.of(new ListItem());
         ContentList contentList = builder.withItems(contentItems).build();
-        
+
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("list items must have a non-empty uuid or a non-empty webUrl");
-        
+
         contentListValidator.validate(uuid, contentList);
     }
-    
+
     @Test
-    public void shouldFailValidationIfUuidOnContentDoesNotMatchUuid() { 
+    public void shouldFailValidationIfUuidOnContentDoesNotMatchUuid() {
         String mismatchedUuid = UUID.randomUUID().toString();
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage(String.format("uuid in path %s is not equal to uuid in submitted list %s", mismatchedUuid, uuid));

@@ -1,9 +1,9 @@
-target
+target/
 *.iml
 .idea
 .classpath
 .settings/
 .project
 /bin
-/target/
 .pydevproject
+!src/main/java/com/ft/universalpublishing/documentstore/target

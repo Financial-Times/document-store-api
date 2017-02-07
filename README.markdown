@@ -147,9 +147,5 @@ Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type s
 
 ## Adding support for a new resource type
 
-If you need to add a new simple resource, with no data validation, in config.yaml, add a new plainCollections with the wanted name.
-GET/PUT/DELETE operation will be available at /givenName.
-
-To add custom behavior, you need to:
-1. Add a new model class or classes, extending Document
-2. Add new resource endpoints in DocumentResource, for PUT, GET and DELETE. Call the helper methods.
+If you need to add a new resource, add in DocumentStoreApiApplication a new chain handler for the wanted operations.
+Handler and Targets can be reused in multiple chains.

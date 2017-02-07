@@ -1,12 +1,5 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
@@ -14,6 +7,14 @@ import com.mongodb.MongoBulkWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,12 +27,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class MongoDocumentStoreServiceContentTest {
     @ClassRule
@@ -61,7 +63,7 @@ public class MongoDocumentStoreServiceContentTest {
         MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
         db.getCollection(DB_COLLECTION).drop();
 
-        mongoDocumentStoreService = new MongoDocumentStoreService(db, Arrays.asList("content"));
+        mongoDocumentStoreService = new MongoDocumentStoreService(db);
         mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("content");
         uuid = UUID.randomUUID();

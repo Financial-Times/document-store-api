@@ -7,10 +7,6 @@ apiHost: localhost
 cacheTtl: 30
 
 
-plainCollections:
-  - content
-  - internalcomponents
-
 appInfo:
     systemCode: upp-document-store-api
     description: "Content R/W for MongoDB"

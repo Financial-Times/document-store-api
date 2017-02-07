@@ -1,5 +1,46 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
+import com.ft.universalpublishing.documentstore.handler.Handler;
+import com.ft.universalpublishing.documentstore.handler.HandlerChain;
+import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
+import com.ft.universalpublishing.documentstore.model.read.Operation;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
+import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
+import com.ft.universalpublishing.documentstore.target.Target;
+import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
+import javafx.util.Pair;
+
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
@@ -13,34 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import io.dropwizard.testing.junit.ResourceTestRule;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 
 public class DocumentContentResourceEndpointTest {
 
@@ -70,21 +83,37 @@ public class DocumentContentResourceEndpointTest {
     return new Document(content);
   }
 
+  @ClassRule
+  public static final ResourceTestRule resources = ResourceTestRule.builder()
+      .addResource(new DocumentResource(getCollectionMap()))
+      .build();
+
   private static final Map<String, String> templates = new HashMap<>();
   static {
     templates.put("http://www.ft.com/ontology/content/Article", "/content/{{id}}");
     templates.put("http://www.ft.com/ontology/content/ImageSet", "/content/{{id}}");
   }
 
-  @ClassRule
-  public static final ResourceTestRule resources = ResourceTestRule.builder()
-          .addResource(new DocumentResource(
-                  documentStoreService,
-                  contentListValidator,
-                  uuidValidator,
-              API_URL_PREFIX_CONTENT,
-              Arrays.asList(RESOURCE_TYPE)))
-          .build();
+  private static Map<Pair<String, Operation>, HandlerChain> getCollectionMap() {
+    Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
+    Handler extractUuidsHandlers = new ExtractUuidsHandler();
+    Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);
+    Target writeDocument = new WriteDocumentTarget(documentStoreService);
+    Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
+
+    final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
+    collections.put(new Pair<>("content", Operation.GET_FILTERED),
+        new HandlerChain().addHandlers(extractUuidsHandlers, uuidValidationHandler)
+            .setTarget(findResourceByUuid));
+    collections.put(new Pair<>("content", Operation.GET_BY_ID),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
+    collections.put(new Pair<>("content", Operation.ADD),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
+    collections.put(new Pair<>("content", Operation.REMOVE),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+
+    return collections;
+  }
 
   @Before
   public void setup() {
@@ -129,7 +158,7 @@ public class DocumentContentResourceEndpointTest {
     assertThat("", clientResponse, hasProperty("status", equalTo(503)));
   }
 
-  //DELETE
+  //REMOVE
 
   @Test
   public void shouldReturn200WhenDeletedSuccessfully() {

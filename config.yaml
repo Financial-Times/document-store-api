@@ -12,9 +12,6 @@ appInfo:
     description: "Content R/W for MongoDB"
     runbookUrl: "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi"
 
-plainCollections:
-  - content
-  - internalcomponents
 
 healthcheckParameters:
     name: "Connectivity to MongoDB"

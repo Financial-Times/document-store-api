@@ -1,5 +1,49 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import com.google.common.collect.ImmutableList;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
+import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
+import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
+import com.ft.universalpublishing.documentstore.handler.Handler;
+import com.ft.universalpublishing.documentstore.handler.HandlerChain;
+import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
+import com.ft.universalpublishing.documentstore.model.read.Concept;
+import com.ft.universalpublishing.documentstore.model.read.ContentList;
+import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import com.ft.universalpublishing.documentstore.model.read.Operation;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
+import com.ft.universalpublishing.documentstore.target.FindListByConceptAndTypeTarget;
+import com.ft.universalpublishing.documentstore.target.FindListByUuid;
+import com.ft.universalpublishing.documentstore.target.Target;
+import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
+import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
+import com.ft.universalpublishing.documentstore.validators.UuidValidator;
+import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+
+import org.bson.Document;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import io.dropwizard.testing.junit.ResourceTestRule;
+import javafx.util.Pair;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
@@ -13,33 +57,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.read.Concept;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
-import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.google.common.collect.ImmutableList;
-import io.dropwizard.testing.junit.ResourceTestRule;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 public class DocumentListResourceEndpointTest {
 
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
@@ -52,15 +69,8 @@ public class DocumentListResourceEndpointTest {
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(
-                    new DocumentResource(
-                            documentStoreService,
-                            contentListValidator,
-                            uuidValidator,
-                        API_URL_PREFIX_CONTENT,
-                        Collections.emptyList())
-            )
-            .build();
+        .addResource(new DocumentResource(getCollectionMap()))
+        .build();
 
     private String uuid;
     private Document listAsDocument;
@@ -82,7 +92,32 @@ public class DocumentListResourceEndpointTest {
         this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
     }
 
-    private static ContentList getContentList(String listUuid, String firstContentUuid, String secondContentUuid) {
+  private static Map<Pair<String, Operation>, HandlerChain> getCollectionMap() {
+    Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
+    Handler extractConceptHandler = new ExtractConceptHandler();
+    Handler contentListValidationHandler = new ContentListValidationHandler(contentListValidator);
+    Target writeDocument = new WriteDocumentTarget(documentStoreService);
+    Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
+    Target findListByUuid = new FindListByUuid(documentStoreService, API_URL_PREFIX_CONTENT);
+    Target findListByConceptAndType = new FindListByConceptAndTypeTarget(documentStoreService,
+        API_URL_PREFIX_CONTENT);
+
+    final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
+    collections.put(new Pair<>("lists", Operation.GET_FILTERED),
+        new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
+    collections.put(new Pair<>("lists", Operation.GET_BY_ID),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
+    collections.put(new Pair<>("lists", Operation.ADD),
+        new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler)
+            .setTarget(writeDocument));
+    collections.put(new Pair<>("lists", Operation.REMOVE),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+
+    return collections;
+  }
+
+  private static ContentList getContentList(String listUuid, String firstContentUuid,
+      String secondContentUuid) {
         ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(firstContentUuid);
         ListItem contentItem2 = new ListItem();
@@ -170,7 +205,7 @@ public class DocumentListResourceEndpointTest {
         assertThat("", clientResponse, hasProperty("status", equalTo(500)));
     }
 
-    //DELETE
+  //REMOVE
 
     @Test
     public void shouldReturn200WhenDeletedSuccessfully() {
