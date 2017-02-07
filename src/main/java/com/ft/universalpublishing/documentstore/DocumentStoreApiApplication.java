@@ -10,6 +10,7 @@ import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
+import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
@@ -21,6 +22,7 @@ import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilte
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
 import com.ft.universalpublishing.documentstore.target.FindListByConceptAndTypeTarget;
 import com.ft.universalpublishing.documentstore.target.FindListByUuid;
+import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
@@ -81,10 +83,12 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
         Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
+        Handler multipleUuidValidationHandler = new MultipleUuidValidationHandler(uuidValidator);
         Handler extractUuidsHandlers = new ExtractUuidsHandler();
         Handler extractConceptHandler = new ExtractConceptHandler();
         Handler contentListValidationHandler = new ContentListValidationHandler(contentListValidator);
         Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);
+        Target findMultipleResourcesByUuidsTarget = new FindMultipleResourcesByUuidsTarget(documentStoreService);
         Target writeDocument = new WriteDocumentTarget(documentStoreService);
         Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
         Target findListByUuid = new FindListByUuid(documentStoreService, configuration.getApiHost());
@@ -92,7 +96,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
         collections.put(new Pair<>("content", Operation.GET_FILTERED),
-                new HandlerChain().addHandlers(extractUuidsHandlers, uuidValidationHandler).setTarget(findResourceByUuid));
+                new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
         collections.put(new Pair<>("content", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
         collections.put(new Pair<>("content", Operation.ADD),
@@ -101,7 +105,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
         collections.put(new Pair<>("internalcomponents", Operation.GET_FILTERED),
-                new HandlerChain().addHandlers(extractUuidsHandlers, uuidValidationHandler).setTarget(findResourceByUuid));
+                new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
         collections.put(new Pair<>("internalcomponents", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
         collections.put(new Pair<>("internalcomponents", Operation.ADD),

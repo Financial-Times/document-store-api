@@ -3,18 +3,19 @@ package com.ft.universalpublishing.documentstore.target;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 
-import java.util.UUID;
+import java.util.ArrayList;
 
-public class FindResourceByUuidTarget implements Target {
+
+public class FindMultipleResourcesByUuidsTarget implements Target {
 
     private MongoDocumentStoreService documentStoreService;
 
-    public FindResourceByUuidTarget(MongoDocumentStoreService documentStoreService) {
+    public FindMultipleResourcesByUuidsTarget(MongoDocumentStoreService documentStoreService) {
         this.documentStoreService = documentStoreService;
     }
 
     @Override
     public Object execute(Context context) {
-        return documentStoreService.findByUuid(context.getCollection(), UUID.fromString(context.getUuid()));
+        return new ArrayList<>(documentStoreService.findByUuids(context.getCollection(), context.getValidatedUuids()));
     }
 }

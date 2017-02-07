@@ -95,9 +95,15 @@ public class DocumentResource {
 
   protected HandlerChain getHandlerChain(String collection, Operation Operation) {
     Pair<String, Operation> pair = new Pair<>(collection, Operation);
-    if (!collections.containsKey(pair)) {
-      throw ClientError.status(404).exception();
+    if (collections.containsKey(pair)) {
+      return collections.get(pair);
     }
-    return collections.get(pair);
+    collections.keySet().forEach(keyPair -> {
+      if (keyPair.getKey().equals(collection)){
+        // This method is not allowed
+        throw ClientError.status(405).exception();
+      }
+    });
+    throw ClientError.status(400).exception();
   }
 }

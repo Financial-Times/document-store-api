@@ -4,6 +4,7 @@ import com.ft.universalpublishing.documentstore.model.read.Context;
 
 /**
  * A Handler represents a median step for handling an operation.
+ * The implementations must be thread safe.
  */
 public interface Handler {
 

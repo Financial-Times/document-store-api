@@ -2,7 +2,7 @@ package com.ft.universalpublishing.documentstore.target;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.LogLevel;
+import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 
 public class FindListByConceptAndTypeTarget implements Target {
@@ -33,8 +32,7 @@ public class FindListByConceptAndTypeTarget implements Target {
         Map<String, Object> result = documentStoreService
                 .findByConceptAndType(context.getCollection(), conceptId, listType);
         if (result == null) {
-            throw ClientError.status(SC_NOT_FOUND).logLevel(LogLevel.DEBUG)
-                    .error("Requested item does not exist").exception();
+            throw new DocumentNotFoundException(conceptId);
         }
         try {
             ContentList contentList = new ObjectMapper().convertValue(result, ContentList.class);

@@ -6,4 +6,3 @@ target/
 .project
 /bin
 .pydevproject
-!src/main/java/com/ft/universalpublishing/documentstore/target

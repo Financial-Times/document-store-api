@@ -4,6 +4,7 @@ import com.ft.universalpublishing.documentstore.model.read.Context;
 
 /**
  * A Target represents the last step of a chain of handlers.
+ * The implementations must be thread safe.
  */
 public interface Target {
 
