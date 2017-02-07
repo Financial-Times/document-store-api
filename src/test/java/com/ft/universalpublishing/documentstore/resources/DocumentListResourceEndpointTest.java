@@ -17,6 +17,7 @@ import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
+import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
 import com.ft.universalpublishing.documentstore.target.FindListByConceptAndTypeTarget;
@@ -42,7 +43,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.dropwizard.testing.junit.ResourceTestRule;
-import javafx.util.Pair;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;

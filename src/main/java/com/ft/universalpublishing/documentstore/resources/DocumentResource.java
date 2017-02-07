@@ -5,6 +5,7 @@ import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
+import com.ft.universalpublishing.documentstore.model.read.Pair;
 
 import java.util.Map;
 
@@ -19,7 +20,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import javafx.util.Pair;
 
 @Path("/")
 public class DocumentResource {

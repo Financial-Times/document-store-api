@@ -13,6 +13,7 @@ import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
+import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
@@ -44,7 +45,7 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-import javafx.util.Pair;
+
 
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
