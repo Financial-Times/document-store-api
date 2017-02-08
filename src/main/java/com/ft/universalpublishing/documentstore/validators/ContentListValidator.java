@@ -1,11 +1,11 @@
 package com.ft.universalpublishing.documentstore.validators;
 
+import com.google.common.base.Strings;
+
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
-
-import com.google.common.base.Strings;
 
 import java.util.List;
 
@@ -42,14 +42,14 @@ public class ContentListValidator {
                 throw new ValidationException("if a concept is supplied it must have a non-empty prefLabel field");
             }
         }
-        
+
         List<ListItem> items = contentList.getItems();
         if (items == null) {
             throw new ValidationException("submitted list should have an 'items' field");
         }
         //TODO - when we remove the webUrl support, just make sure each one has a uuid
         for (ListItem item: items) {
-            if ((item.getUuid() == null || item.getUuid().isEmpty()) 
+            if ((item.getUuid() == null || item.getUuid().isEmpty())
                     && (item.getWebUrl() == null || item.getWebUrl().isEmpty())) {
                 throw new ValidationException("list items must have a non-empty uuid or a non-empty webUrl");
             }

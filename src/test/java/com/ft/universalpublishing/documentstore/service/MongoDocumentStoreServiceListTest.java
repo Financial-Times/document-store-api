@@ -1,13 +1,13 @@
 package com.ft.universalpublishing.documentstore.service;
 
+import com.google.common.collect.ImmutableList;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten.Mode;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
@@ -56,7 +56,7 @@ public class MongoDocumentStoreServiceListTest {
     public void setup() {
         MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
         db.getCollection(DB_COLLECTION).drop();
-        
+
         mongoDocumentStoreService = new MongoDocumentStoreService(db);
         mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("lists");

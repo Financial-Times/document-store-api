@@ -1,9 +1,8 @@
-target
+target/
 *.iml
 .idea
 .classpath
 .settings/
 .project
 /bin
-/target/
 .pydevproject
