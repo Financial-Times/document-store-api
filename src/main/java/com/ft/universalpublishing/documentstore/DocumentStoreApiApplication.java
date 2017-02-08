@@ -11,6 +11,7 @@ import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
+import com.ft.universalpublishing.documentstore.handler.StoryPackgeRemoveHandler;
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
@@ -87,6 +88,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         Handler extractUuidsHandlers = new ExtractUuidsHandler();
         Handler extractConceptHandler = new ExtractConceptHandler();
         Handler contentListValidationHandler = new ContentListValidationHandler(contentListValidator);
+		Handler storyPackageHandler = new StoryPackgeRemoveHandler();
         Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);
         Target findMultipleResourcesByUuidsTarget = new FindMultipleResourcesByUuidsTarget(documentStoreService);
         Target writeDocument = new WriteDocumentTarget(documentStoreService);
@@ -100,7 +102,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         collections.put(new Pair<>("content", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
         collections.put(new Pair<>("content", Operation.ADD),
-                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
+                new HandlerChain().addHandlers(uuidValidationHandler, storyPackageHandler).setTarget(writeDocument));
         collections.put(new Pair<>("content", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
