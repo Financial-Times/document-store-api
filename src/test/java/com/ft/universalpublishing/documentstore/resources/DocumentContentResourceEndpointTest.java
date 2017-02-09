@@ -4,16 +4,11 @@ import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
-import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
-<<<<<<< HEAD
 import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
-=======
 import com.ft.universalpublishing.documentstore.handler.StoryPackgeRemoveHandler;
->>>>>>> UPP-1584 Adjust document-store-api to strip storyPackage link
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
