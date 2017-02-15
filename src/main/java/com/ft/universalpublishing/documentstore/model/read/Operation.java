@@ -6,4 +6,5 @@ public enum Operation {
     GET_FILTERED,
     ADD,
     REMOVE,
+    GET_IDS
 }

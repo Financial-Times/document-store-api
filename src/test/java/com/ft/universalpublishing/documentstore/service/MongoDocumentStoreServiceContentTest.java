@@ -15,9 +15,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -314,4 +316,34 @@ public class MongoDocumentStoreServiceContentTest {
         identifierKey.put("identifiers.identifierValue", 1);
         assertThat("Identifiers index", indexes.get().anyMatch(doc -> identifierKey.equals(doc.get("key"))), is(true));
     }
+
+    @Test
+    public void idsForContentShouldBeRetrievedSuccessfully() {
+        final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
+        final Document firstDocument = new Document()
+                .append("uuid", firstUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate);
+        collection.insertOne(firstDocument);
+
+        final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
+        final Document secondDocument = new Document()
+                .append("uuid", secondUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate);
+        collection.insertOne(secondDocument);
+
+        Set<Document> expected = new HashSet<>(Arrays.asList(new Document("uuid", firstUUID), new Document("uuid", secondUUID)));
+        Set<Document> ids = mongoDocumentStoreService.findUUIDs("content");
+        assertThat(ids, is(expected));
+    }
+
 }

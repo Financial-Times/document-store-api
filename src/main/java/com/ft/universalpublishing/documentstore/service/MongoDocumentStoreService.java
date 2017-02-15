@@ -12,17 +12,20 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -194,17 +197,17 @@ public class MongoDocumentStoreService {
 
     private void applyIndexForListCollection() {
         MongoCollection lists = db.getCollection(LISTS_COLLECTION);
-        LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
+        LOG.info("Creating DocumentUUID index on collection [{}]", LISTS_COLLECTION);
         createUuidIndex(lists);
-        LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
+        LOG.info("Created DocumentUUID index on collection [{}]", LISTS_COLLECTION);
         createConceptAndListTypeIndex(lists);
     }
 
     private void applyIndexForCollection(String collection) {
         MongoCollection mongoCollection = db.getCollection(collection);
-        LOG.info("Creating UUID index on collection [{}]", collection);
+        LOG.info("Creating DocumentUUID index on collection [{}]", collection);
         createUuidIndex(mongoCollection);
-        LOG.info("Created UUID index on collection [{}]", collection);
+        LOG.info("Created DocumentUUID index on collection [{}]", collection);
         createIdentifierIndex(mongoCollection);
     }
 
@@ -224,5 +227,12 @@ public class MongoDocumentStoreService {
         queryByIdentifierIndex.put(CONCEPT_UUID, 1);
         queryByIdentifierIndex.put(LIST_TYPE, 1);
         collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
+    }
+
+    public Set<Document> findUUIDs(String resourceType) {
+        MongoCollection<Document> collection = db.getCollection(resourceType);
+        return collection.find()
+                .projection(Projections.fields(Projections.include("uuid"), Projections.excludeId()))
+                .into(new HashSet<>());
     }
 }
