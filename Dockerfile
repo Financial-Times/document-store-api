@@ -1,6 +1,9 @@
-FROM up-registry.ft.com/coco/dropwizardbase
+FROM coco/dropwizardbase
 
 ADD . /
+
+ARG SONATYPE_USER=${SONATYPE_USER}
+ARG SONATYPE_PASSWORD=${SONATYPE_USER}
 
 RUN apk --update add git libstdc++ \
   && HASH=$(git log -1 --pretty=format:%H) \
