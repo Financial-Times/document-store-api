@@ -1,0 +1,23 @@
+version: "3"
+services:
+  app:
+    image: coco/document-store-api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - MONGO_ADDRESSES=mongo:27017
+      - JAVA_OPTS=-Xms128m -Xmx128m -XX:+UseG1GC -server
+      - CACHE_TTL=10
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:3.0.2
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "nc", "-zvv", "localhost", "27017"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+

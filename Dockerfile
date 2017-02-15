@@ -1,4 +1,4 @@
-FROM coco/dropwizardbase
+FROM coco/dropwizardbase:v1.0.1
 
 ADD . /
 
@@ -10,7 +10,7 @@ RUN apk --update add git libstdc++ \
   && BUILD_NUMBER=$(cat buildnum.txt) \
   && BUILD_URL=$(cat buildurl.txt) \
   && echo "DEBUG Jenkins job url: $BUILD_URL" \
-  && mvn install -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
+  && mvn package -Dmaven.test.skip=true -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
   && rm target/document-store-api-*-sources.jar \
   && mv target/document-store-api-*.jar document-store-api.jar \
   && apk del go git \
