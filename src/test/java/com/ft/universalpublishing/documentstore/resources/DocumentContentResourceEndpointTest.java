@@ -4,12 +4,11 @@ import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
-import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
+import com.ft.universalpublishing.documentstore.handler.StoryPackgeRemoveHandler;
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
@@ -48,6 +47,7 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
@@ -84,6 +84,7 @@ public class DocumentContentResourceEndpointTest {
     content.put("title", "Here's the news");
     content.put("bodyXML", "xmlBody");
     content.put("publishedDate", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(lastPublicationDate));
+	content.put("storyPackage", "json-storyPackage");
     return new Document(content);
   }
 
@@ -102,6 +103,7 @@ public class DocumentContentResourceEndpointTest {
     Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
     Handler multipleUuidValidationHandler = new MultipleUuidValidationHandler(uuidValidator);
     Handler extractUuidsHandlers = new ExtractUuidsHandler();
+	Handler storyPackgeRemoveHandler = new StoryPackgeRemoveHandler();
     Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);
     Target findMultipleResourcesByUuidsTarget = new FindMultipleResourcesByUuidsTarget(documentStoreService);
     Target writeDocument = new WriteDocumentTarget(documentStoreService);
@@ -113,7 +115,7 @@ public class DocumentContentResourceEndpointTest {
     collections.put(new Pair<>("content", Operation.GET_BY_ID),
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
     collections.put(new Pair<>("content", Operation.ADD),
-            new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
+            new HandlerChain().addHandlers(uuidValidationHandler, storyPackgeRemoveHandler).setTarget(writeDocument));
     collections.put(new Pair<>("content", Operation.REMOVE),
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
@@ -162,6 +164,22 @@ public class DocumentContentResourceEndpointTest {
     Response clientResponse = writeDocument(contentPath, document);
 
     assertThat("", clientResponse, hasProperty("status", equalTo(503)));
+  }
+
+  @Test
+  public void storyPackageIsRemoved() {
+		UUID uuid = UUID.randomUUID();
+		Map<String, Object> content = getContent(uuid.toString());
+	    Document docInitial = new Document(content);
+		content.remove("storyPackage");
+		Document docRemove = new Document(content);
+		when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(
+				DocumentWritten.updated(docRemove));
+
+		Response clientResponse = writeDocument(contentPath, docInitial);
+	    Document resultDoc = clientResponse.readEntity(Document.class);
+	    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+	    assertEquals(resultDoc, docRemove);
   }
 
   //REMOVE
