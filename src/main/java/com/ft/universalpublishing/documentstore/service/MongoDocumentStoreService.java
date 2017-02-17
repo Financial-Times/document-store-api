@@ -199,17 +199,17 @@ public class MongoDocumentStoreService {
 
     private void applyIndexForListCollection() {
         MongoCollection lists = db.getCollection(LISTS_COLLECTION);
-        LOG.info("Creating DocumentUUID index on collection [{}]", LISTS_COLLECTION);
+        LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
         createUuidIndex(lists);
-        LOG.info("Created DocumentUUID index on collection [{}]", LISTS_COLLECTION);
+        LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
         createConceptAndListTypeIndex(lists);
     }
 
     private void applyIndexForCollection(String collection) {
         MongoCollection mongoCollection = db.getCollection(collection);
-        LOG.info("Creating DocumentUUID index on collection [{}]", collection);
+        LOG.info("Creating UUID index on collection [{}]", collection);
         createUuidIndex(mongoCollection);
-        LOG.info("Created DocumentUUID index on collection [{}]", collection);
+        LOG.info("Created UUID index on collection [{}]", collection);
         createIdentifierIndex(mongoCollection);
     }
 
