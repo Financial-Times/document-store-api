@@ -3,12 +3,14 @@ package com.ft.universalpublishing.documentstore.service;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
@@ -21,11 +23,11 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -229,10 +231,21 @@ public class MongoDocumentStoreService {
         collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
     }
 
-    public Set<Document> findUUIDs(String resourceType) {
+    public OutputStream findUUIDs(String resourceType) {
+        OutputStream outputStream = new ByteArrayOutputStream();
         MongoCollection<Document> collection = db.getCollection(resourceType);
-        return collection.find()
-                .projection(Projections.fields(Projections.include("uuid"), Projections.excludeId()))
-                .into(new HashSet<>());
+        MongoCursor<Document> cursor =  collection.find()
+                .projection(Projections.fields(Projections.include("uuid"), Projections.excludeId())).iterator();
+
+        cursor.forEachRemaining(document -> {
+            try {
+                outputStream.write((document.toJson()+ "\n") .getBytes());
+            } catch (IOException e) {
+                LOG.error("Error occurred while trying to return ids");
+                throw new IDStreamingException(resourceType);
+            }
+        });
+
+        return outputStream;
     }
 }

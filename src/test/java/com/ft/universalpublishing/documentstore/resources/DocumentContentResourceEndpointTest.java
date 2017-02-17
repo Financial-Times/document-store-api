@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
@@ -32,8 +33,10 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -362,16 +365,25 @@ public class DocumentContentResourceEndpointTest {
   public void shouldReturn200WhenIDsSuccessfully() throws IOException {
     final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
     final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
-    final Set<Document> documents = new HashSet<>(Arrays.asList(new Document("uuid", firstUUID), new Document("uuid", secondUUID)));
-    when(documentStoreService.findUUIDs(eq(RESOURCE_TYPE))).thenReturn(documents);
+    OutputStream outputStream = new ByteArrayOutputStream();
+    outputStream.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
+    outputStream.write((new Document("uuid", secondUUID).toJson() + "\n").getBytes());
+    when(documentStoreService.findUUIDs(eq(RESOURCE_TYPE))).thenReturn(outputStream);
 
     Response clientResponse = resources.client().target(idsPath).request().get();
 
     assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     StringWriter writer = new StringWriter();
     IOUtils.copy((InputStream) clientResponse.getEntity(), writer, "UTF-8");
-    assertTrue(writer.toString().contains("{\"id\":\"" + firstUUID + "\"}"));
-    assertTrue(writer.toString().contains("{\"id\":\"" + secondUUID + "\"}"));
+    assertTrue(writer.toString().contains("{ \"uuid\" : \"" + firstUUID + "\" }"));
+    assertTrue(writer.toString().contains("{ \"uuid\" : \"" + secondUUID + "\" }"));
+  }
+
+  @Test
+  public void shouldReturn500WhenGettingIdsFails() throws IOException {
+    when(documentStoreService.findUUIDs(RESOURCE_TYPE)).thenThrow(new IDStreamingException(RESOURCE_TYPE));
+    Response clientResponse = resources.client().target(idsPath).request().get();
+    assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
   }
 
   private Response writeDocument(String writePath, Document document) {

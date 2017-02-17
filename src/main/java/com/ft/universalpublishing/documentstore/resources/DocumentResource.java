@@ -5,18 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
-import com.ft.universalpublishing.documentstore.model.read.DocumentUUID;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
-import org.bson.Document;
-
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,7 +20,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
 
 @Path("/")
 public class DocumentResource {
@@ -76,23 +71,24 @@ public class DocumentResource {
   @GET
   @Path("/{collection}/__ids")
   @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-  public final Response getIDsForCollection(@PathParam("collection") String collection) {
+  public final Response getIDsForCollection(@PathParam("collection") String collection) throws IOException {
     Context context = new Context();
     context.setCollection(collection);
     HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_IDS);
-    Set result = (Set) handlerChain.execute(context);
+    ByteArrayOutputStream result = (ByteArrayOutputStream) handlerChain.execute(context);
 
     return Response.ok(getStreamingOutput(result)).build();
   }
 
-  private StreamingOutput getStreamingOutput(Set result) {
+  private StreamingOutput getStreamingOutput(ByteArrayOutputStream result) {
+    InputStream inputStream = new ByteArrayInputStream(result.toByteArray());
     return outputStream -> {
-      Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-      for (Object document : result) {
-        String value = ((Document) document).getString("uuid");
-        writer.write(objectMapper.writeValueAsString(new DocumentUUID(UUID.fromString(value))));
+      int nRead;
+      byte[] data = new byte[1024];
+      while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+        outputStream.write(data, 0, nRead);
       }
-      writer.flush();
+      outputStream.flush();
     };
   }
 

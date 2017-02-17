@@ -15,6 +15,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +38,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertThat;
 
 public class MongoDocumentStoreServiceContentTest {
@@ -318,7 +322,7 @@ public class MongoDocumentStoreServiceContentTest {
     }
 
     @Test
-    public void idsForContentShouldBeRetrievedSuccessfully() {
+    public void idsForContentShouldBeRetrievedSuccessfully() throws IOException {
         final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
         final Document firstDocument = new Document()
                 .append("uuid", firstUUID)
@@ -341,9 +345,10 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("lastModified", lastModifiedDate);
         collection.insertOne(secondDocument);
 
-        Set<Document> expected = new HashSet<>(Arrays.asList(new Document("uuid", firstUUID), new Document("uuid", secondUUID)));
-        Set<Document> ids = mongoDocumentStoreService.findUUIDs("content");
-        assertThat(ids, is(expected));
+        OutputStream expected = new ByteArrayOutputStream();
+        expected.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
+        expected.write((new Document("uuid", secondUUID).toJson() + "\n").getBytes());
+        OutputStream result = mongoDocumentStoreService.findUUIDs("content");
+        assertThat(result, samePropertyValuesAs(expected));
     }
-
 }
