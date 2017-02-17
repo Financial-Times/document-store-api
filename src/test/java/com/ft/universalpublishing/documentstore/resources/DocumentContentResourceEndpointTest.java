@@ -4,8 +4,6 @@ import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
-import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
@@ -51,6 +49,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
@@ -168,6 +167,22 @@ public class DocumentContentResourceEndpointTest {
     Response clientResponse = writeDocument(contentPath, document);
 
     assertThat("", clientResponse, hasProperty("status", equalTo(503)));
+  }
+
+  @Test
+  public void storyPackageIsRemoved() {
+		UUID uuid = UUID.randomUUID();
+		Map<String, Object> content = getContent(uuid.toString());
+	    Document docInitial = new Document(content);
+		content.remove("storyPackage");
+		Document docRemove = new Document(content);
+		when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(
+				DocumentWritten.updated(docRemove));
+
+		Response clientResponse = writeDocument(contentPath, docInitial);
+	    Document resultDoc = clientResponse.readEntity(Document.class);
+	    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+	    assertEquals(resultDoc, docRemove);
   }
 
   @Test
