@@ -28,7 +28,11 @@ java -jar target/document-store-api-0.0.1-SNAPSHOT.jar server config-local.yml
 
 **N.B.** As of 18-10-2016, there should be no further deployments to **UCS**.
 
-Check in, push, and wait three minutes: [this Jenkins job](http://ftjen06609-lvpr-uk-p:8181/job/document-store-api/) will build and package the application.
+To build the Docker image locally, you now need to pass build arguments to authenticate against our Nexus server:
+
+    docker build -t coco/binary-writer --build-arg SONATYPE_USER=upp-nexus --build-arg SONATYPE_PASSWORD=AvailableInLastPass .
+
+To build the final image, check in, push, and wait three minutes: [this Jenkins job](http://ftjen06609-lvpr-uk-p:8181/job/document-store-api/) will build and package the application.
 
 The creation of the Docker image for will be automatically triggered after the merge and push in master branch by [this Jenkins job](http://ftaps116-lvpr-uk-d:8080/job/document-store-api/).
 
