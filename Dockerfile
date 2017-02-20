@@ -20,7 +20,7 @@ RUN apk --update add git libstdc++ wget \
   && rm target/document-store-api-*-sources.jar \
   && mv target/document-store-api-*.jar document-store-api.jar \
   && apk del go git \
-  && rm -rf /var/cache/apk/* /target* /root/.m2/*
+  && rm -rf /var/cache/apk/* /target* /root/.m2/* /tmp/*.apk
 
 EXPOSE 8080 8081
 
