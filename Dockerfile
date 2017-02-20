@@ -1,6 +1,8 @@
 FROM coco/dropwizardbase-internal:v1.0.3
 
 ADD . /
+ARG SONATYPE_USER=${SONATYPE_USER}
+ARG SONATYPE_PASSWORD=${SONATYPE_USER}
 
 RUN apk --update add git libstdc++ \
   && HASH=$(git log -1 --pretty=format:%H) \
