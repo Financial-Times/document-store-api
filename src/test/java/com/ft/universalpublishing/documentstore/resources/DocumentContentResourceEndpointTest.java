@@ -8,7 +8,7 @@ import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
-import com.ft.universalpublishing.documentstore.handler.StoryPackgeRemoveHandler;
+import com.ft.universalpublishing.documentstore.handler.PreSaveFieldRemovalHandler;
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
@@ -26,6 +26,7 @@ import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -47,6 +48,7 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -83,8 +85,9 @@ public class DocumentContentResourceEndpointTest {
     content.put("uuid", uuid);
     content.put("title", "Here's the news");
     content.put("bodyXML", "xmlBody");
+    content.put("storyPackage", UUID.randomUUID().toString());
+    content.put("contentPackage", UUID.randomUUID().toString());
     content.put("publishedDate", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(lastPublicationDate));
-	content.put("storyPackage", "json-storyPackage");
     return new Document(content);
   }
 
@@ -103,7 +106,7 @@ public class DocumentContentResourceEndpointTest {
     Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
     Handler multipleUuidValidationHandler = new MultipleUuidValidationHandler(uuidValidator);
     Handler extractUuidsHandlers = new ExtractUuidsHandler();
-	Handler storyPackgeRemoveHandler = new StoryPackgeRemoveHandler();
+    Handler preSaveFieldRemovalHandler = new PreSaveFieldRemovalHandler();
     Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);
     Target findMultipleResourcesByUuidsTarget = new FindMultipleResourcesByUuidsTarget(documentStoreService);
     Target writeDocument = new WriteDocumentTarget(documentStoreService);
@@ -115,7 +118,7 @@ public class DocumentContentResourceEndpointTest {
     collections.put(new Pair<>("content", Operation.GET_BY_ID),
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
     collections.put(new Pair<>("content", Operation.ADD),
-            new HandlerChain().addHandlers(uuidValidationHandler, storyPackgeRemoveHandler).setTarget(writeDocument));
+            new HandlerChain().addHandlers(uuidValidationHandler, preSaveFieldRemovalHandler).setTarget(writeDocument));
     collections.put(new Pair<>("content", Operation.REMOVE),
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
@@ -180,6 +183,21 @@ public class DocumentContentResourceEndpointTest {
 	    Document resultDoc = clientResponse.readEntity(Document.class);
 	    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 	    assertEquals(resultDoc, docRemove);
+  }
+
+  @Test
+  public void shouldHaveFieldsRemovedWhenWritten() throws Exception {
+    final Document localDoc = getContent(UUID.randomUUID().toString());
+
+    final ArgumentCaptor<Map> contentCaptor = ArgumentCaptor.forClass(Map.class);
+    when(documentStoreService.write(eq(RESOURCE_TYPE), contentCaptor.capture())).thenReturn(DocumentWritten.created(localDoc));
+
+    final Response response = writeDocument(contentPath, localDoc);
+    assertThat(response.getStatus(), is(201));
+
+    final Map contentMap = contentCaptor.getValue();
+    assertThat(contentMap.containsKey("storyPackage"), is(false));
+    assertThat(contentMap.containsKey("contentPackage"), is(false));
   }
 
   //REMOVE
