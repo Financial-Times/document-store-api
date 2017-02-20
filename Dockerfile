@@ -1,4 +1,4 @@
-FROM up-registry.ft.com/coco/dropwizardbase-internal:v1.0.3
+FROM coco/dropwizardbase-internal:v1.0.3
 
 ADD . /
 
