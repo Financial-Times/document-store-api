@@ -1,10 +1,17 @@
 FROM coco/dropwizardbase-internal:v1.0.3
 
 ADD . /
-ARG SONATYPE_USER=${SONATYPE_USER}
-ARG SONATYPE_PASSWORD=${SONATYPE_USER}
 
-RUN apk --update add git libstdc++ \
+ARG SONATYPE_USER
+ARG SONATYPE_PASSWORD
+
+RUN apk --update add git libstdc++ wget \
+  && cd /tmp \
+  && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-2.21-r2.apk \
+  && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-bin-2.21-r2.apk \
+  && apk add --allow-untrusted glibc-2.21-r2.apk glibc-bin-2.21-r2.apk \
+  && /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib \
+  && cd / \
   && HASH=$(git log -1 --pretty=format:%H) \
   && BUILD_NUMBER=$(cat buildnum.txt) \
   && BUILD_URL=$(cat buildurl.txt) \
