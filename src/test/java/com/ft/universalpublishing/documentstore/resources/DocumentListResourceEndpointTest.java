@@ -69,7 +69,7 @@ public class DocumentListResourceEndpointTest {
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-        .addResource(new DocumentResource(getCollectionMap(), null))
+        .addResource(new DocumentResource(getCollectionMap()))
         .build();
 
     private String uuid;

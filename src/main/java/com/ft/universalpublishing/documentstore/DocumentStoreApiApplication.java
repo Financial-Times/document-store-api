@@ -126,7 +126,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         collections.put(new Pair<>("lists", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
-        environment.jersey().register(new DocumentResource(collections,  new ObjectMapper()));
+        environment.jersey().register(new DocumentResource(collections));
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
 
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));

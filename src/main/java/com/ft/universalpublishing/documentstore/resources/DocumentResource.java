@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 
 @Path("/")
@@ -33,11 +32,9 @@ public class DocumentResource {
   protected static final String CHARSET_UTF_8 = ";charset=utf-8";
 
   private Map<Pair<String, Operation>, HandlerChain> collections;
-  private ObjectMapper objectMapper;
 
-  public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections, ObjectMapper objectMapper) {
+  public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
     this.collections = collections;
-    this.objectMapper = objectMapper;
   }
 
   @GET

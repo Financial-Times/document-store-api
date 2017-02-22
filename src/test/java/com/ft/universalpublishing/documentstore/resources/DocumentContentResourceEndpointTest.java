@@ -97,7 +97,7 @@ public class DocumentContentResourceEndpointTest {
 
   @ClassRule
   public static final ResourceTestRule resources = ResourceTestRule.builder()
-      .addResource(new DocumentResource(getCollectionMap(), new ObjectMapper()))
+      .addResource(new DocumentResource(getCollectionMap()))
       .build();
 
   private static final Map<String, String> templates = new HashMap<>();
