@@ -1,6 +1,5 @@
 package com.ft.universalpublishing.documentstore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
@@ -18,6 +17,7 @@ import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
+import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
@@ -25,7 +25,6 @@ import com.ft.universalpublishing.documentstore.target.FindListByConceptAndTypeT
 import com.ft.universalpublishing.documentstore.target.FindListByUuid;
 import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
-import com.ft.universalpublishing.documentstore.target.FindIDsTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
@@ -95,7 +94,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
         Target findListByUuid = new FindListByUuid(documentStoreService, configuration.getApiHost());
         Target findListByConceptAndType = new FindListByConceptAndTypeTarget(documentStoreService, configuration.getApiHost());
-        Target findUUIDs = new FindIDsTarget(documentStoreService);
 
         final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
         collections.put(new Pair<>("content", Operation.GET_FILTERED),
@@ -106,7 +104,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
         collections.put(new Pair<>("content", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
-        collections.put(new Pair<>("content", Operation.GET_IDS), new HandlerChain().setTarget(findUUIDs));
 
         collections.put(new Pair<>("internalcomponents", Operation.GET_FILTERED),
                 new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
@@ -128,6 +125,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         environment.jersey().register(new DocumentResource(collections));
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
+        environment.jersey().register(new DocumentIDResource(documentStoreService));
 
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
 

@@ -49,6 +49,8 @@ public class MongoDocumentStoreServiceContentTest {
     private static final String DB_COLLECTION = "content";
     private static final String AUTHORITY = "http://junit.example.org/";
     private static final String IDENTIFIER_VALUE = "http://www.example.org/here-is-the-news";
+    private static final Document METHODE_AUTHORITY = new Document().append("authority", "http://api.ft.com/system/FTCOM-METHODE");
+    private static final Document WORDPRESS_AUTHORITY = new Document().append("authority", "http://api.ft.com/system/FT-LABS-WP-1-335");
 
     private Map<String, Object> content;
     private Map<String, Object> outboundContent;
@@ -322,7 +324,7 @@ public class MongoDocumentStoreServiceContentTest {
     }
 
     @Test
-    public void idsForContentShouldBeRetrievedSuccessfully() throws IOException {
+    public void idsContentShouldBeRetrievedSuccessfully() throws IOException {
         final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
         final Document firstDocument = new Document()
                 .append("uuid", firstUUID)
@@ -331,7 +333,8 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("bodyXML", "xmlBody")
                 .append("publishedDate", lastPublicationDate)
                 .append("publishReference", "Some String")
-                .append("lastModified", lastModifiedDate);
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", WORDPRESS_AUTHORITY);
         collection.insertOne(firstDocument);
 
         final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
@@ -342,13 +345,122 @@ public class MongoDocumentStoreServiceContentTest {
                 .append("bodyXML", "xmlBody")
                 .append("publishedDate", lastPublicationDate)
                 .append("publishReference", "Some String")
-                .append("lastModified", lastModifiedDate);
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", METHODE_AUTHORITY);
         collection.insertOne(secondDocument);
 
         OutputStream expected = new ByteArrayOutputStream();
+        OutputStream actual = new ByteArrayOutputStream();
         expected.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
         expected.write((new Document("uuid", secondUUID).toJson() + "\n").getBytes());
-        OutputStream result = mongoDocumentStoreService.findUUIDs("content");
-        assertThat(result, samePropertyValuesAs(expected));
+        mongoDocumentStoreService.findUUIDsByAuthority("content", null, Boolean.TRUE, actual);
+        assertThat(actual.toString(), equalTo("{ \"uuid\" : \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\" }\n" +
+                "{ \"uuid\" : \"8ae3f1dc-f288-11e6-8758-6876151821a6\" }\n"));
+    }
+
+    @Test
+    public void idsForMethodeContentShouldBeRetrievedSuccessfully() throws IOException {
+        final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
+        final Document firstDocument = new Document()
+                .append("uuid", firstUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", WORDPRESS_AUTHORITY);
+        collection.insertOne(firstDocument);
+
+        final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
+        final Document secondDocument = new Document()
+                .append("uuid", secondUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", METHODE_AUTHORITY);
+        collection.insertOne(secondDocument);
+
+        OutputStream expected = new ByteArrayOutputStream();
+        OutputStream actual = new ByteArrayOutputStream();
+        expected.write((new Document("uuid", secondUUID).toJson() + "\n").getBytes());
+        mongoDocumentStoreService.findUUIDsByAuthority("content", "http://api.ft.com/system/FTCOM-METHODE", Boolean.TRUE, actual);
+        assertThat(actual.toString(), equalTo("{ \"uuid\" : \"8ae3f1dc-f288-11e6-8758-6876151821a6\" }\n"));
+    }
+
+    @Test
+    public void idsForWrodpressContentShouldBeRetrievedSuccessfully() throws IOException {
+        final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
+        final Document firstDocument = new Document()
+                .append("uuid", firstUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", WORDPRESS_AUTHORITY);
+        collection.insertOne(firstDocument);
+
+        final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
+        final Document secondDocument = new Document()
+                .append("uuid", secondUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("bodyXML", "xmlBody")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", METHODE_AUTHORITY);
+        collection.insertOne(secondDocument);
+
+        OutputStream expected = new ByteArrayOutputStream();
+        OutputStream actual = new ByteArrayOutputStream();
+        expected.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
+        mongoDocumentStoreService.findUUIDsByAuthority("content", "http://api.ft.com/system/FT-LABS-WP-1-335", Boolean.TRUE, actual);
+        assertThat(actual.toString(), equalTo("{ \"uuid\" : \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\" }\n"));
+    }
+
+    @Test
+    public void idsForContentWithoutBodyShouldBeRetrievedSuccessfully() throws IOException {
+        final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
+        final Document firstDocument = new Document()
+                .append("uuid", firstUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", WORDPRESS_AUTHORITY);
+        collection.insertOne(firstDocument);
+
+        OutputStream expected = new ByteArrayOutputStream();
+        OutputStream actual = new ByteArrayOutputStream();
+        expected.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
+        mongoDocumentStoreService.findUUIDsByAuthority("content", null, Boolean.TRUE, actual);
+        assertThat(actual.toString(), equalTo("{ \"uuid\" : \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\" }\n"));
+    }
+
+    @Test
+    public void idsForContentWithoutBodyShouldNotBeRetrieved() throws IOException {
+        final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
+        final Document firstDocument = new Document()
+                .append("uuid", firstUUID)
+                .append("title", "Here is the news")
+                .append("byline", "By Bob Woodward")
+                .append("publishedDate", lastPublicationDate)
+                .append("publishReference", "Some String")
+                .append("lastModified", lastModifiedDate)
+                .append("identifiers", WORDPRESS_AUTHORITY);
+        collection.insertOne(firstDocument);
+
+        OutputStream actual = new ByteArrayOutputStream();
+        OutputStream expected = new ByteArrayOutputStream();
+        expected.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
+        mongoDocumentStoreService.findUUIDsByAuthority("content", null, Boolean.FALSE, actual);
+        assertThat(actual.toString(), equalTo(""));
     }
 }

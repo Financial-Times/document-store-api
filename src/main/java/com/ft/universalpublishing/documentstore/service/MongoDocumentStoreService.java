@@ -9,6 +9,7 @@ import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -18,16 +19,20 @@ import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -231,21 +236,44 @@ public class MongoDocumentStoreService {
         collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
     }
 
-    public OutputStream findUUIDs(String resourceType) {
-        OutputStream outputStream = new ByteArrayOutputStream();
+    public void findUUIDsByAuthority(String resourceType, String authority, boolean includeNullBody, OutputStream outputStream) {
         MongoCollection<Document> collection = db.getCollection(resourceType);
-        MongoCursor<Document> cursor =  collection.find()
-                .projection(Projections.fields(Projections.include("uuid"), Projections.excludeId())).iterator();
+        FindIterable<Document> findQuery = getFindUUIDsQuery(authority, includeNullBody, collection);
+
+        MongoCursor<Document> cursor = findQuery.projection(
+                Projections.fields(Projections.include("uuid"),
+                        Projections.excludeId())).iterator();
 
         cursor.forEachRemaining(document -> {
             try {
-                outputStream.write((document.toJson()+ "\n") .getBytes());
+                outputStream.write((document.toJson() + "\n").getBytes());
+                outputStream.flush();
             } catch (IOException e) {
                 LOG.error("Error occurred while trying to return ids");
                 throw new IDStreamingException(resourceType);
             }
         });
+    }
 
-        return outputStream;
+    private FindIterable<Document> getFindUUIDsQuery(String authority, boolean includeNullBody, MongoCollection<Document> collection) {
+        Bson filter = null;
+        List<Bson> filters = new ArrayList<>();
+        if (StringUtils.isNotEmpty(authority)) {
+            filters.add(Filters.eq("identifiers.authority", authority));
+        }
+        if (!includeNullBody) {
+            filters.add(Filters.ne("body", null));
+        }
+        if (filters.size() > 0) {
+            filter = Filters.and(filters);
+        }
+
+        FindIterable<Document> findQuery;
+        if (filter != null) {
+            findQuery = collection.find(filter);
+        } else {
+            findQuery = collection.find();
+        }
+        return findQuery;
     }
 }

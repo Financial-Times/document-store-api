@@ -1,10 +1,8 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
@@ -15,7 +13,6 @@ import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
-import com.ft.universalpublishing.documentstore.target.FindIDsTarget;
 import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
@@ -24,7 +21,6 @@ import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,17 +29,10 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +44,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
@@ -71,7 +59,6 @@ public class DocumentContentResourceEndpointTest {
   private String uuid;
   private Document document;
   private String contentPath;
-  private String idsPath;
   private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
 
   private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
@@ -82,7 +69,6 @@ public class DocumentContentResourceEndpointTest {
     this.uuid = UUID.randomUUID().toString();
     this.document = getContent(uuid);
     this.contentPath = "/" + RESOURCE_TYPE + "/" + uuid;
-    this.idsPath = "/" + RESOURCE_TYPE + "/" + "__ids";
   }
 
   private static Document getContent(String uuid) {
@@ -114,7 +100,6 @@ public class DocumentContentResourceEndpointTest {
     Target findMultipleResourcesByUuidsTarget = new FindMultipleResourcesByUuidsTarget(documentStoreService);
     Target writeDocument = new WriteDocumentTarget(documentStoreService);
     Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
-    Target findIds = new FindIDsTarget(documentStoreService);
 
     final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
     collections.put(new Pair<>("content", Operation.GET_FILTERED),
@@ -125,7 +110,6 @@ public class DocumentContentResourceEndpointTest {
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
     collections.put(new Pair<>("content", Operation.REMOVE),
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
-    collections.put(new Pair<>("content", Operation.GET_IDS), new HandlerChain().setTarget(findIds));
 
 
     return collections;
@@ -358,32 +342,6 @@ public class DocumentContentResourceEndpointTest {
             .post(Entity.json(null));
 
     assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  public void shouldReturn200WhenIDsSuccessfully() throws IOException {
-    final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
-    final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
-    OutputStream outputStream = new ByteArrayOutputStream();
-    outputStream.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
-    outputStream.write((new Document("uuid", secondUUID).toJson() + "\n").getBytes());
-    when(documentStoreService.findUUIDs(eq(RESOURCE_TYPE))).thenReturn(outputStream);
-
-    Response clientResponse = resources.client().target(idsPath).request().get();
-
-    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-    StringWriter writer = new StringWriter();
-    IOUtils.copy((InputStream) clientResponse.getEntity(), writer, "UTF-8");
-    assertTrue(writer.toString().contains("{ \"uuid\" : \"" + firstUUID + "\" }"));
-    assertTrue(writer.toString().contains("{ \"uuid\" : \"" + secondUUID + "\" }"));
-  }
-
-  @Test
-  public void shouldReturn500WhenGettingIdsFails() throws IOException {
-    when(documentStoreService.findUUIDs(RESOURCE_TYPE)).thenThrow(new IDStreamingException(RESOURCE_TYPE));
-    Response clientResponse = resources.client().target(idsPath).request().get();
-    assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
   }
 
   private Response writeDocument(String writePath, Document document) {

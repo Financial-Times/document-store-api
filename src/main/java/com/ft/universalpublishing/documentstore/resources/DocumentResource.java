@@ -1,7 +1,6 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
@@ -17,13 +16,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 @Path("/")
@@ -63,30 +56,6 @@ public class DocumentResource {
     context.setCollection(collection);
     HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_FILTERED);
     return handlerChain.execute(context);
-  }
-
-  @GET
-  @Path("/{collection}/__ids")
-  @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-  public final Response getIDsForCollection(@PathParam("collection") String collection) throws IOException {
-    Context context = new Context();
-    context.setCollection(collection);
-    HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_IDS);
-    ByteArrayOutputStream result = (ByteArrayOutputStream) handlerChain.execute(context);
-
-    return Response.ok(getStreamingOutput(result)).build();
-  }
-
-  private StreamingOutput getStreamingOutput(ByteArrayOutputStream result) {
-    InputStream inputStream = new ByteArrayInputStream(result.toByteArray());
-    return outputStream -> {
-      int nRead;
-      byte[] data = new byte[1024];
-      while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-        outputStream.write(data, 0, nRead);
-      }
-      outputStream.flush();
-    };
   }
 
   @PUT
