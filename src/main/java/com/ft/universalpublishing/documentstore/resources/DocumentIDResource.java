@@ -32,6 +32,5 @@ public class DocumentIDResource {
                                                           @DefaultValue("true") @QueryParam("includeNullBody") boolean includeNullBody) throws IOException {
         StreamingOutput streamingOutput = outputStream -> documentStoreService.findUUIDsByAuthority(collection, identifierAuthority, includeNullBody, outputStream);
         return Response.ok().entity(streamingOutput).build();
-
     }
 }

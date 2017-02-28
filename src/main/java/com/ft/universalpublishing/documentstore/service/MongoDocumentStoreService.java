@@ -244,22 +244,23 @@ public class MongoDocumentStoreService {
                 Projections.fields(Projections.include("uuid"),
                         Projections.excludeId())).iterator();
 
-        cursor.forEachRemaining(document -> {
-            try {
+        try {
+            while (cursor.hasNext()){
+                Document document = cursor.next();
                 outputStream.write((document.toJson() + "\n").getBytes());
-                outputStream.flush();
-            } catch (IOException e) {
-                LOG.error("Error occurred while trying to return ids");
-                throw new IDStreamingException(resourceType);
             }
-        });
+            outputStream.flush();
+        }catch (IOException e) {
+            LOG.error("Error occurred while trying to return ids");
+            throw new IDStreamingException(resourceType);
+        }
     }
 
     private FindIterable<Document> getFindUUIDsQuery(String authority, boolean includeNullBody, MongoCollection<Document> collection) {
         Bson filter = null;
         List<Bson> filters = new ArrayList<>();
         if (StringUtils.isNotEmpty(authority)) {
-            filters.add(Filters.eq("identifiers.authority", authority));
+            filters.add(Filters.eq(IDENT_AUTHORITY, authority));
         }
         if (!includeNullBody) {
             filters.add(Filters.ne("body", null));
