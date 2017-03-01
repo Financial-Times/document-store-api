@@ -19,17 +19,15 @@ import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.StreamingOutput;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -236,13 +234,9 @@ public class MongoDocumentStoreService {
         collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
     }
 
-    public void findUUIDsByAuthority(String resourceType, String authority, boolean includeNullBody, OutputStream outputStream) {
+    public void findUUIDs(String resourceType, boolean includeSource, OutputStream outputStream) {
         MongoCollection<Document> collection = db.getCollection(resourceType);
-        FindIterable<Document> findQuery = getFindUUIDsQuery(authority, includeNullBody, collection);
-
-        MongoCursor<Document> cursor = findQuery.projection(
-                Projections.fields(Projections.include("uuid"),
-                        Projections.excludeId())).iterator();
+        MongoCursor<Document> cursor = getFindUUIDsQuery(collection, includeSource).iterator();
 
         try {
             while (cursor.hasNext()){
@@ -256,25 +250,11 @@ public class MongoDocumentStoreService {
         }
     }
 
-    private FindIterable<Document> getFindUUIDsQuery(String authority, boolean includeNullBody, MongoCollection<Document> collection) {
-        Bson filter = null;
-        List<Bson> filters = new ArrayList<>();
-        if (StringUtils.isNotEmpty(authority)) {
-            filters.add(Filters.eq(IDENT_AUTHORITY, authority));
+    private FindIterable<Document> getFindUUIDsQuery(MongoCollection<Document> collection, boolean includeSource) {
+        List<Bson> projections = new ArrayList<>(Arrays.asList(Projections.include("uuid"), Projections.excludeId()));
+        if (includeSource) {
+            projections.add(Projections.include(IDENT_AUTHORITY));
         }
-        if (!includeNullBody) {
-            filters.add(Filters.ne("body", null));
-        }
-        if (filters.size() > 0) {
-            filter = Filters.and(filters);
-        }
-
-        FindIterable<Document> findQuery;
-        if (filter != null) {
-            findQuery = collection.find(filter);
-        } else {
-            findQuery = collection.find();
-        }
-        return findQuery;
+        return collection.find().projection(Projections.fields(projections));
     }
 }

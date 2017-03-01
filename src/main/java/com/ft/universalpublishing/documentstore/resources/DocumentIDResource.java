@@ -2,7 +2,6 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,9 +27,8 @@ public class DocumentIDResource {
     @Path("/{collection}/__ids")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final Response getIDsForCollectionAndAuthority(@PathParam("collection") String collection,
-                                                          @QueryParam("identifierAuthority") String identifierAuthority,
-                                                          @DefaultValue("true") @QueryParam("includeNullBody") boolean includeNullBody) throws IOException {
-        StreamingOutput streamingOutput = outputStream -> documentStoreService.findUUIDsByAuthority(collection, identifierAuthority, includeNullBody, outputStream);
+                                                          @QueryParam("includeSource") boolean includeSource) throws IOException {
+        StreamingOutput streamingOutput = outputStream -> documentStoreService.findUUIDs(collection, includeSource, outputStream);
         return Response.ok().entity(streamingOutput).build();
     }
 }

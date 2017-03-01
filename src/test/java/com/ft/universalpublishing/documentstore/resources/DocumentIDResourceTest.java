@@ -42,11 +42,11 @@ public class DocumentIDResourceTest {
         final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";
         doAnswer(invocationOnMock -> {
             Object[] args = invocationOnMock.getArguments();
-            OutputStream outputStream1 = (OutputStream) args[3];
+            OutputStream outputStream1 = (OutputStream) args[2];
             outputStream1.write((new Document("uuid", firstUUID).toJson() + "\n").getBytes());
             outputStream1.write((new Document("uuid", secondUUID).toJson() + "\n").getBytes());
             return null;
-        }).when(documentStoreService).findUUIDsByAuthority(eq(RESOURCE_TYPE), eq(null), eq(Boolean.TRUE), any(OutputStream.class));
+        }).when(documentStoreService).findUUIDs(eq(RESOURCE_TYPE), eq(Boolean.FALSE), any(OutputStream.class));
         Response clientResponse = resources.client().target(IDS_PATH).request().get();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -59,7 +59,7 @@ public class DocumentIDResourceTest {
     @Test
     public void shouldReturn500WhenGettingIdsFails() throws IOException {
         doThrow(new IDStreamingException(RESOURCE_TYPE))
-                .when(documentStoreService).findUUIDsByAuthority(eq(RESOURCE_TYPE), eq(null), eq(Boolean.TRUE), any(OutputStream.class));
+                .when(documentStoreService).findUUIDs(eq(RESOURCE_TYPE), eq(Boolean.FALSE), any(OutputStream.class));
         Response clientResponse = resources.client().target(IDS_PATH).request().get();
         assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
     }
