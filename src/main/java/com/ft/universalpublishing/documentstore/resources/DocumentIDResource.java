@@ -25,7 +25,7 @@ public class DocumentIDResource {
 
     @GET
     @Path("/{collection}/__ids")
-    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public final Response getIDsForCollectionAndAuthority(@PathParam("collection") String collection,
                                                           @QueryParam("includeSource") boolean includeSource) throws IOException {
         StreamingOutput streamingOutput = outputStream -> documentStoreService.findUUIDs(collection, includeSource, outputStream);
