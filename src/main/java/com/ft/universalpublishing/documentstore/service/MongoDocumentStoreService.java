@@ -3,26 +3,34 @@ package com.ft.universalpublishing.documentstore.service;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -224,5 +232,29 @@ public class MongoDocumentStoreService {
         queryByIdentifierIndex.put(CONCEPT_UUID, 1);
         queryByIdentifierIndex.put(LIST_TYPE, 1);
         collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
+    }
+
+    public void findUUIDs(String resourceType, boolean includeSource, OutputStream outputStream) {
+        MongoCollection<Document> collection = db.getCollection(resourceType);
+        MongoCursor<Document> cursor = getFindUUIDsQuery(collection, includeSource).iterator();
+
+        try {
+            while (cursor.hasNext()){
+                Document document = cursor.next();
+                outputStream.write((document.toJson() + "\n").getBytes());
+            }
+            outputStream.flush();
+        }catch (IOException e) {
+            LOG.error("Error occurred while trying to return ids");
+            throw new IDStreamingException(resourceType);
+        }
+    }
+
+    private FindIterable<Document> getFindUUIDsQuery(MongoCollection<Document> collection, boolean includeSource) {
+        List<Bson> projections = new ArrayList<>(Arrays.asList(Projections.include("uuid"), Projections.excludeId()));
+        if (includeSource) {
+            projections.add(Projections.include(IDENT_AUTHORITY));
+        }
+        return collection.find().projection(Projections.fields(projections));
     }
 }

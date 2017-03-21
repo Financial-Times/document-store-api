@@ -21,13 +21,16 @@ import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-
+import io.dropwizard.testing.junit.ResourceTestRule;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -38,12 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import io.dropwizard.testing.junit.ResourceTestRule;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -70,7 +67,6 @@ public class DocumentContentResourceEndpointTest {
 
   private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
   private final static UuidValidator uuidValidator = mock(UuidValidator.class);
-  private static final String API_URL_PREFIX_CONTENT = "localhost";
   private static final String RESOURCE_TYPE = "content";
 
   public DocumentContentResourceEndpointTest() {
@@ -385,7 +381,6 @@ public class DocumentContentResourceEndpointTest {
 
     assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
   }
-
 
   private Response writeDocument(String writePath, Document document) {
     return resources.client()
