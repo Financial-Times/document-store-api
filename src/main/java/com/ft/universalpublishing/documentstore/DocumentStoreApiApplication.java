@@ -32,6 +32,7 @@ import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 
@@ -77,10 +78,12 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         environment.jersey().register(new BuildInfoResource());
 
-        final MongoClient mongoClient = getMongoClient(configuration.getMongo());
-        MongoDatabase database = mongoClient.getDatabase(configuration.getMongo().getDb());
-
-        final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(database, database);
+        final MongoClient mongoWriterClient = getMongoClient(configuration.getMongo(), ReadPreference.primary());
+        MongoDatabase mongoWriter = mongoWriterClient.getDatabase(configuration.getMongo().getDb());
+        final MongoClient mongoReaderClient = getMongoClient(configuration.getMongo(), ReadPreference.secondary());
+        MongoDatabase mongoReader = mongoReaderClient.getDatabase(configuration.getMongo().getDb());
+        final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(mongoReader, mongoWriter);
+        
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
@@ -129,14 +132,15 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
         environment.jersey().register(new DocumentIDResource(documentStoreService));
 
-        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
+        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(mongoWriter, configuration.getHealthcheckParameters()));
 
         documentStoreService.applyIndexes();
     }
 
-    private MongoClient getMongoClient(MongoConfig config) {
+    private MongoClient getMongoClient(MongoConfig config, ReadPreference readPreference) {
         MongoClientOptions.Builder builder = MongoClientOptions.builder();
-
+        builder = builder.readPreference(readPreference);
+        
         Duration idleTimeoutDuration = Optional.ofNullable(config.getIdleTimeout()).orElse(Duration.minutes(10));
         int idleTimeout = (int) idleTimeoutDuration.toMilliseconds();
         MongoClientOptions options = builder.maxConnectionIdleTime(idleTimeout).build();
