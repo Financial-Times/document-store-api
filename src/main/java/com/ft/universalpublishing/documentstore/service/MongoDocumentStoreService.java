@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class MongoDocumentStoreService {
@@ -45,15 +47,19 @@ public class MongoDocumentStoreService {
     private static final String CONCEPT_UUID = "concept.uuid";
     private static final String LIST_TYPE = "listType";
 
-    private final MongoDatabase db;
-
-    public MongoDocumentStoreService(final MongoDatabase db) {
-        this.db = db;
+    private final MongoDatabase reader;
+    private final MongoDatabase writer;
+    
+    private final ExecutorService exec = Executors.newCachedThreadPool();
+    
+    public MongoDocumentStoreService(final MongoDatabase reader, final MongoDatabase writer) {
+        this.reader = reader;
+        this.writer = writer;
     }
 
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
-            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            MongoCollection<Document> dbCollection = reader.getCollection(resourceType);
             Document foundDocument = dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
             if (foundDocument == null) {
                 throw new DocumentNotFoundException(uuid);
@@ -72,7 +78,7 @@ public class MongoDocumentStoreService {
 
     public Set<Map<String, Object>> findByUuids(String resourceType, Set<UUID> uuids) {
         try {
-            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            MongoCollection<Document> dbCollection = reader.getCollection(resourceType);
 
             Iterable<Document> results = dbCollection.find().filter(
                     Filters.in("uuid", uuids.stream().map(UUID::toString).collect(Collectors.toList())));
@@ -107,7 +113,7 @@ public class MongoDocumentStoreService {
         );
 
         try {
-            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            MongoCollection<Document> dbCollection = reader.getCollection(resourceType);
             Document found = null;
 
             for (Document doc : dbCollection.find(filter).limit(2)) {
@@ -135,7 +141,7 @@ public class MongoDocumentStoreService {
         );
 
         try {
-            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            MongoCollection<Document> dbCollection = reader.getCollection(resourceType);
             Document found = null;
 
             for (Document doc : dbCollection.find(filter).limit(2)) {
@@ -158,7 +164,7 @@ public class MongoDocumentStoreService {
 
     public void delete(String resourceType, UUID uuid) {
         try {
-            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            MongoCollection<Document> dbCollection = writer.getCollection(resourceType);
             DeleteResult deleteResult = dbCollection.deleteOne(Filters.eq("uuid", uuid.toString()));
 
             if (deleteResult.getDeletedCount() == 0) {
@@ -175,15 +181,21 @@ public class MongoDocumentStoreService {
     }
 
     public DocumentWritten write(String resourceType, Map<String, Object> content) {
+        DocumentWritten result;
+        
+        final String uuid = (String) content.get("uuid");
         try {
-            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-            final String uuid = (String) content.get("uuid");
+            long before = System.currentTimeMillis();
+            MongoCollection<Document> dbCollection = writer.getCollection(resourceType);
             Document document = new Document(content);
             UpdateResult updateResult = dbCollection.replaceOne(Filters.eq("uuid", uuid), document, new UpdateOptions().upsert(true));
             if (updateResult.getUpsertedId() == null) {
-                return DocumentWritten.updated(document);
+                result = DocumentWritten.updated(document);
+            } else {
+                result = DocumentWritten.created(document);
             }
-            return DocumentWritten.created(document);
+            long after = System.currentTimeMillis();
+            LOG.info("written document {} in {} ms", uuid, (after - before));
         } catch (MongoSocketException | MongoTimeoutException e) {
             LOG.error("MongoDB connection timed out or caused a socket exception during write, please check MongoDB! Collection {}, uuid {}", resourceType, content.get("uuid"), e);
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
@@ -191,6 +203,26 @@ public class MongoDocumentStoreService {
             LOG.error("Failed to write document to Mongo! Collection {}, uuid {}", resourceType, content.get("uuid"), e);
             throw new ExternalSystemInternalServerException(e);
         }
+        
+        exec.submit(() -> {
+          long before = System.currentTimeMillis();
+          boolean found = false;
+          
+          do {
+            try {
+              findByUuid(resourceType, UUID.fromString(uuid));
+              found = true;
+              long after = System.currentTimeMillis();
+              LOG.info("written document {} could be read after {} ms", uuid, (after - before));
+            } catch (DocumentNotFoundException e) {
+              try {
+                Thread.sleep(50);
+              } catch (InterruptedException ex) {/* ignore */}
+            }
+          } while (!found);
+        });
+        
+        return result;
     }
 
     @SuppressWarnings("rawtypes")
@@ -201,7 +233,7 @@ public class MongoDocumentStoreService {
     }
 
     private void applyIndexForListCollection() {
-        MongoCollection lists = db.getCollection(LISTS_COLLECTION);
+        MongoCollection lists = writer.getCollection(LISTS_COLLECTION);
         LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
         createUuidIndex(lists);
         LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
@@ -209,7 +241,7 @@ public class MongoDocumentStoreService {
     }
 
     private void applyIndexForCollection(String collection) {
-        MongoCollection mongoCollection = db.getCollection(collection);
+        MongoCollection mongoCollection = writer.getCollection(collection);
         LOG.info("Creating UUID index on collection [{}]", collection);
         createUuidIndex(mongoCollection);
         LOG.info("Created UUID index on collection [{}]", collection);
@@ -235,7 +267,7 @@ public class MongoDocumentStoreService {
     }
 
     public void findUUIDs(String resourceType, boolean includeSource, OutputStream outputStream) {
-        MongoCollection<Document> collection = db.getCollection(resourceType);
+        MongoCollection<Document> collection = reader.getCollection(resourceType);
         MongoCursor<Document> cursor = getFindUUIDsQuery(collection, includeSource).iterator();
 
         try {

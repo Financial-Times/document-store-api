@@ -57,7 +57,7 @@ public class MongoDocumentStoreServiceListTest {
         MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
         db.getCollection(DB_COLLECTION).drop();
 
-        mongoDocumentStoreService = new MongoDocumentStoreService(db);
+        mongoDocumentStoreService = new MongoDocumentStoreService(db, db);
         mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();
