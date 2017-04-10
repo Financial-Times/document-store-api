@@ -1,4 +1,4 @@
-FROM coco/dropwizardbase-internal:v1.0.3
+FROM coco/dropwizardbase:0.7.x-mvn333
 
 ADD . /
 
