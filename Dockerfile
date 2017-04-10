@@ -2,9 +2,6 @@ FROM coco/dropwizardbase-internal:v1.0.3
 
 ADD . /
 
-ARG SONATYPE_USER
-ARG SONATYPE_PASSWORD
-
 RUN apk --update add git libstdc++ wget \
   && cd /tmp \
   && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-2.21-r2.apk \
@@ -13,10 +10,10 @@ RUN apk --update add git libstdc++ wget \
   && /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib \
   && cd / \
   && HASH=$(git log -1 --pretty=format:%H) \
-  && BUILD_NUMBER=$(cat buildnum.txt) \
-  && BUILD_URL=$(cat buildurl.txt) \
-  && echo "DEBUG Jenkins job url: $BUILD_URL" \
-  && mvn install -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
+  && TAG=$(git tag -l --contains $HASH) \
+  && VERSION=${TAG:-untagged} \
+  && mvn versions:set -DnewVersion=$VERSION \
+  && mvn install -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true \
   && rm target/document-store-api-*-sources.jar \
   && mv target/document-store-api-*.jar document-store-api.jar \
   && apk del go git \
