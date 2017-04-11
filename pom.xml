@@ -4,7 +4,7 @@
 
     <groupId>com.github.Financial-Times</groupId>
     <artifactId>document-store-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -280,6 +280,7 @@
                 <version>${ft-build-info-maven-plugin.version}</version>
                 <executions>
                     <execution>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>write-build-info-properties</goal>
                         </goals>
