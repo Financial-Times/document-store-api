@@ -1,9 +1,6 @@
-FROM coco/dropwizardbase-internal:v1.0.3
+FROM coco/dropwizardbase:0.7.x-mvn333
 
-ADD . /
-
-ARG SONATYPE_USER
-ARG SONATYPE_PASSWORD
+COPY . /document-store-api
 
 RUN apk --update add git libstdc++ wget \
   && cd /tmp \
@@ -11,16 +8,19 @@ RUN apk --update add git libstdc++ wget \
   && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-bin-2.21-r2.apk \
   && apk add --allow-untrusted glibc-2.21-r2.apk glibc-bin-2.21-r2.apk \
   && /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib \
-  && cd / \
+  && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
-  && BUILD_NUMBER=$(cat buildnum.txt) \
-  && BUILD_URL=$(cat buildurl.txt) \
-  && echo "DEBUG Jenkins job url: $BUILD_URL" \
-  && mvn install -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
+  && TAG=$(git tag -l --contains $HASH) \
+  && VERSION=${TAG:-untagged} \
+  && mvn clean versions:set -DnewVersion=$VERSION \
+  && mvn clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true \
   && rm target/document-store-api-*-sources.jar \
-  && mv target/document-store-api-*.jar document-store-api.jar \
+  && mv target/document-store-api-*.jar /document-store-api.jar \
+  && mv config.yaml /config.yaml \
+  && mv data-migration-scripts* /data-migration-scripts \
+  && mv scripts* /scripts \
   && apk del go git \
-  && rm -rf /var/cache/apk/* /target* /root/.m2/* /tmp/*.apk
+  && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
 
 EXPOSE 8080 8081
 

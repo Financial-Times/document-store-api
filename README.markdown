@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/Financial-Times/document-store-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/document-store-api) [![Coverage Status](https://coveralls.io/repos/github/Financial-Times/document-store-api/badge.svg)](https://coveralls.io/github/Financial-Times/document-store-api)
+
 # Document Store API
 
 Document Store API is a Dropwizard application which allows writes to and reads from MongoDB.

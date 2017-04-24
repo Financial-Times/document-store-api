@@ -2,15 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.ft.parent</groupId>
-        <artifactId>parentPom</artifactId>
-        <version>2.12</version>
-    </parent>
-
-    <groupId>com.ft.universalpublishing</groupId>
+    <groupId>com.github.Financial-Times</groupId>
     <artifactId>document-store-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -20,10 +14,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dw.version>1.0.2</dw.version>
-        <advanced-dropwizard-healthcheck.version>4.13.4</advanced-dropwizard-healthcheck.version>
-        <jaxrs-build-info-resource.version>1.1</jaxrs-build-info-resource.version>
-        <jaxrs.error-handling.version>1.1.2</jaxrs.error-handling.version>
-        <jaxrs.transaction-id-handling.version>2.5</jaxrs.transaction-id-handling.version>
+        <advanced-dropwizard-healthcheck.version>2.11-dw07</advanced-dropwizard-healthcheck.version>
+        <jax-rs-build-info-resource.version>1.3.1</jax-rs-build-info-resource.version>
+        <jaxrs.error-handling.version>1.1.4</jaxrs.error-handling.version>
+        <jax-rs.transaction-id-handling.version>2.6.1</jax-rs.transaction-id-handling.version>
         <jackson.date.serialization.version>0.1.29</jackson.date.serialization.version>
         <junit.version>4.11</junit.version>
         <mockito-core.version>1.9.5</mockito-core.version>
@@ -41,10 +35,28 @@
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-shade-plugin.version>.</maven-shade-plugin.version>
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
-        <ft-build-info-maven-plugin.version>1.0</ft-build-info-maven-plugin.version>
+        <ft-build-info-maven-plugin.version>1.0.2</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
         <target-jdk>1.8</target-jdk>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>ft-plugin-releases</id>
+            <url>https://jitpack.io</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -53,7 +65,7 @@
             <version>${dw.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.ft</groupId>
+            <groupId>com.github.Financial-Times</groupId>
             <artifactId>advanced-dropwizard-healthcheck</artifactId>
             <version>${advanced-dropwizard-healthcheck.version}</version>
         </dependency>
@@ -64,9 +76,9 @@
         </dependency>
         
         <dependency>
-            <groupId>com.ft</groupId>
-            <artifactId>jaxrs-build-info-resource</artifactId>
-            <version>${jaxrs-build-info-resource.version}</version>
+            <groupId>com.github.Financial-Times</groupId>
+            <artifactId>jax-rs-build-info-resource</artifactId>
+            <version>${jax-rs-build-info-resource.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
@@ -79,9 +91,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.ft</groupId>
-            <artifactId>jaxrs-transaction-id-handling</artifactId>
-            <version>${jaxrs.transaction-id-handling.version}</version>
+            <groupId>com.github.Financial-Times</groupId>
+            <artifactId>jax-rs-transaction-id-handling</artifactId>
+            <version>${jax-rs.transaction-id-handling.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jersey-core</artifactId>
@@ -90,21 +102,14 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.ft.jaxrs-error-handling</groupId>
-            <artifactId>jaxrs-error-handling-builder</artifactId>
+            <groupId>com.github.Financial-Times</groupId>
+            <artifactId>jax-rs-error-handling</artifactId>
             <version>${jaxrs.error-handling.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
                     <artifactId>jersey-server</artifactId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.ft.jaxrs-error-handling</groupId>
-            <artifactId>jaxrs-error-handling-model</artifactId>
-            <version>${jaxrs.error-handling.version}</version>
-            <exclusions>
                 <exclusion>
                     <artifactId>jackson-core</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -119,7 +124,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -270,13 +275,14 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.ft.maven.plugins</groupId>
+                <groupId>com.github.Financial-Times</groupId>
                 <artifactId>ft-build-info-maven-plugin</artifactId>
                 <version>${ft-build-info-maven-plugin.version}</version>
                 <executions>
                     <execution>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>generate-build-info</goal>
+                            <goal>write-build-info-properties</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -316,44 +322,12 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.3.0</version>
+            </plugin>
         </plugins>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.version}</version>
-                <configuration>
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>${surefire.reportplugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-                <configuration>
-                    <linkXref>true</linkXref>
-                    <sourceEncoding>utf-8</sourceEncoding>
-                    <minimumTokens>100</minimumTokens>
-                    <targetJdk>${target-jdk}</targetJdk>
-                    <excludes>
-                        <exclude>**/*Bean.java</exclude>
-                        <exclude>**/generated/*.java</exclude>
-                    </excludes>
-                    <excludeRoots>
-                        <excludeRoot>target/generated-sources/stubs</excludeRoot>
-                    </excludeRoots>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 
 </project>
