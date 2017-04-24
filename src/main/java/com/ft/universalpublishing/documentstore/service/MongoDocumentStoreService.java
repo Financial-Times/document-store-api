@@ -184,6 +184,7 @@ public class MongoDocumentStoreService {
         DocumentWritten result;
         
         final String uuid = (String) content.get("uuid");
+        final String publishRef = (String)content.get("publishReference");
         try {
             long before = System.currentTimeMillis();
             MongoCollection<Document> dbCollection = writer.getCollection(resourceType);
@@ -210,16 +211,17 @@ public class MongoDocumentStoreService {
           
           do {
             try {
-              findByUuid(resourceType, UUID.fromString(uuid));
-              found = true;
-              long after = System.currentTimeMillis();
-              LOG.info("written document {} could be read after {} ms", uuid, (after - before));
+              Map<String,Object> actual = findByUuid(resourceType, UUID.fromString(uuid));
+              found = publishRef.equals(actual.get("publishReference"));
             } catch (DocumentNotFoundException e) {
               try {
                 Thread.sleep(50);
               } catch (InterruptedException ex) {/* ignore */}
             }
           } while (!found);
+          
+          long after = System.currentTimeMillis();
+          LOG.info("written document {} could be read after {} ms", uuid, (after - before));
         });
         
         return result;
