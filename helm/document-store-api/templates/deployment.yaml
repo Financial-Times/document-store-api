@@ -23,25 +23,33 @@ spec:
       - name: {{ .Values.service.name }} 
         image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        env: 
-        - name: ENV_VAR_1 
-          value: "value for env var 1" 
-        - name: ENV_VAR_WITH_VALUE_IN_CONFIG_MAP 
-          valueFrom: 
-            configMapKeyRef: 
-              name: global-config 
-              key: key.for.configmap.entry 
+        env:
+        - name: MONGO_ADDRESSES
+          value: mongodb-0.mongodb.default.svc.cluster.local:27017,mongodb-1.mongodb.default.svc.cluster.local:27017,mongodb-2.mongodb.default.svc.cluster.local:27017
+        - name: JAVA_OPTS
+          value: "-Xms128m -Xmx128m -XX:+UseG1GC -server"
+        - name: CACHE_TTL
+          valueFrom:
+            configMapKeyRef:
+              name: global-config
+              key: cache-max-age
+        - name: API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: global-config
+              key: api.host
         ports: 
-        - containerPort: 8080 
+        - containerPort: 8080
+        - containerPort: 8081
         livenessProbe: 
           tcpSocket: 
             port: 8080 
-          initialDelaySeconds: 10 
+          initialDelaySeconds: 5
         readinessProbe: 
           httpGet: 
             path: "/__gtg" 
             port: 8080 
-          initialDelaySeconds: 15 
+          initialDelaySeconds: 20
           periodSeconds: 30 
         resources: 
 {{ toYaml .Values.resources | indent 12 }}
