@@ -1,4 +1,4 @@
 apiVersion: v1
 description: document-store-api Helm chart for Kubernetes
 name: document-store-api
-version: 0.0.0  # this entry can be left untouched as it is automatically handled by Jenkins pipeline
+version: 1.0.0  # this entry can be left untouched as it is automatically handled by Jenkins pipeline
