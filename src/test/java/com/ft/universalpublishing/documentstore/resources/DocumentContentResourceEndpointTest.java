@@ -285,6 +285,15 @@ public class DocumentContentResourceEndpointTest {
 
     assertThat("document list", actualIds, contains(id1, id2));
   }
+  
+  @Test
+  public void thatMultipleUUIDRequestWithEmptyParamatersReturns400() {
+    Response clientResponse = resources.client().target("/content")
+            .request()
+            .get();
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+  }
 
   @Test
   public void thatSubsetOfFoundUUIDsIsReturned() {
