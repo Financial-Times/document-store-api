@@ -73,7 +73,7 @@ public class DocumentResource {
     context.setHttpHeaders(httpHeaders);
     context.setCollection(collection);
     context.setUuids(uuidList);
-    HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_FILTERED);
+    HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_MULTIPLE_FILTERED);
     return handlerChain.execute(context);
   }
 

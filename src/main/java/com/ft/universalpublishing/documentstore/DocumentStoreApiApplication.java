@@ -100,7 +100,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
         collections.put(new Pair<>("content", Operation.GET_FILTERED),
                 new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
-        collections.put(new Pair<>("content", Operation.GET_FILTERED),
+        collections.put(new Pair<>("content", Operation.GET_MULTIPLE_FILTERED),
                 new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
         collections.put(new Pair<>("content", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
@@ -111,7 +111,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         collections.put(new Pair<>("internalcomponents", Operation.GET_FILTERED),
                 new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
-        collections.put(new Pair<>("internalcomponents", Operation.GET_FILTERED),
+        collections.put(new Pair<>("internalcomponents", Operation.GET_MULTIPLE_FILTERED),
                 new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
         collections.put(new Pair<>("internalcomponents", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
@@ -122,7 +122,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         collections.put(new Pair<>("lists", Operation.GET_FILTERED),
                 new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
-        collections.put(new Pair<>("lists", Operation.GET_FILTERED),
+        collections.put(new Pair<>("lists", Operation.GET_MULTIPLE_FILTERED),
                 new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
         collections.put(new Pair<>("lists", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
