@@ -1,0 +1,15 @@
+# Default values for document-store-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+service:
+  name: "" # The name of the service, should be defined in the specific app-configs folder.
+  hasHealthcheck: "true"
+replicaCount: 3
+image:
+  repository: coco/document-store-api
+  pullPolicy: IfNotPresent
+#resources:
+#  limits:
+#    memory: 256Mi
+
+
