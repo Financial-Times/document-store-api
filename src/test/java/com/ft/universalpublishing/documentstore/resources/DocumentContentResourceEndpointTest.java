@@ -32,6 +32,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -111,6 +112,8 @@ public class DocumentContentResourceEndpointTest {
     final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
     collections.put(new Pair<>("content", Operation.GET_FILTERED),
             new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
+    collections.put(new Pair<>("content", Operation.GET_MULTIPLE_FILTERED),
+            new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
     collections.put(new Pair<>("content", Operation.GET_BY_ID),
             new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
     collections.put(new Pair<>("content", Operation.ADD),
@@ -347,6 +350,83 @@ public class DocumentContentResourceEndpointTest {
     @SuppressWarnings("rawtypes")
     final List actual = clientResponse.readEntity(List.class);
     assertThat("documents", actual.size(), equalTo(0));
+  }
+
+  @Test
+  public void thatMultipleUUIDsCanBeRequestedWithHttpPost() {
+    UUID uuid1 = UUID.randomUUID();
+    UUID uuid2 = UUID.randomUUID();
+    List<UUID> uuidList = Arrays.asList(uuid1, uuid2);
+    Set<UUID> uuidSet = new LinkedHashSet<>();
+    uuidSet.add(uuid1);
+    uuidSet.add(uuid2);
+    String uuidString1 = uuid1.toString();
+    Document document1 = getContent(uuidString1);
+    String uuidString2 = uuid2.toString();
+    Document document2 = getContent(uuidString2);
+    Set<Map<String,Object>> documents = new LinkedHashSet<>();
+    documents.add(document1);
+    documents.add(document2);
+
+    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet))).thenReturn(documents);
+
+    Response clientResponse = resources.client().target("/content?mget=true")
+            .request()
+            .post(Entity.entity(uuidList, MediaType.APPLICATION_JSON));
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+    @SuppressWarnings("unchecked")
+    final List<Map<String,Object>> actual = clientResponse.readEntity(List.class);
+    assertThat("documents", actual.size(), equalTo(2));
+
+    List<String> actualIds = actual.stream().map(m -> (String)m.get("uuid")).collect(Collectors.toList());
+    assertThat("document list", actualIds, contains(uuidString1, uuidString2));
+  }
+
+  @Test
+  public void thatMultipleUUIDRequestWithEmptyListIsOk() {
+    Response clientResponse = resources.client().target("/content?mget=true")
+            .request()
+            .post(Entity.entity(Collections.emptyList(), MediaType.APPLICATION_JSON));
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+  }
+
+  @Test
+  public void thatSubsetOfFoundUUIDsIsReturnedWithHttpPost() {
+    UUID uuid1 = UUID.randomUUID();
+    UUID uuid2 = UUID.randomUUID();
+    List<UUID> uuidList = Arrays.asList(uuid1, uuid2);
+    String id2 = uuid2.toString();
+    Document document = getContent(id2);
+    Set<UUID> uuidSet = new LinkedHashSet<>();
+    uuidSet.add(uuid1);
+    uuidSet.add(uuid2);
+
+    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet))).thenReturn(Collections.singleton(document));
+
+    Response clientResponse = resources.client().target("/content?mget=true")
+            .request()
+            .post(Entity.entity(uuidList, MediaType.APPLICATION_JSON));
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+    @SuppressWarnings("unchecked")
+    final List<Map<String,Object>> actual = clientResponse.readEntity(List.class);
+    assertThat("documents", actual.size(), equalTo(1));
+
+    List<String> actualIds = actual.stream().map(m -> (String)m.get("uuid")).collect(Collectors.toList());
+    assertThat("document list", actualIds, equalTo(Collections.singletonList(id2)));
+  }
+
+  @Test
+  public void thatMultipleUUIDRequestWithoutQueryParamIsNotOk() {
+    Response clientResponse = resources.client().target("/content")
+            .request()
+            .post(Entity.entity(Collections.emptyList(), MediaType.APPLICATION_JSON));
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
   }
 
   @Test
