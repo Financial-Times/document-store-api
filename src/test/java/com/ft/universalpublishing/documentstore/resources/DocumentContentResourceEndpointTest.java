@@ -370,7 +370,7 @@ public class DocumentContentResourceEndpointTest {
 
     when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet))).thenReturn(documents);
 
-    Response clientResponse = resources.client().target("/content/getMultiple")
+    Response clientResponse = resources.client().target("/content?mget=true")
             .request()
             .post(Entity.entity(uuidList, MediaType.APPLICATION_JSON));
 
@@ -386,7 +386,7 @@ public class DocumentContentResourceEndpointTest {
 
   @Test
   public void thatMultipleUUIDRequestWithEmptyListIsOk() {
-    Response clientResponse = resources.client().target("/content/getMultiple")
+    Response clientResponse = resources.client().target("/content?mget=true")
             .request()
             .post(Entity.entity(Collections.emptyList(), MediaType.APPLICATION_JSON));
 
@@ -406,7 +406,7 @@ public class DocumentContentResourceEndpointTest {
 
     when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet))).thenReturn(Collections.singleton(document));
 
-    Response clientResponse = resources.client().target("/content/getMultiple")
+    Response clientResponse = resources.client().target("/content?mget=true")
             .request()
             .post(Entity.entity(uuidList, MediaType.APPLICATION_JSON));
 
@@ -418,6 +418,15 @@ public class DocumentContentResourceEndpointTest {
 
     List<String> actualIds = actual.stream().map(m -> (String)m.get("uuid")).collect(Collectors.toList());
     assertThat("document list", actualIds, equalTo(Collections.singletonList(id2)));
+  }
+
+  @Test
+  public void thatMultipleUUIDRequestWithoutQueryParamIsNotOk() {
+    Response clientResponse = resources.client().target("/content")
+            .request()
+            .post(Entity.entity(Collections.emptyList(), MediaType.APPLICATION_JSON));
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
   }
 
   @Test
