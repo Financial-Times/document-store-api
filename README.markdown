@@ -94,7 +94,7 @@ Body:
 ```
 [
   "fd204ed1-d53d-4b24-99a7-fc62a6778808",
-  "4f97b689-d3e4-4ae2-ac34-9abc97a46c28"
+  "4f97b689-d3e4-4ae2-ac34-9abc97a46c28",
   "c86ccb61-38d2-42bd-bb2f-9c69e1fca178"
 ]
 ```
