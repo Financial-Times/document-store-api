@@ -103,6 +103,8 @@ Return a JSON array containing the subset of items that were found. In case none
 
 ### Deprecated way of: Retrieving multiple items
 
+Can't handle too many uuids, the URI has a limit at 2083 characters.
+
 GET `http://localhost:14180/content?uuid={uuid1}&uuid={uuid2}...`.
 
 Return a JSON array containing the subset of items that were found (if none were found, the response will be an empty array).
