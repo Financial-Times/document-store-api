@@ -85,7 +85,25 @@ Make a GET request to `http://localhost:14180/content/{uuid}` with `Content-Type
 
 Should return the json right in the format as you PUT it in.
 
-You can request multiple items with a GET request to `http://localhost:14180/content?uuid={uuid1}&uuid={uuid2}...`. This will return a JSON array containing the subset of items that were found (if none were found, the response will be an empty array).
+### Retrieving multiple items
+
+POST `/{collection}?mget=true`
+
+Body:
+
+```
+[
+  "fd204ed1-d53d-4b24-99a7-fc62a6778808",
+  "4f97b689-d3e4-4ae2-ac34-9abc97a46c28"
+  "c86ccb61-38d2-42bd-bb2f-9c69e1fca178"
+]
+```
+
+Return a JSON array containing the subset of items that were found. In case none are found, it returns an HTTP 200 with an empty array.
+
+Deprecated: GET `http://localhost:14180/content?uuid={uuid1}&uuid={uuid2}...`.
+
+Return a JSON array containing the subset of items that were found (if none were found, the response will be an empty array).
 
 ## Content query by identifier
 
