@@ -69,13 +69,9 @@ public class DocumentResource {
                                                List<String> uuidList,
                                                @javax.ws.rs.core.Context UriInfo uriInfo,
                                                @PathParam("collection") String collection,
-                                               @QueryParam("mget") Boolean mget) {
-    try {
-      if (!mget) {
-        throw ClientError.status(400).exception(new IllegalArgumentException("This is an endpoint for retrieving data, not writing. You must supply query parameter ?mget=true"));
-      }
-    } catch (NullPointerException npe) {
-      throw ClientError.status(400).exception(npe);
+                                               @QueryParam("mget") boolean mget) {
+    if (!mget) {
+      throw ClientError.status(400).exception(new IllegalArgumentException("This is an endpoint for retrieving data, not writing. You must supply query parameter ?mget=true"));
     }
     if (uuidList == null) {
       throw ClientError.status(400).exception(new IllegalArgumentException("Incorrect format of request body. It's not an array of strings."));
