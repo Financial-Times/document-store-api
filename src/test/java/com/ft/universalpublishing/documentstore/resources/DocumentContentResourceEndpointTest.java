@@ -439,6 +439,16 @@ public class DocumentContentResourceEndpointTest {
   }
 
   @Test
+  public void thatMultipleUUIDRequestWithInvalidListIs400() {
+    Response clientResponse = resources.client().target("/content?mget=true")
+            .request()
+            .post(Entity.entity("{}", MediaType.APPLICATION_JSON));
+
+    assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+  }
+
+
+  @Test
   public void thatMultipleUUIDRequestWithInvalidContentTypeIs415() {
     Response clientResponse = resources.client().target("/content?mget=true")
             .request()
