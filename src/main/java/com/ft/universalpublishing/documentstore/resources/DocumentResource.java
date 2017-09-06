@@ -75,7 +75,10 @@ public class DocumentResource {
       if (!mget) {
         throw ClientError.status(400).exception(new IllegalArgumentException(errMessage));
       }
-      uuidList.isEmpty();
+      errMessage = "Incorrect format of request body. It's not an array of strings.";
+      if (uuidList == null) {
+        throw ClientError.status(400).exception(new IllegalArgumentException(errMessage));
+      }
     } catch (NullPointerException npe) {
       throw ClientError.status(400).exception(new IllegalArgumentException(errMessage, npe));
     }
