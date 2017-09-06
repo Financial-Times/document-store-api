@@ -75,6 +75,7 @@ public class DocumentResource {
       if (!mget) {
         throw ClientError.status(400).exception(new IllegalArgumentException(errMessage));
       }
+      uuidList.isEmpty();
     } catch (NullPointerException npe) {
       throw ClientError.status(400).exception(new IllegalArgumentException(errMessage, npe));
     }

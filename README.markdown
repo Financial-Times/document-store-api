@@ -81,13 +81,15 @@ Make a DELETE request to `http://localhost:14180/content/{uuid}` with `Content-T
 
 ## Content GET
 
-Make a GET request to `http://localhost:14180/content/{uuid}` with `Content-Type` set to `application/json`.
+### Retrieving an item
+
+Make a GET request to `/content/{uuid}` with `Content-Type` set to `application/json`.
 
 Should return the json right in the format as you PUT it in.
 
-### Retrieving multiple items
+### Retrieving multiple items: Content POST
 
-POST `/{collection}?mget=true`
+Make a POST request to: `/{collection}?mget=true`
 
 Body:
 
