@@ -64,6 +64,7 @@ public class DocumentResource {
   @POST
   @Timed
   @Path("/{collection}")
+  @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
   public final Object getFromCollectionByUuids(@javax.ws.rs.core.Context HttpHeaders httpHeaders,
                                                List<String> uuidList,

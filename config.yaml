@@ -41,6 +41,7 @@ logging:
   loggers:
     io.dropwizard: WARN
     com.ft.api.util.transactionid.TransactionIdFilter: WARN
+    javax.ws.rs: DEBUG
 
   appenders:
 
