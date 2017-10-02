@@ -10,7 +10,7 @@ RUN apk --update add git libstdc++ wget \
   && /usr/glibc/usr/bin/ldconfig /lib /usr/glibc/usr/lib \
   && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
-  && TAG=$(git tag -l --contains $HASH) \
+  && TAG=$(git tag -l --points-at $HASH) \
   && VERSION=${TAG:-untagged} \
   && mvn clean versions:set -DnewVersion=$VERSION \
   && mvn clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true \
