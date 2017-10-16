@@ -50,8 +50,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 
-
-
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
     public static void main(final String[] args) throws Exception {
@@ -67,7 +65,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     @Override
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
         List<String> transactionUrlPattern = new ArrayList<>(
-                Arrays.asList("/lists/*", "/content-query", "/content/*", "/internalcomponents/*"));
+                Arrays.asList("/lists/*", "/content-query", "/content/*", "/internalcomponents/*", "/complementarycontent/*"));
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true,
                         transactionUrlPattern.toArray(new String[0]));
@@ -107,6 +105,17 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         collections.put(new Pair<>("content", Operation.ADD),
                 new HandlerChain().addHandlers(uuidValidationHandler, preSaveFieldRemovalHandler).setTarget(writeDocument));
         collections.put(new Pair<>("content", Operation.REMOVE),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+
+        collections.put(new Pair<>("complementarycontent", Operation.GET_FILTERED),
+                new HandlerChain().addHandlers(extractUuidsHandlers, multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
+        collections.put(new Pair<>("complementarycontent", Operation.GET_MULTIPLE_FILTERED),
+                new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
+        collections.put(new Pair<>("complementarycontent", Operation.GET_BY_ID),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
+        collections.put(new Pair<>("complementarycontent", Operation.ADD),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
+        collections.put(new Pair<>("complementarycontent", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
         collections.put(new Pair<>("internalcomponents", Operation.GET_FILTERED),
