@@ -47,7 +47,7 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
 
 	@Override
 	public AppInfo getAppInfo() {
-		return null;
+		return appInfo;
 	}
 
 }
