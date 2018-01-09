@@ -12,7 +12,7 @@ healthcheckParameters:
     severity: 1
     businessImpact: "Editorially curated lists won't be available for use on Next."
     technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the new content platform and affect a variety of products."
-    panicGuideUrl: "https://dewey.in.ft.com/view/system/document-store-api"
+    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 server:
 
