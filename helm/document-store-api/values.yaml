@@ -8,10 +8,10 @@ replicaCount: 3
 image:
   repository: coco/document-store-api
   pullPolicy: IfNotPresent
-+resources:
- +  requests:
- +    memory: 256Mi
- +  limits:
- +    memory: 256Mi
+resources:
+  requests:
+    memory: 256Mi
+  limits:
+    memory: 256Mi
 
 
