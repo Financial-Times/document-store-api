@@ -1,12 +1,16 @@
 package com.ft.universalpublishing.documentstore;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ft.platform.dropwizard.AppInfo;
+import com.ft.platform.dropwizard.ConfigWithAppInfo;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
 
 import io.dropwizard.Configuration;
 
-public class DocumentStoreApiConfiguration extends Configuration {
-
+public class DocumentStoreApiConfiguration extends Configuration implements ConfigWithAppInfo {
+	
+	@JsonProperty
+	private AppInfo appInfo = new AppInfo();
     private final String apiHost;
     private final MongoConfig mongo;
     private final String cacheTtl;
@@ -40,5 +44,10 @@ public class DocumentStoreApiConfiguration extends Configuration {
     public HealthcheckParameters getHealthcheckParameters() {
         return healthcheckParameters;
     }
+
+	@Override
+	public AppInfo getAppInfo() {
+		return null;
+	}
 
 }
