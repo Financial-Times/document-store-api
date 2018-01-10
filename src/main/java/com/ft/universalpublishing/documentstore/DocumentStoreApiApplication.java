@@ -5,6 +5,7 @@ import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.platform.dropwizard.DefaultGoodToGoChecker;
 import com.ft.platform.dropwizard.GoodToGoBundle;
+import com.ft.platform.dropwizard.GoodToGoConfiguredBundle;
 import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
@@ -58,7 +59,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
     @Override
     public void initialize(final Bootstrap<DocumentStoreApiConfiguration> bootstrap) {
-        bootstrap.addBundle(new GoodToGoBundle(new DefaultGoodToGoChecker()));
+        bootstrap.addBundle(new GoodToGoConfiguredBundle(new DefaultGoodToGoChecker()));
         bootstrap.addBundle(new AdvancedHealthCheckBundle());
     }
 
