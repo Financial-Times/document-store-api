@@ -14,7 +14,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dw.version>1.0.2</dw.version>
-        <advanced-dropwizard-healthcheck.version>4.14.1</advanced-dropwizard-healthcheck.version>
+        <advanced-dropwizard-healthcheck.version>4.14.2-threadpool-rc1</advanced-dropwizard-healthcheck.version>
         <jax-rs-build-info-resource.version>1.3.1</jax-rs-build-info-resource.version>
         <jaxrs.error-handling.version>1.1.4</jaxrs.error-handling.version>
         <jax-rs.transaction-id-handling.version>2.6.1</jax-rs.transaction-id-handling.version>
@@ -74,7 +74,7 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.3</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.github.Financial-Times</groupId>
             <artifactId>jax-rs-build-info-resource</artifactId>
@@ -130,7 +130,7 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -142,7 +142,7 @@
             <artifactId>mockito-core</artifactId>
             <version>${mockito-core.version}</version>
             <scope>test</scope>
-        </dependency>      
+        </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
