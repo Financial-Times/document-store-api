@@ -33,6 +33,7 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 
@@ -50,9 +51,12 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
+    private static final Logger logger = LoggerFactory.getLogger(DocumentStoreApiApplication.class);
     public static void main(final String[] args) throws Exception {
         new DocumentStoreApiApplication().run(args);
     }
@@ -64,7 +68,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     }
 
     @Override
-    public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) throws Exception {
+    public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) {
         List<String> transactionUrlPattern = new ArrayList<>(
                 Arrays.asList("/lists/*", "/content-query", "/content/*", "/internalcomponents/*", "/complementarycontent/*"));
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
@@ -76,10 +80,32 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         environment.jersey().register(new BuildInfoResource());
 
-        final MongoClient mongoClient = getMongoClient(configuration.getMongo());
-        MongoDatabase database = mongoClient.getDatabase(configuration.getMongo().getDb());
+        MongoDatabase database = null;
+        MongoDocumentStoreService documentStoreService;
 
-        final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(database);
+        try {
+            final MongoClient mongoClient = getMongoClient(configuration.getMongo());
+            database = mongoClient.getDatabase(configuration.getMongo().getDb());
+            documentStoreService = new MongoDocumentStoreService(database);
+
+            // this will fail and timeout if MongoClient fails to connect to any configured node initially
+            documentStoreService.applyIndexes();
+
+            logger.info("Registering app resources ...");
+            registerResources(configuration, environment, database, documentStoreService);
+        } catch (final MongoTimeoutException e) {
+            logger.error("Failed to connect to mongo database, check/fix the issues and restart the service.", e);
+        }
+
+        // We are registering health checks regardless, so that we can have proper visibility
+        registerHealthChecks(configuration, environment, database);
+
+
+
+    }
+
+
+    private void registerResources(DocumentStoreApiConfiguration configuration, Environment environment, MongoDatabase database, MongoDocumentStoreService documentStoreService) {
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
@@ -145,9 +171,11 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
         environment.jersey().register(new DocumentIDResource(documentStoreService));
 
-        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(), new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
+    }
 
-        documentStoreService.applyIndexes();
+    private void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment, MongoDatabase database) {
+        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(),
+                new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
     }
 
     private MongoClient getMongoClient(MongoConfig config) {

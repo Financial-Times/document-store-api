@@ -12,8 +12,8 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentStoreHealthCheck.class);
 
-    private MongoDatabase db;
-    private HealthcheckParameters healthcheckParameters;
+    private final MongoDatabase db;
+    private final HealthcheckParameters healthcheckParameters;
 
 
     public DocumentStoreHealthCheck(MongoDatabase db, HealthcheckParameters healthcheckParameters) {
@@ -23,9 +23,13 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
     }
 
     @Override
-    protected AdvancedResult checkAdvanced() throws Exception {
+    protected AdvancedResult checkAdvanced() {
 
         final String message = "Cannot connect to MongoDB";
+
+        if (null == db) {
+            return AdvancedResult.error(this, message);
+        }
 
         try {
             Document commandResult = db.runCommand(Document.parse("{ serverStatus : 1 }"));
