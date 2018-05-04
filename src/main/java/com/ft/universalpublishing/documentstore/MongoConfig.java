@@ -1,15 +1,14 @@
 package com.ft.universalpublishing.documentstore;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.mongodb.ServerAddress;
 import io.dropwizard.util.Duration;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +34,9 @@ public class MongoConfig {
   @NotNull
   @JsonProperty
   private String db;
+
+  @JsonProperty
+  private Duration serverSelectorTimeout;
 
   private Duration idleTimeout;
 
@@ -113,5 +115,13 @@ public class MongoConfig {
             .add("db", db)
             .add("idleTimeout", idleTimeout)
             .toString();
+  }
+
+  public Duration getServerSelectorTimeout() {
+    return serverSelectorTimeout;
+  }
+
+  public void setServerSelectorTimeout(Duration serverSelectorTimeout) {
+    this.serverSelectorTimeout = serverSelectorTimeout;
   }
 }

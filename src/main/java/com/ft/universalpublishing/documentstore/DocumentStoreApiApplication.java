@@ -30,13 +30,19 @@ import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoTimeoutException;
+import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.servlet.DispatcherType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -45,18 +51,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.servlet.DispatcherType;
-
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.util.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentStoreApiApplication.class);
+
     public static void main(final String[] args) throws Exception {
         new DocumentStoreApiApplication().run(args);
     }
@@ -90,22 +88,17 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
             // this will fail and timeout if MongoClient fails to connect to any configured node initially
             documentStoreService.applyIndexes();
-
-            logger.info("Registering app resources ...");
-            registerResources(configuration, environment, database, documentStoreService);
-        } catch (final MongoTimeoutException e) {
+            registerResources(configuration, environment, documentStoreService);
+        } catch (final MongoException e) {
             logger.error("Failed to connect to mongo database, check/fix the issues and restart the service.", e);
+        } finally {
+            // We are registering health checks regardless, so that we can have proper visibility
+            registerHealthChecks(configuration, environment, database);
         }
-
-        // We are registering health checks regardless, so that we can have proper visibility
-        registerHealthChecks(configuration, environment, database);
-
-
-
     }
 
 
-    private void registerResources(DocumentStoreApiConfiguration configuration, Environment environment, MongoDatabase database, MongoDocumentStoreService documentStoreService) {
+    private void registerResources(DocumentStoreApiConfiguration configuration, Environment environment, MongoDocumentStoreService documentStoreService) {
         final UuidValidator uuidValidator = new UuidValidator();
         final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
@@ -173,7 +166,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
     }
 
-    private void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment, MongoDatabase database) {
+    void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment, MongoDatabase database) {
         environment.healthChecks().register(configuration.getHealthcheckParameters().getName(),
                 new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
     }
@@ -183,16 +176,22 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         Duration idleTimeoutDuration = Optional.ofNullable(config.getIdleTimeout()).orElse(Duration.minutes(10));
         int idleTimeout = (int) idleTimeoutDuration.toMilliseconds();
-        MongoClientOptions options = builder.maxConnectionIdleTime(idleTimeout).build();
+        builder.maxConnectionIdleTime(idleTimeout);
+
+        Optional.ofNullable(config.getServerSelectorTimeout())
+                .ifPresent(duration -> {
+                    int serverSelectorTimeout = (int) duration.toMilliseconds();
+                    builder.serverSelectionTimeout(serverSelectorTimeout);
+                });
 
         List<ServerAddress> mongoServers = config.toServerAddresses();
         if (mongoServers.size() == 1) {
             // singleton configuration
             ServerAddress mongoServer = mongoServers.get(0);
-            return new MongoClient(mongoServer, options);
+            return new MongoClient(mongoServer, builder.build());
         } else {
             // cluster configuration
-            return new MongoClient(mongoServers, options);
+            return new MongoClient(mongoServers, builder.build());
         }
     }
 }

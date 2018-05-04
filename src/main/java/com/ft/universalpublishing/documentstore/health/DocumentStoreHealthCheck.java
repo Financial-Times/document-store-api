@@ -27,10 +27,6 @@ public class DocumentStoreHealthCheck extends AdvancedHealthCheck {
 
         final String message = "Cannot connect to MongoDB";
 
-        if (null == db) {
-            return AdvancedResult.error(this, message);
-        }
-
         try {
             Document commandResult = db.runCommand(Document.parse("{ serverStatus : 1 }"));
             boolean isOK = !commandResult.isEmpty();
