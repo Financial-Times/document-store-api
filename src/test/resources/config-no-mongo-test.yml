@@ -1,0 +1,85 @@
+mongo:
+  hosts: ["localhost"]
+  port: 98765
+  db: upp-store
+  serverSelectorTimeout: 100ms
+  
+apiHost: localhost
+cacheTtl: 30
+
+healthcheckParameters:
+    name: "Connectivity to MongoDB"
+    severity: 1
+    businessImpact: "Editorially curated lists won't be available for use on Next."
+    technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the new content platform and affect a variety of products."
+    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
+
+server:
+
+  applicationConnectors:
+    - type: http
+      port: 14180
+
+  adminConnectors:
+      - type: http
+        port: 14181
+
+  requestLog:
+    appenders:
+
+      - type: console
+        # Add transaction_id to the end of Dropwizard's default format, which is itself based on the "combined" log format
+        logFormat: "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" %D transaction_id=%i{X-Request-Id}"
+        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+        timeZone: UTC
+
+      - type: file
+
+        # The file to which current statements will be logged.
+        currentLogFilename: /var/log/apps/document-store-api-dw-access.log
+
+        # When the log file rotates, the archived log will be renamed to this and gzipped. The
+        # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+        # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+        archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-access-%d.log.gz
+
+        # The number of archived files to keep.
+        archivedFileCount: 6
+
+        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+        timeZone: UTC
+
+logging:
+
+  level: INFO
+
+  loggers:
+    io.dropwizard: DEBUG
+    com.ft.api.util.transactionid.TransactionIdFilter: WARN
+    com.ft.universalpublishing.documentstore: DEBUG
+
+  appenders:
+
+    - type: console
+
+    - type: file
+      # Do not write log statements below this threshold to the file.
+      threshold: ALL
+
+      # The file to which current statements will be logged.
+      currentLogFilename: /var/log/apps/document-store-api-dw-app.log
+
+      # When the log file rotates, the archived log will be renamed to this and gzipped. The
+      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+      archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-app-%d.log.gz
+
+      # The number of archived files to keep.
+      archivedFileCount: 5
+
+      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
+      
+appInfo:
+    systemCode: "document-store-api"
+    description: "document-store-api" 
