@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.api.jaxrs.errors.WebApplicationClientException;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
@@ -497,6 +498,19 @@ public class DocumentContentResourceEndpointTest {
             .post(Entity.json(null));
 
     assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
+  }
+
+  @Test
+  public void contentTypeValidationShouldPassForJsonVariants() {
+    final DocumentResource resource = new DocumentResource(null);
+    resource.validateContentTypeForJsonVariant(Collections.singletonList("application/anything-is.possible+json; unknown=directive; version=1.0; charset=utf-8"));
+    resource.validateContentTypeForJsonVariant(Collections.singletonList("application/json; charset=utf-8; key=value"));
+  }
+
+  @Test(expected = WebApplicationClientException.class)
+  public void contentTypeValidationShouldFailForNonJsonVariants() {
+    final DocumentResource resource = new DocumentResource(null);
+    resource.validateContentTypeForJsonVariant(Collections.singletonList("application/octet-stream; unknown=directive; version=1.0; charset=utf-8"));
   }
 
   private Response writeDocument(String writePath, Document document) {

@@ -90,11 +90,14 @@ public class DocumentResource {
   @PUT
   @Timed
   @Path("/{collection}/{uuidString}")
-  @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Object writeInCollection(@PathParam("uuidString") String uuidString,
                                   Map<String, Object> contentMap, @javax.ws.rs.core.Context UriInfo uriInfo,
+                                  @javax.ws.rs.core.Context HttpHeaders httpHeaders,
                                   @PathParam("collection") String collection) {
+
+    final List<String> contentTypeHeaders = httpHeaders.getRequestHeader(HttpHeaders.CONTENT_TYPE);
+    validateContentTypeForJsonVariant(contentTypeHeaders);
 
     Context context = new Context();
     context.setCollection(collection);
@@ -133,4 +136,27 @@ public class DocumentResource {
     });
     throw ClientError.status(400).exception();
   }
+
+  void validateContentTypeForJsonVariant(List<String> contentTypeHeaders) {
+    if (null == contentTypeHeaders || contentTypeHeaders.isEmpty()) {
+      throw ClientError.status(404).exception();
+    }
+
+    String contentType = contentTypeHeaders.get(0);
+
+    if (contentType.contains(";")) {
+      contentType = contentType.split(";")[0];
+    }
+
+    if ("application/json".equals(contentType)) {
+      return;
+    }
+
+    if (contentType.startsWith("application/") && contentType.endsWith("+json")) {
+      return;
+    }
+
+    throw ClientError.status(404).exception();
+  }
+
 }
