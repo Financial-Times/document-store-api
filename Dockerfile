@@ -1,8 +1,8 @@
-FROM coco/dropwizardbase:0.7.x-mvn333
+FROM openjdk:8-alpine
 
 COPY . /document-store-api
 
-RUN apk --update add git libstdc++ wget \
+RUN apk --update add git maven libstdc++ wget \
   && cd /tmp \
   && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-2.21-r2.apk \
   && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-bin-2.21-r2.apk \
@@ -19,7 +19,7 @@ RUN apk --update add git libstdc++ wget \
   && mv config.yaml /config.yaml \
   && mv data-migration-scripts* /data-migration-scripts \
   && mv scripts* /scripts \
-  && apk del go git \
+  && apk del go git maven \
   && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
 
 EXPOSE 8080 8081

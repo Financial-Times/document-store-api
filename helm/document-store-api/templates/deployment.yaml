@@ -41,7 +41,7 @@ spec:
               name: global-config
               key: mongo.addresses
         - name: JAVA_OPTS
-          value: "-Xms256m -Xmx256m -XX:+UseG1GC -server"
+          value: "-Xms256m -Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -server"
         - name: CACHE_TTL
           valueFrom:
             configMapKeyRef:
