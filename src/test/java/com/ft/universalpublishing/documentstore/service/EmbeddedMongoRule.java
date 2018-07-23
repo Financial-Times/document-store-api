@@ -3,64 +3,35 @@ package com.ft.universalpublishing.documentstore.service;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
-
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.IMongodConfig;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.runtime.Network;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
+import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-/**
- * Created by julia.fernee on 03/11/2015.
- */
+import java.util.Collections;
+
+
 public class EmbeddedMongoRule
         implements TestRule {
-    
-    private int port;
-    private MongodStarter starter = MongodStarter.getDefaultInstance();
-    private MongodExecutable mongodExecutable = null;
 
-    public EmbeddedMongoRule(int port) {
-        this.port = port;
-    }
-
-    private void createEmbeddedMongoInstance(int port) {
-        IMongodConfig mongodConfig = null;
-        try {
-            mongodConfig = new MongodConfigBuilder()
-                    .version(Version.Main.V3_0)
-                    .net(new Net(port, Network.localhostIsIPv6()))
-                    .build();
-            mongodExecutable = starter.prepare(mongodConfig);
-            MongodProcess mongod = mongodExecutable.start();
-            
-        } catch (IOException e) {
-            if (this.mongodExecutable != null) {
-                this.mongodExecutable.stop();
-            }
-        }
-    }
-    
     public MongoClient client() {
-        MongoClientOptions.Builder optionsBuilder = MongoClientOptions.builder();
-        MongoClientOptions options = optionsBuilder.build();
+        ServerAddress serverAddress;
+        String shortTest = System.getProperty("short");
+        //triggers a test skip if assumption is not met
+        Assume.assumeTrue(shortTest == null);
+        String mongoTestUrl = System.getenv("MONGO_TEST_URL");
+        if (mongoTestUrl == null) {
+            Assert.fail("System property MONGO_TEST_URL should be set to a valid mongo server instance, e.g. MONGO_TEST_URL=localhost:27017. Alternatively you could skip these tests by providig the -Dshort java program flag");
+        }
+        String[] urlAddress = mongoTestUrl.replaceAll("https?://", "").split(":");
 
-        List<ServerAddress> mongoServers = Collections.singletonList(new ServerAddress("localhost", port));
-        // cluster configuration
-        MongoClient mongoClient = new MongoClient(mongoServers, options);
-        
-        return mongoClient;
+        if (urlAddress.length != 2) {
+            Assert.fail("System property MONGO_TEST_URL should be set to a valid mongo server instance, e.g. MONGO_TEST_URL=localhost:27017. Alternatively you could skip these tests by providig the -Dshort java program flag");
+        }
+        serverAddress = new ServerAddress(urlAddress[0], Integer.parseInt(urlAddress[1]));
+
+        return new MongoClient(Collections.singletonList(serverAddress), MongoClientOptions.builder().serverSelectionTimeout(1000).connectTimeout(1000).socketTimeout(1000).build());
     }
 
     @Override
@@ -68,15 +39,7 @@ public class EmbeddedMongoRule
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                try {
-                    createEmbeddedMongoInstance(port);
-                    base.evaluate();
-                }
-                finally {
-                    if (mongodExecutable != null) {
-                        mongodExecutable.stop();
-                    }
-                }
+                base.evaluate();
             }
         };
     }

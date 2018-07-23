@@ -10,10 +10,16 @@ workflows:
 jobs:
   build:
     docker:
-      - image: docker:stable-git
+      - image: circleci/openjdk:8-jdk-browsers
+      - image: mongo:3.2.18
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Build package & run tests
+          command: |
+            export MONGO_TEST_URL=localhost:27017
+            mvn clean package -Djava.net.preferIPv4Stack=true
       - run:
           name: Set Docker image tag based on branch or git tag
           command: |

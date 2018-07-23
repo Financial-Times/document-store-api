@@ -40,7 +40,7 @@ import static org.junit.Assert.assertThat;
 
 public class MongoDocumentStoreServiceContentTest {
     @ClassRule
-    public static final EmbeddedMongoRule MONGO = new EmbeddedMongoRule(12032);
+    public static final EmbeddedMongoRule MONGO = new EmbeddedMongoRule();
 
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "content";

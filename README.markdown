@@ -14,10 +14,15 @@ Operations on lists DOES NOT share the same logic, their read/writes are separat
 
 ## Running locally
 
-To compile, run tests and build jar
+To compile and build jar
 
 ```sh
-mvn clean install
+mvn clean package -Djava.net.preferIPv4Stack=true -Dmaven.test.skip=true
+```
+
+To run all tests, you should remove the flag `-Dmaven.test.skip=true` when running maven package. If you don't want to run integration tests, run with `-Dshort` flag
+```sh
+mvn clean package -Djava.net.preferIPv4Stack=true -Dshort
 ```
 
 To run locally, run:
