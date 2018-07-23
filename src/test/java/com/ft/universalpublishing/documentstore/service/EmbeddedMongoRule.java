@@ -19,7 +19,7 @@ public class EmbeddedMongoRule
         ServerAddress serverAddress;
         String shortTest = System.getProperty("short");
         //triggers a test skip if assumption is not met
-        Assume.<String>assumeTrue(shortTest == null);
+        Assume.assumeTrue(shortTest == null);
         String mongoTestUrl = System.getenv("MONGO_TEST_URL");
         if (mongoTestUrl == null) {
             Assert.fail("System property MONGO_TEST_URL should be set to a valid mongo server instance, e.g. MONGO_TEST_URL=localhost:27017. Alternatively you could skip these tests by providig the -Dshort java program flag");
