@@ -32,10 +32,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 public class MongoDocumentStoreService {
@@ -48,11 +47,41 @@ public class MongoDocumentStoreService {
     private static final String LIST_TYPE = "listType";
 
     private final MongoDatabase db;
-
-    public MongoDocumentStoreService(final MongoDatabase db) {
+    private ExecutorService exec;
+    private boolean indexed;
+    private Runnable reindexer = () -> applyIndexes();
+    
+    public MongoDocumentStoreService(final MongoDatabase db, ExecutorService exec) {
         this.db = db;
+        this.exec = exec;
+        exec.submit(reindexer);
     }
-
+    
+    public boolean isConnected() {
+        boolean connected = false;
+        
+        try {
+            Document commandResult = db.runCommand(Document.parse("{ serverStatus : 1 }"));
+            connected = !commandResult.isEmpty();
+        } catch (MongoException e) {
+            LOG.warn("Cannot verify MongoDB connection", e);
+        }
+        
+        if (connected && !indexed) {
+            // maybe we made a new connection, ensure indexes are created
+            exec.submit(reindexer);
+        } else if (!connected) {
+            // we lost a connection, assume indexes are not up to date
+            indexed = false;
+        }
+        
+        return connected;
+    }
+    
+    public boolean isIndexed() {
+        return indexed;
+    }
+    
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
@@ -195,13 +224,14 @@ public class MongoDocumentStoreService {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public void applyIndexes() {
         applyIndexForCollection("content");
         applyIndexForCollection("internalcomponents");
         applyIndexForListCollection();
+        indexed = true;
     }
 
+    @SuppressWarnings("rawtypes")
     private void applyIndexForListCollection() {
         MongoCollection lists = db.getCollection(LISTS_COLLECTION);
         LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
@@ -210,6 +240,7 @@ public class MongoDocumentStoreService {
         createConceptAndListTypeIndex(lists);
     }
 
+    @SuppressWarnings("rawtypes")
     private void applyIndexForCollection(String collection) {
         MongoCollection mongoCollection = db.getCollection(collection);
         LOG.info("Creating UUID index on collection [{}]", collection);

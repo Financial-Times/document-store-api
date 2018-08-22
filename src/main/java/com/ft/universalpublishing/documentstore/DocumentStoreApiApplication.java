@@ -3,7 +3,6 @@ package com.ft.universalpublishing.documentstore;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
-import com.ft.platform.dropwizard.DefaultGoodToGoChecker;
 import com.ft.platform.dropwizard.GoodToGoConfiguredBundle;
 import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
@@ -13,7 +12,10 @@ import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.PreSaveFieldRemovalHandler;
 import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
-import com.ft.universalpublishing.documentstore.health.DocumentStoreHealthCheck;
+import com.ft.universalpublishing.documentstore.health.DocumentStoreConnectionGoodToGoChecker;
+import com.ft.universalpublishing.documentstore.health.DocumentStoreConnectionHealthCheck;
+import com.ft.universalpublishing.documentstore.health.DocumentStoreIndexHealthCheck;
+import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
@@ -32,15 +34,12 @@ import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import java.util.ArrayList;
@@ -53,15 +52,13 @@ import java.util.Optional;
 
 public class DocumentStoreApiApplication extends Application<DocumentStoreApiConfiguration> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DocumentStoreApiApplication.class);
-
     public static void main(final String[] args) throws Exception {
         new DocumentStoreApiApplication().run(args);
     }
 
     @Override
     public void initialize(final Bootstrap<DocumentStoreApiConfiguration> bootstrap) {
-        bootstrap.addBundle(new GoodToGoConfiguredBundle(new DefaultGoodToGoChecker()));
+        bootstrap.addBundle(new GoodToGoConfiguredBundle(new DocumentStoreConnectionGoodToGoChecker()));
         bootstrap.addBundle(new AdvancedHealthCheckBundle());
     }
 
@@ -78,23 +75,14 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         environment.jersey().register(new BuildInfoResource());
 
-        MongoDatabase database = null;
-        MongoDocumentStoreService documentStoreService;
 
-        try {
-            final MongoClient mongoClient = getMongoClient(configuration.getMongo());
-            database = mongoClient.getDatabase(configuration.getMongo().getDb());
-            documentStoreService = new MongoDocumentStoreService(database);
-
-            // this will fail and timeout if MongoClient fails to connect to any configured node initially
-            documentStoreService.applyIndexes();
-            registerResources(configuration, environment, documentStoreService);
-        } catch (final MongoException e) {
-            logger.error("Failed to connect to mongo database, check/fix the issues and restart the service.", e);
-        } finally {
-            // We are registering health checks regardless, so that we can have proper visibility
-            registerHealthChecks(configuration, environment, database);
-        }
+        final MongoClient mongoClient = getMongoClient(configuration.getMongo());
+        final MongoDatabase database = mongoClient.getDatabase(configuration.getMongo().getDb());
+        final MongoDocumentStoreService documentStoreService =
+                new MongoDocumentStoreService(database, environment.lifecycle().executorService("reindexer").build());
+        
+        registerHealthChecks(configuration, environment, documentStoreService);
+        registerResources(configuration, environment, documentStoreService);
     }
 
 
@@ -166,9 +154,14 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
     }
 
-    void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment, MongoDatabase database) {
-        environment.healthChecks().register(configuration.getHealthcheckParameters().getName(),
-                new DocumentStoreHealthCheck(database, configuration.getHealthcheckParameters()));
+    private void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment, MongoDocumentStoreService service) {
+        HealthcheckParameters healthcheckParameters = configuration.getConnectionHealthcheckParameters();
+        environment.healthChecks().register(healthcheckParameters.getName(),
+                new DocumentStoreConnectionHealthCheck(service, healthcheckParameters));
+        
+        healthcheckParameters = configuration.getIndexHealthcheckParameters();
+        environment.healthChecks().register(healthcheckParameters.getName(),
+                new DocumentStoreIndexHealthCheck(service, healthcheckParameters));
     }
 
     private MongoClient getMongoClient(MongoConfig config) {
