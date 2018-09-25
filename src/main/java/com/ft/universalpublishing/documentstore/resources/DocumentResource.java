@@ -1,12 +1,21 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.savoirtech.logging.slf4j.json.LoggerFactory;
+import com.savoirtech.logging.slf4j.json.logger.JsonLogger;
+import com.savoirtech.logging.slf4j.json.logger.Logger;
+
 import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
+import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
+import com.ft.universalpublishing.documentstore.exception.MethodeNotAllowedException;
+import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,9 +27,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+
+import javafx.animation.Animation;
+import jdk.net.SocketFlow;
+
+import static java.time.format.DateTimeFormatter.ISO_INSTANT;
+import static java.time.format.DateTimeFormatter.parsedExcessDays;
 
 @Path("/")
 public class DocumentResource {
@@ -28,6 +46,9 @@ public class DocumentResource {
   protected static final String CHARSET_UTF_8 = ";charset=utf-8";
 
   private Map<Pair<String, Operation>, HandlerChain> collections;
+  private final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
+  private final JsonLogger jsonLogger = LOGGER.info();
+
 
   public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
     this.collections = collections;
@@ -101,8 +122,32 @@ public class DocumentResource {
     context.setUuids(uuidString);
     context.setContentMap(contentMap);
     context.setUriInfo(uriInfo);
-    HandlerChain handlerChain = getHandlerChain(collection, Operation.ADD);
-    return handlerChain.execute(context);
+
+    try {
+
+      HandlerChain handlerChain = getHandlerChain(collection, Operation.ADD);
+      Object execute = handlerChain.execute(context);
+      jsonLogger.field("@time", ISO_INSTANT.format(Instant.now()))
+              .field("event", "SaveDocStore")
+              .field("collection", collection)
+              .field("monitoring_event", "true")
+              .field("service_name", "document-store-api")
+              .message("Successfully saved")
+              .log();
+      return execute;
+
+    } catch (MethodeNotAllowedException e) {
+      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
+              .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
+              .field("service_name", "document-store-api").message("Error :" +e.getMessage()).log();
+      throw ClientError.status(405).exception();
+
+    } catch (ValidationException ex) {
+      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
+              .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
+              .field("service_name", "document-store-api").message("Error :" +ex.getMessage()).log();
+      throw ClientError.status(400).exception();
+    }
   }
 
 
@@ -115,10 +160,33 @@ public class DocumentResource {
     context.setUuids(uuidString);
     context.setCollection(collection);
     context.setUriInfo(uriInfo);
-    HandlerChain handlerChain = getHandlerChain(collection, Operation.REMOVE);
-    return handlerChain.execute(context);
-  }
+    try {
 
+      HandlerChain handlerChain = getHandlerChain(collection, Operation.REMOVE);
+      Object execute = handlerChain.execute(context);
+      jsonLogger.field("uuid", uuidString)
+              .field("@time", ISO_INSTANT.format(Instant.now()))
+              .field("event", "SaveDocStore")
+              .field("collection", collection)
+              .field("monitoring_event", "true")
+              .field("service_name", "document-store-api")
+              .message("Successfully deleted")
+              .log();
+      return execute;
+
+    } catch (MethodeNotAllowedException e) {
+      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
+              .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
+              .field("service_name", "document-store-api").message("Error :" +e.getMessage()).log();
+      throw ClientError.status(405).exception();
+
+    } catch (ValidationException ex) {
+      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
+              .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
+              .field("service_name", "document-store-api").message("Error :" +ex.getMessage()).log();
+      throw ClientError.status(400).exception();
+    }
+  }
 
   protected HandlerChain getHandlerChain(String collection, Operation Operation) {
     Pair<String, Operation> pair = new Pair<>(collection, Operation);
