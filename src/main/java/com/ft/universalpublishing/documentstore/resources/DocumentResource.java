@@ -6,16 +6,13 @@ import com.savoirtech.logging.slf4j.json.logger.JsonLogger;
 import com.savoirtech.logging.slf4j.json.logger.Logger;
 
 import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
-import com.ft.universalpublishing.documentstore.exception.MethodeNotAllowedException;
+import com.ft.api.jaxrs.errors.WebApplicationClientException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,18 +24,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import javafx.animation.Animation;
-import jdk.net.SocketFlow;
-
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
-import static java.time.format.DateTimeFormatter.parsedExcessDays;
 
 @Path("/")
 public class DocumentResource {
@@ -48,6 +40,7 @@ public class DocumentResource {
   private Map<Pair<String, Operation>, HandlerChain> collections;
   private final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
   private final JsonLogger jsonLogger = LOGGER.info();
+  private final JsonLogger jsonErrorLogger = LOGGER.error();
 
 
   public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
@@ -136,20 +129,13 @@ public class DocumentResource {
               .log();
       return execute;
 
-    } catch (MethodeNotAllowedException e) {
-      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
-              .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
-              .field("service_name", "document-store-api").message("Error :" +e.getMessage()).log();
-      throw ClientError.status(405).exception();
-
-    } catch (ValidationException ex) {
-      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
+    } catch (WebApplicationClientException ex) {
+      jsonErrorLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
               .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
               .field("service_name", "document-store-api").message("Error :" +ex.getMessage()).log();
-      throw ClientError.status(400).exception();
+      throw ex;
     }
   }
-
 
   @DELETE
   @Timed
@@ -160,6 +146,7 @@ public class DocumentResource {
     context.setUuids(uuidString);
     context.setCollection(collection);
     context.setUriInfo(uriInfo);
+
     try {
 
       HandlerChain handlerChain = getHandlerChain(collection, Operation.REMOVE);
@@ -174,17 +161,11 @@ public class DocumentResource {
               .log();
       return execute;
 
-    } catch (MethodeNotAllowedException e) {
-      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
+    } catch (WebApplicationClientException e) {
+      jsonErrorLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
               .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
-              .field("service_name", "document-store-api").message("Error :" +e.getMessage()).log();
-      throw ClientError.status(405).exception();
-
-    } catch (ValidationException ex) {
-      jsonLogger.field("uuid", uuidString).field("@time", ISO_INSTANT.format(Instant.now()))
-              .field("event", "SaveDocStore").field("monitoring_event", "true").field("collection", collection)
-              .field("service_name", "document-store-api").message("Error :" +ex.getMessage()).log();
-      throw ClientError.status(400).exception();
+              .field("service_name", "document-store-api").message("Error :" + e.getMessage()).log();
+      throw e;
     }
   }
 

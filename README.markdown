@@ -184,3 +184,6 @@ Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type s
 
 If you need to add a new resource, add in DocumentStoreApiApplication a new chain handler for the wanted operations.
 Handler and Targets can be reused in multiple chains.
+
+## Logging
+This service uses the savoirtech slf4j-json-logger library. Although this is mostly a drop-in replacement for SLF4J, events are queried by monitoring tools from Splunk and the logging pattern should be left as `%m%n` as described in [their README](https://github.com/savoirtech/slf4j-json-logger#logging-configuration).
