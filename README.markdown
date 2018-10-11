@@ -4,6 +4,14 @@
 
 Document Store API is a Dropwizard application which allows writes to and reads from MongoDB.
 
+Reading content by API users should be done via the /content-read/{uuid} endpoint. This makes sure the format of the response obeys the contract that our API was designed by.
+
+The /content/{uuid} endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
+
+These two endpoints should be separated into two independent applications, all of them using the name /content, one reading, one formatting, but that was scheduled to be later, for now both layers are in the same app.
+
+Operations on lists DOES NOT share the same logic, their read/writes are separate from this mechanism.
+
 ## Running locally
 
 To compile and build jar
@@ -181,3 +189,6 @@ There are healthchecks for
 
 Only the connection healthcheck influences GTG responses. Whenever a change is detected in the connection state, the application may move between states in the following state chart.
 ![state chart](https://www.lucidchart.com/publicSegments/view/773931fc-d21d-44c2-a84f-b89d8508d930/image.jpeg)
+
+## Logging
+This service uses the savoirtech slf4j-json-logger library. Although this is mostly a drop-in replacement for SLF4J, events are queried by monitoring tools from Splunk and the logging pattern should be left as `%m%n` as described in [their README](https://github.com/savoirtech/slf4j-json-logger#logging-configuration).

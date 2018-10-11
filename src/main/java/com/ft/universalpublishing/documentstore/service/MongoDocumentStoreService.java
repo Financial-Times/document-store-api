@@ -50,23 +50,23 @@ public class MongoDocumentStoreService {
     private ExecutorService exec;
     private boolean indexed;
     private Runnable reindexer = () -> applyIndexes();
-    
+
     public MongoDocumentStoreService(final MongoDatabase db, ExecutorService exec) {
         this.db = db;
         this.exec = exec;
         exec.submit(reindexer);
     }
-    
+
     public boolean isConnected() {
         boolean connected = false;
-        
+
         try {
             Document commandResult = db.runCommand(Document.parse("{ serverStatus : 1 }"));
             connected = !commandResult.isEmpty();
         } catch (MongoException e) {
             LOG.warn("Cannot verify MongoDB connection", e);
         }
-        
+
         if (connected && !indexed) {
             // maybe we made a new connection, ensure indexes are created
             exec.submit(reindexer);
@@ -74,14 +74,14 @@ public class MongoDocumentStoreService {
             // we lost a connection, assume indexes are not up to date
             indexed = false;
         }
-        
+
         return connected;
     }
-    
+
     public boolean isIndexed() {
         return indexed;
     }
-    
+
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
