@@ -39,10 +39,6 @@ To build the Docker image locally, you now need to pass build arguments to authe
 
     docker build -t coco/document-store-api --build-arg SONATYPE_USER=upp-nexus --build-arg SONATYPE_PASSWORD=AvailableInLastPass .
 
-To build the final image, check in, push, and wait three minutes: [this Jenkins job](http://ftjen06609-lvpr-uk-p:8181/job/document-store-api/) will build and package the application.
-
-The creation of the Docker image for will be automatically triggered after the merge and push in master branch by [this Jenkins job](http://ftaps116-lvpr-uk-d:8080/job/document-store-api/).
-
 ## Content PUT
 
 Make a PUT request to `http://localhost:14180/content/{uuid}` with `Content-Type` set to `application/json`.
@@ -184,6 +180,15 @@ Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type s
 
 If you need to add a new resource, add in DocumentStoreApiApplication a new chain handler for the wanted operations.
 Handler and Targets can be reused in multiple chains.
+
+## Healthchecks and GTG
+
+There are healthchecks for
+- connection to MongoDB
+- index state of MongoDB collections
+
+Only the connection healthcheck influences GTG responses. Whenever a change is detected in the connection state, the application may move between states in the following state chart.
+![state chart](https://www.lucidchart.com/publicSegments/view/773931fc-d21d-44c2-a84f-b89d8508d930/image.jpeg)
 
 ## Logging
 This service uses the savoirtech slf4j-json-logger library. Although this is mostly a drop-in replacement for SLF4J, events are queried by monitoring tools from Splunk and the logging pattern should be left as `%m%n` as described in [their README](https://github.com/savoirtech/slf4j-json-logger#logging-configuration).

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -57,7 +58,7 @@ public class MongoDocumentStoreServiceListTest {
         MongoDatabase db = MONGO.client().getDatabase(DB_NAME);
         db.getCollection(DB_COLLECTION).drop();
 
-        mongoDocumentStoreService = new MongoDocumentStoreService(db);
+        mongoDocumentStoreService = new MongoDocumentStoreService(db, Executors.newSingleThreadExecutor());
         mongoDocumentStoreService.applyIndexes();
         collection = db.getCollection("lists");
         uuid = UUID.randomUUID();

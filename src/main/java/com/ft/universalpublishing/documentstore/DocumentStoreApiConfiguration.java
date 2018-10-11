@@ -22,18 +22,21 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
   private final MongoConfig mongo;
   private final String cacheTtl;
 
-  private HealthcheckParameters healthcheckParameters;
+  private HealthcheckParameters connectionHealthcheckParameters;
+  private HealthcheckParameters indexHealthcheckParameters;
 
   public DocumentStoreApiConfiguration(
           @JsonProperty("mongo") MongoConfig mongo,
           @JsonProperty("apiHost") String apiHost,
           @JsonProperty("cacheTtl") String cacheTtl,
-          @JsonProperty("healthcheckParameters") HealthcheckParameters healthcheckParameters) {
+          @JsonProperty("connectionHealthcheckParameters") HealthcheckParameters connectionHealthcheckParameters,
+          @JsonProperty("indexHealthcheckParameters") HealthcheckParameters indexHealthcheckParameters) {
       super();
       this.mongo = mongo;
       this.apiHost = apiHost;
       this.cacheTtl = cacheTtl;
-      this.healthcheckParameters = healthcheckParameters;
+      this.connectionHealthcheckParameters = connectionHealthcheckParameters;
+      this.indexHealthcheckParameters = indexHealthcheckParameters;
   }
 
   public MongoConfig getMongo() {
@@ -48,8 +51,12 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
       return cacheTtl;
   }
 
-  public HealthcheckParameters getHealthcheckParameters() {
-      return healthcheckParameters;
+  public HealthcheckParameters getConnectionHealthcheckParameters() {
+      return connectionHealthcheckParameters;
+  }
+
+  public HealthcheckParameters getIndexHealthcheckParameters() {
+      return indexHealthcheckParameters;
   }
 
 	@Override
