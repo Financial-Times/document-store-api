@@ -134,7 +134,7 @@ public class DocumentResource {
                     .field("monitoring_event", "true")
                     .field("collection", collection)
                     .field("service_name", "document-store-api")
-                    .message("Error :" + ex.getMessage())
+                    .message("Error: " + ex.getMessage())
                     .log();
             throw ex;
         }
@@ -170,7 +170,7 @@ public class DocumentResource {
                     .field("monitoring_event", "true")
                     .field("collection", collection)
                     .field("service_name", "document-store-api")
-                    .message("Error :" + e.getMessage())
+                    .message("Error: " + e.getMessage())
                     .log();
             throw e;
         }
