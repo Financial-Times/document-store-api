@@ -28,7 +28,6 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
