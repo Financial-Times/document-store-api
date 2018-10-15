@@ -28,6 +28,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
@@ -38,8 +39,6 @@ public class DocumentResource {
 
     private Map<Pair<String, Operation>, HandlerChain> collections;
     private final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
-    private final JsonLogger jsonLogger = LOGGER.info();
-    private final JsonLogger jsonErrorLogger = LOGGER.error();
 
 
     public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
@@ -116,6 +115,7 @@ public class DocumentResource {
         context.setUriInfo(uriInfo);
 
         try {
+            final JsonLogger jsonLogger = LOGGER.info();
             HandlerChain handlerChain = getHandlerChain(collection, Operation.ADD);
             Object result = handlerChain.execute(context);
             jsonLogger.field("@time", ISO_INSTANT.format(Instant.now()))
@@ -123,11 +123,15 @@ public class DocumentResource {
                     .field("collection", collection)
                     .field("monitoring_event", "true")
                     .field("service_name", "document-store-api")
+                    .field("content_type", "application/json")
+                    .field("uuid", uuidString)
                     .message("Successfully saved")
                     .log();
+            System.out.println("here");
             return result;
 
         } catch (WebApplicationClientException ex) {
+            final JsonLogger jsonErrorLogger = LOGGER.error();
             jsonErrorLogger.field("uuid", uuidString)
                     .field("@time", ISO_INSTANT.format(Instant.now()))
                     .field("event", "SaveDocStore")
@@ -145,12 +149,14 @@ public class DocumentResource {
     @Path("/{collection}/{uuidString}")
     public Object deleteFromCollection(@PathParam("uuidString") String uuidString,
                                        @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
+
         Context context = new Context();
         context.setUuids(uuidString);
         context.setCollection(collection);
         context.setUriInfo(uriInfo);
 
         try {
+            final JsonLogger jsonLogger = LOGGER.info();
             HandlerChain handlerChain = getHandlerChain(collection, Operation.REMOVE);
             Object result = handlerChain.execute(context);
             jsonLogger.field("uuid", uuidString)
@@ -164,6 +170,7 @@ public class DocumentResource {
             return result;
 
         } catch (WebApplicationClientException e) {
+            final JsonLogger jsonErrorLogger = LOGGER.error();
             jsonErrorLogger.field("uuid", uuidString)
                     .field("@time", ISO_INSTANT.format(Instant.now()))
                     .field("event", "SaveDocStore")
