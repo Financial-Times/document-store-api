@@ -123,6 +123,8 @@ public class DocumentResource {
                     .field("collection", collection)
                     .field("monitoring_event", "true")
                     .field("service_name", "document-store-api")
+                    .field("content_type", "application/json")
+                    .field("uuid", uuidString)
                     .message("Successfully saved")
                     .log();
             return result;
@@ -145,6 +147,7 @@ public class DocumentResource {
     @Path("/{collection}/{uuidString}")
     public Object deleteFromCollection(@PathParam("uuidString") String uuidString,
                                        @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
+
         Context context = new Context();
         context.setUuids(uuidString);
         context.setCollection(collection);

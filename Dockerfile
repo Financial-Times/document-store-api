@@ -26,5 +26,5 @@ CMD exec java $JAVA_OPTS \
          -Ddw.mongo.addresses=$MONGO_ADDRESSES \
          -Ddw.cacheTtl=$CACHE_TTL \
 		 -Ddw.apiHost=$API_HOST \
-		 -Ddw.logging.appenders[0].logFormat="%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %replace(%m%n[%thread]%xEx){'\n', '|'}%nopex%n" \
+		 -Ddw.logging.appenders[0].logFormat="%m%n" \
 		 -jar document-store-api.jar server config.yaml
