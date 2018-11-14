@@ -123,7 +123,7 @@ public class DocumentResource {
                     .field("collection", collection)
                     .field("monitoring_event", "true")
                     .field("service_name", "document-store-api")
-                    .field("content_type", getPayloadContentType(httpHeaders))
+                    .field("content_type", contentMap.get("type"))
                     .field("uuid", uuidString)
                     .message("Successfully saved")
                     .log();
