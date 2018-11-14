@@ -35,6 +35,7 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
+    private static final String appName = "document-store-api";
 
     private Map<Pair<String, Operation>, HandlerChain> collections;
     private final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
@@ -120,7 +121,7 @@ public class DocumentResource {
                     .field("event", "SaveDocStore")
                     .field("collection", collection)
                     .field("monitoring_event", "true")
-                    .field("service_name", "document-store-api")
+                    .field("service_name", appName)
                     .field("content_type", contentMap.get("type"))
                     .field("uuid", uuidString)
                     .message("Successfully saved")
@@ -134,7 +135,7 @@ public class DocumentResource {
                     .field("event", "SaveDocStore")
                     .field("monitoring_event", "true")
                     .field("collection", collection)
-                    .field("service_name", "document-store-api")
+                    .field("service_name", appName)
                     .message("Error: " + ex.getMessage())
                     .log();
             throw ex;
@@ -161,7 +162,7 @@ public class DocumentResource {
                     .field("event", "SaveDocStore")
                     .field("collection", collection)
                     .field("monitoring_event", "true")
-                    .field("service_name", "document-store-api")
+                    .field("service_name", appName)
                     .message("Successfully deleted")
                     .log();
             return result;
@@ -173,7 +174,7 @@ public class DocumentResource {
                     .field("event", "SaveDocStore")
                     .field("monitoring_event", "true")
                     .field("collection", collection)
-                    .field("service_name", "document-store-api")
+                    .field("service_name", appName)
                     .message("Error: " + e.getMessage())
                     .log();
             throw e;
