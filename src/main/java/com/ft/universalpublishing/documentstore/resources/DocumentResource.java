@@ -15,6 +15,7 @@ import com.savoirtech.logging.slf4j.json.logger.Logger;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -104,7 +105,8 @@ public class DocumentResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Object writeInCollection(@PathParam("uuidString") String uuidString,
                                     Map<String, Object> contentMap, @javax.ws.rs.core.Context UriInfo uriInfo,
-                                    @PathParam("collection") String collection) {
+                                    @PathParam("collection") String collection,
+                                    @javax.ws.rs.core.Context HttpHeaders httpHeaders) {
 
         Context context = new Context();
         context.setCollection(collection);
@@ -121,7 +123,7 @@ public class DocumentResource {
                     .field("collection", collection)
                     .field("monitoring_event", "true")
                     .field("service_name", "document-store-api")
-                    .field("content_type", "application/json")
+                    .field("content_type", getPayloadContentType(httpHeaders))
                     .field("uuid", uuidString)
                     .message("Successfully saved")
                     .log();
@@ -193,4 +195,13 @@ public class DocumentResource {
         });
         throw ClientError.status(400).exception();
     }
+
+    private String getPayloadContentType(final HttpHeaders httpHeaders) {
+        final List<String> contentTypeHeader = httpHeaders.getRequestHeader(HttpHeaders.CONTENT_TYPE);
+        if (contentTypeHeader == null || contentTypeHeader.isEmpty()) {
+            return null;
+        }
+        return contentTypeHeader.get(0);
+    }
+
 }
