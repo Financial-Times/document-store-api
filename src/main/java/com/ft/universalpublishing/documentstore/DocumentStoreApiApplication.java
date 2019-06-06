@@ -65,7 +65,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     @Override
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) {
         List<String> transactionUrlPattern = new ArrayList<>(
-                Arrays.asList("/lists/*", "/content-query", "/content/*", "/internalcomponents/*", "/complementarycontent/*"));
+                Arrays.asList("/generic-lists/*", "/lists/*", "/content-query", "/content/*", "/internalcomponents/*", "/complementarycontent/*"));
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true,
                         transactionUrlPattern.toArray(new String[0]));
@@ -146,6 +146,17 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         collections.put(new Pair<>("lists", Operation.ADD),
                 new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler).setTarget(writeDocument));
         collections.put(new Pair<>("lists", Operation.REMOVE),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+
+        collections.put(new Pair<>("generic-lists", Operation.GET_FILTERED),
+                new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
+        collections.put(new Pair<>("generic-lists", Operation.GET_MULTIPLE_FILTERED),
+                new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
+        collections.put(new Pair<>("generic-lists", Operation.GET_BY_ID),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
+        collections.put(new Pair<>("generic-lists", Operation.ADD),
+                new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler).setTarget(writeDocument));
+        collections.put(new Pair<>("generic-lists", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
         environment.jersey().register(new DocumentResource(collections));
