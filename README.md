@@ -25,6 +25,16 @@ To run all tests, you should remove the flag `-Dmaven.test.skip=true` when runni
 mvn clean package -Djava.net.preferIPv4Stack=true -Dshort
 ```
 
+To run all tests:
+
+```
+# Run local instance of MongoDB needed for some tests.
+docker-compose up mongodb -d
+
+# Execute all tests.
+MONGO_TEST_URL=localhost:27017 -Djava.net.preferIPv4Stack=true mvn clean package
+```
+
 To run locally, run:
 
 ```sh
