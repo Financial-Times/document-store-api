@@ -10,7 +10,7 @@ workflows:
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8u171-jdk
+      - image: circleci/openjdk:8-jdk
       - image: mongo:3.2.18
     steps:
       - checkout
