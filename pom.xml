@@ -29,7 +29,7 @@
         <guava.version>18.0</guava.version>
         <!-- Plugins -->
         <findbugs.version>2.5.2</findbugs.version>
-        <surefire.reportplugin.version>2.12.4</surefire.reportplugin.version>
+        <surefire.reportplugin.version>2.22.2</surefire.reportplugin.version>
         <maven-pmd-plugin.version>3.0.1</maven-pmd-plugin.version>
         <jacoco-maven-plugin.version>0.7.4.201502262128</jacoco-maven-plugin.version>
         <maven-jxr-plugin.version>2.3</maven-jxr-plugin.version>
@@ -212,6 +212,14 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<useSystemClassLoader>false</useSystemClassLoader>
+				</configuration>
+				<version>${surefire.reportplugin.version}</version>
+			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
