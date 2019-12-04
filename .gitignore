@@ -6,3 +6,6 @@ target/
 .project
 /bin
 .pydevproject
+
+# MongoDB local test dir
+data/db

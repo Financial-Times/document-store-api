@@ -1,18 +1,19 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.WebApplicationClientException;
-import com.ft.universalpublishing.documentstore.handler.HandlerChain;
-import com.ft.universalpublishing.documentstore.model.read.Context;
-import com.ft.universalpublishing.documentstore.model.read.Operation;
-import com.ft.universalpublishing.documentstore.model.read.Pair;
+import static com.ft.api.jaxrs.errors.ClientError.status;
+import static com.ft.universalpublishing.documentstore.model.read.Operation.ADD;
+import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_BY_ID;
+import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_FILTERED;
+import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_MULTIPLE_FILTERED;
+import static com.ft.universalpublishing.documentstore.model.read.Operation.REMOVE;
+import static javax.ws.rs.HttpMethod.GET;
+import static javax.ws.rs.HttpMethod.PUT;
+import static javax.ws.rs.HttpMethod.POST;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.UUID;
 
-import com.codahale.metrics.annotation.Timed;
-import com.savoirtech.logging.slf4j.json.LoggerFactory;
-import com.savoirtech.logging.slf4j.json.logger.JsonLogger;
-import com.savoirtech.logging.slf4j.json.logger.Logger;
-
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -26,41 +27,51 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import static java.time.format.DateTimeFormatter.ISO_INSTANT;
+import com.codahale.metrics.annotation.Timed;
+import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.api.jaxrs.errors.WebApplicationClientException;
+import com.ft.universalpublishing.documentstore.handler.HandlerChain;
+import com.ft.universalpublishing.documentstore.model.read.Context;
+import com.ft.universalpublishing.documentstore.model.read.Operation;
+import com.ft.universalpublishing.documentstore.model.read.Pair;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 
 @Path("/")
 public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
-    private static final String appName = "document-store-api";
 
     private Map<Pair<String, Operation>, HandlerChain> collections;
-    private final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
-
+    
+    private FluentLoggingWrapper logger;
+    
     public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
         this.collections = collections;
+        logger = new FluentLoggingWrapper();
+        logger.withClassName(this.getClass().getCanonicalName());
     }
 
     @GET
     @Timed
     @Path("/{collection}/{uuidString}")
-    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    @Produces(APPLICATION_JSON + CHARSET_UTF_8)
     public final Object getFromCollectionByUuid(
             @PathParam("uuidString") String uuidString, @PathParam("collection") String collection) {
         Context context = new Context();
         context.setUuids(uuidString);
         context.setCollection(collection);
-        HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_BY_ID);
+        context.addParameter(METHOD, GET);
+        
+        HandlerChain handlerChain = getHandlerChain(collection, GET_BY_ID);
         return handlerChain.execute(context);
     }
 
     @GET
     @Timed
     @Path("/{collection}")
-    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    @Produces(APPLICATION_JSON + CHARSET_UTF_8)
     public final Object getFromCollectionByUuids(
             @javax.ws.rs.core.Context HttpHeaders httpHeaders,
             @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
@@ -68,25 +79,27 @@ public class DocumentResource {
         context.setUriInfo(uriInfo);
         context.setHttpHeaders(httpHeaders);
         context.setCollection(collection);
-        HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_FILTERED);
+        context.addParameter(METHOD, GET);
+        
+        HandlerChain handlerChain = getHandlerChain(collection, GET_FILTERED);
         return handlerChain.execute(context);
     }
 
     @POST
     @Timed
     @Path("/{collection}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON + CHARSET_UTF_8)
     public final Object getFromCollectionByUuids(@javax.ws.rs.core.Context HttpHeaders httpHeaders,
                                                  List<String> uuidList,
                                                  @javax.ws.rs.core.Context UriInfo uriInfo,
                                                  @PathParam("collection") String collection,
                                                  @QueryParam("mget") boolean mget) {
         if (!mget) {
-            throw ClientError.status(400).exception(new IllegalArgumentException("This is an endpoint for retrieving data, not writing. You must supply query parameter ?mget=true"));
+            throw status(400).exception(new IllegalArgumentException("This is an endpoint for retrieving data, not writing. You must supply query parameter ?mget=true"));
         }
         if (uuidList == null) {
-            throw ClientError.status(400).exception(new IllegalArgumentException("Incorrect format of request body. It's not an array of strings."));
+            throw status(400).exception(new IllegalArgumentException("Incorrect format of request body. It's not an array of strings."));
         }
 
         Context context = new Context();
@@ -94,15 +107,17 @@ public class DocumentResource {
         context.setHttpHeaders(httpHeaders);
         context.setCollection(collection);
         context.setUuids(uuidList);
-        HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_MULTIPLE_FILTERED);
+        context.addParameter(METHOD, POST);
+
+        HandlerChain handlerChain = getHandlerChain(collection, GET_MULTIPLE_FILTERED);
         return handlerChain.execute(context);
     }
 
     @PUT
     @Timed
     @Path("/{collection}/{uuidString}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     public Object writeInCollection(@PathParam("uuidString") String uuidString,
                                     Map<String, Object> contentMap, @javax.ws.rs.core.Context UriInfo uriInfo,
                                     @PathParam("collection") String collection) {
@@ -112,32 +127,21 @@ public class DocumentResource {
         context.setUuids(uuidString);
         context.setContentMap(contentMap);
         context.setUriInfo(uriInfo);
+        context.addParameter(METHOD, PUT);
+
+        logger.withMetodName("writeInCollection").withRequestParameters(context, "/{collection}/{uuidString}")
+                .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {
-            final JsonLogger jsonLogger = LOGGER.info();
-            HandlerChain handlerChain = getHandlerChain(collection, Operation.ADD);
+            HandlerChain handlerChain = getHandlerChain(collection, ADD);
             Object result = handlerChain.execute(context);
-            jsonLogger.field("@time", ISO_INSTANT.format(Instant.now()))
-                    .field("event", "SaveDocStore")
-                    .field("collection", collection)
-                    .field("monitoring_event", "true")
-                    .field("service_name", appName)
-                    .field("content_type", contentMap.get("type"))
-                    .field("uuid", uuidString)
-                    .message("Successfully saved")
-                    .log();
+            logger.withField(MESSAGE, "Successfully saved").build().log();
+
             return result;
 
         } catch (WebApplicationClientException ex) {
-            final JsonLogger jsonErrorLogger = LOGGER.error();
-            jsonErrorLogger.field("uuid", uuidString)
-                    .field("@time", ISO_INSTANT.format(Instant.now()))
-                    .field("event", "SaveDocStore")
-                    .field("monitoring_event", "true")
-                    .field("collection", collection)
-                    .field("service_name", appName)
-                    .message("Error: " + ex.getMessage())
-                    .log();
+            logger.withField(MESSAGE, "Error: " + ex.getMessage()).build().logError();
+
             throw ex;
         }
     }
@@ -152,31 +156,21 @@ public class DocumentResource {
         context.setUuids(uuidString);
         context.setCollection(collection);
         context.setUriInfo(uriInfo);
+        context.addParameter(METHOD, "DELETE");
+
+        logger.withMetodName("deleteFromCollection").withRequestParameters(context, "/{collection}/{uuidString}")
+                .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {
-            final JsonLogger jsonLogger = LOGGER.info();
-            HandlerChain handlerChain = getHandlerChain(collection, Operation.REMOVE);
+            HandlerChain handlerChain = getHandlerChain(collection, REMOVE);
             Object result = handlerChain.execute(context);
-            jsonLogger.field("uuid", uuidString)
-                    .field("@time", ISO_INSTANT.format(Instant.now()))
-                    .field("event", "SaveDocStore")
-                    .field("collection", collection)
-                    .field("monitoring_event", "true")
-                    .field("service_name", appName)
-                    .message("Successfully deleted")
-                    .log();
+            logger.withField(MESSAGE, "Successfully deleted").build().log();
+
             return result;
 
         } catch (WebApplicationClientException e) {
-            final JsonLogger jsonErrorLogger = LOGGER.error();
-            jsonErrorLogger.field("uuid", uuidString)
-                    .field("@time", ISO_INSTANT.format(Instant.now()))
-                    .field("event", "SaveDocStore")
-                    .field("monitoring_event", "true")
-                    .field("collection", collection)
-                    .field("service_name", appName)
-                    .message("Error: " + e.getMessage())
-                    .log();
+            logger.withField(MESSAGE, "Error: " + e.getMessage()).build().logError();
+
             throw e;
         }
     }

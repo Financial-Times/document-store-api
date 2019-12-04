@@ -4,6 +4,7 @@ import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.target.Target;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,9 +23,7 @@ public class HandlerChain {
 
 
     public HandlerChain addHandlers(Handler... handlers) {
-        for (Handler handler : handlers) {
-            this.handlers.add(handler);
-        }
+        this.handlers.addAll(Arrays.asList(handlers));
         return this;
     }
 

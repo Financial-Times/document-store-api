@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 
 public class MongoDocumentStoreServiceContentTest {
     @ClassRule
@@ -108,14 +109,14 @@ public class MongoDocumentStoreServiceContentTest {
         collection.insertOne(toInsert);
 
 
-        Map<String, Object> contentMap = new HashMap<>(mongoDocumentStoreService.findByUuid("content", uuid));
+        Map<String, Object> contentMap = new HashMap<>(mongoDocumentStoreService.findByUuid("content", uuid, "GET"));
         contentMap.remove("_id");
         assertThat(contentMap, is(outboundContent));
     }
 
     @Test(expected = DocumentNotFoundException.class)
     public void contentNotInStoreShouldNotBeReturned() {
-        mongoDocumentStoreService.findByUuid("content", uuid);
+        mongoDocumentStoreService.findByUuid("content", uuid, "GET");
     }
 
     @Test
@@ -155,7 +156,7 @@ public class MongoDocumentStoreServiceContentTest {
         uuids.add(uuid);
         uuids.add(uuid2);
         
-        Set<Map<String, Object>> content = mongoDocumentStoreService.findByUuids("content", uuids);
+        Set<Map<String, Object>> content = mongoDocumentStoreService.findByUuids("content", uuids, "GET");
         
         assertThat(content.size(), equalTo(2));
         
@@ -184,7 +185,7 @@ public class MongoDocumentStoreServiceContentTest {
         uuids.add(uuid2);
         uuids.add(uuid);
         
-        Set<Map<String, Object>> content = mongoDocumentStoreService.findByUuids("content", uuids);
+        Set<Map<String, Object>> content = mongoDocumentStoreService.findByUuids("content", uuids, "GET");
         
         assertThat(content.size(), equalTo(1));
         assertThat((String)content.iterator().next().get("uuid"), equalTo(uuid.toString()));
@@ -192,7 +193,7 @@ public class MongoDocumentStoreServiceContentTest {
 
     @Test
     public void contentShouldBePersistedOnWrite() {
-        DocumentWritten result = mongoDocumentStoreService.write("content", content);
+        DocumentWritten result = mongoDocumentStoreService.write("content", content, "POST");
         assertThat(result.getMode(), is(Mode.Created));
         Document foundContent = collection.find().filter(Filters.eq("uuid", uuid.toString())).first();
         assertThat(foundContent, notNullValue());
@@ -206,13 +207,13 @@ public class MongoDocumentStoreServiceContentTest {
 
     @Test
     public void contentShouldBeDeletedOnRemove() {
-        DocumentWritten result = mongoDocumentStoreService.write("content", content);
+        DocumentWritten result = mongoDocumentStoreService.write("content", content, "POST");
         assertThat(result.getMode(), is(Mode.Created));
         Document foundContent = collection.find().filter(Filters.eq("uuid", uuid.toString())).first();
         assertThat(foundContent, notNullValue());
         assertThat((String) foundContent.get("title"), is("Here is the news"));
 
-        mongoDocumentStoreService.delete("content", uuid);
+        mongoDocumentStoreService.delete("content", uuid, "DELETE");
         assertThat(collection.find().filter(Filters.eq("uuid", uuid.toString())).first(), nullValue());
     }
 
@@ -221,7 +222,7 @@ public class MongoDocumentStoreServiceContentTest {
         exception.expect(DocumentNotFoundException.class);
         exception.expectMessage(String.format("Document with uuid : %s not found!", uuid));
 
-        mongoDocumentStoreService.delete("content", uuid);
+        mongoDocumentStoreService.delete("content", uuid, "DELETE");
     }
 
     @Test

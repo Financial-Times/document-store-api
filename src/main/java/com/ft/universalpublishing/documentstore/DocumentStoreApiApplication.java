@@ -1,5 +1,7 @@
 package com.ft.universalpublishing.documentstore;
 
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
+
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
@@ -30,6 +32,7 @@ import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUu
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
@@ -65,7 +68,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     @Override
     public void run(final DocumentStoreApiConfiguration configuration, final Environment environment) {
         List<String> transactionUrlPattern = new ArrayList<>(
-                Arrays.asList("/lists/*", "/content-query", "/content/*", "/internalcomponents/*", "/complementarycontent/*"));
+                Arrays.asList("/generic-lists/*", "/lists/*", "/content-query", "/content/*", "/internalcomponents/*", "/complementarycontent/*"));
         environment.servlets().addFilter("transactionIdFilter", new TransactionIdFilter())
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true,
                         transactionUrlPattern.toArray(new String[0]));
@@ -148,9 +151,24 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         collections.put(new Pair<>("lists", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
+        collections.put(new Pair<>("generic-lists", Operation.GET_FILTERED),
+                new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
+        collections.put(new Pair<>("generic-lists", Operation.GET_MULTIPLE_FILTERED),
+                new HandlerChain().addHandlers(multipleUuidValidationHandler).setTarget(findMultipleResourcesByUuidsTarget));
+        collections.put(new Pair<>("generic-lists", Operation.GET_BY_ID),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
+        collections.put(new Pair<>("generic-lists", Operation.ADD),
+                new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler).setTarget(writeDocument));
+        collections.put(new Pair<>("generic-lists", Operation.REMOVE),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+
         environment.jersey().register(new DocumentResource(collections));
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
         environment.jersey().register(new DocumentIDResource(documentStoreService));
+
+        FluentLoggingWrapper logger = new FluentLoggingWrapper();
+        logger.withClassName(this.getClass().getCanonicalName()).withMetodName("run")
+                .withField(MESSAGE, "Application started").build().logInfo();
 
     }
 

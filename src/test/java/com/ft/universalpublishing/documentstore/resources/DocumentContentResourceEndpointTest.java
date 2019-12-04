@@ -130,7 +130,7 @@ public class DocumentContentResourceEndpointTest {
     reset(documentStoreService);
     reset(contentListValidator);
     reset(uuidValidator);
-    when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.created(document));
+    when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class))).thenReturn(DocumentWritten.created(document));
   }
 
   //WRITE
@@ -139,12 +139,12 @@ public class DocumentContentResourceEndpointTest {
   public void shouldReturn201ForNewDocument() {
     Response clientResponse = writeDocument(contentPath, document);
     assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
-    verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class));
+    verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class));
   }
 
   @Test
   public void shouldReturn200ForUpdatedContent() {
-    when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.updated(document));
+    when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class))).thenReturn(DocumentWritten.updated(document));
 
     Response clientResponse = writeDocument(contentPath, document);
     assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -161,7 +161,7 @@ public class DocumentContentResourceEndpointTest {
 
   @Test
   public void shouldReturn503WhenCannotAccessExternalSystem() {
-    when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
+    when(documentStoreService.write(eq(RESOURCE_TYPE), any(), any(String.class))).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
 
     Response clientResponse = writeDocument(contentPath, document);
 
@@ -175,7 +175,7 @@ public class DocumentContentResourceEndpointTest {
 	    Document docInitial = new Document(content);
 		content.remove("storyPackage");
 		Document docRemove = new Document(content);
-		when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(
+		when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class))).thenReturn(
 				DocumentWritten.updated(docRemove));
 
 		Response clientResponse = writeDocument(contentPath, docInitial);
@@ -189,7 +189,7 @@ public class DocumentContentResourceEndpointTest {
     final Document localDoc = getContent(UUID.randomUUID().toString());
 
     final ArgumentCaptor<Map> contentCaptor = ArgumentCaptor.forClass(Map.class);
-    when(documentStoreService.write(eq(RESOURCE_TYPE), contentCaptor.capture())).thenReturn(DocumentWritten.created(localDoc));
+    when(documentStoreService.write(eq(RESOURCE_TYPE), contentCaptor.capture(), any(String.class))).thenReturn(DocumentWritten.created(localDoc));
 
     final Response response = writeDocument(contentPath, localDoc);
     assertThat(response.getStatus(), is(201));
@@ -211,7 +211,7 @@ public class DocumentContentResourceEndpointTest {
 
   @Test
   public void shouldReturn200WhenDeletingNonExistentContent() {
-    doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
+    doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class), any(String.class));
 
     Response clientResponse = resources.client().target(contentPath).request()
             .delete();
@@ -231,7 +231,7 @@ public class DocumentContentResourceEndpointTest {
 
   @Test
   public void shouldReturn503OnDeleteWhenMongoIsntReachable() {
-    doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
+    doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class), any(String.class));
 
     Response clientResponse = resources.client().target(contentPath).request()
             .delete();
@@ -242,7 +242,7 @@ public class DocumentContentResourceEndpointTest {
   //READ
   @Test
   public void shouldReturn200WhenReadSuccessfully() {
-    when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(document);
+    when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class))).thenReturn(document);
     Response clientResponse = resources.client().target(contentPath)
             .request().get();
 
@@ -270,7 +270,7 @@ public class DocumentContentResourceEndpointTest {
     documents.add(document1);
     documents.add(document2);
 
-    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(documents);
+    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids), any(String.class))).thenReturn(documents);
 
     Response clientResponse = resources.client().target("/content")
             .queryParam("uuid", id1)
@@ -311,7 +311,7 @@ public class DocumentContentResourceEndpointTest {
     uuids.add(uuid1);
     uuids.add(uuid2);
 
-    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(Collections.singleton(document2));
+    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids), any(String.class))).thenReturn(Collections.singleton(document2));
 
     Response clientResponse = resources.client().target("/content")
             .queryParam("uuid", id1)
@@ -334,7 +334,7 @@ public class DocumentContentResourceEndpointTest {
   public void thatReturns200EvenIfNoUUIDsAreFound() {
     UUID uuid1 = UUID.randomUUID();
     String id1 = uuid1.toString();
-    when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenThrow(new DocumentNotFoundException(null));
+    when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class))).thenThrow(new DocumentNotFoundException(null));
 
     UUID uuid2 = UUID.randomUUID();
     String id2 = uuid2.toString();
@@ -368,7 +368,7 @@ public class DocumentContentResourceEndpointTest {
     documents.add(document1);
     documents.add(document2);
 
-    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet))).thenReturn(documents);
+    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet), any(String.class))).thenReturn(documents);
 
     Response clientResponse = resources.client().target("/content?mget=true")
             .request()
@@ -404,7 +404,7 @@ public class DocumentContentResourceEndpointTest {
     uuidSet.add(uuid1);
     uuidSet.add(uuid2);
 
-    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet))).thenReturn(Collections.singleton(document));
+    when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuidSet), any(String.class))).thenReturn(Collections.singleton(document));
 
     Response clientResponse = resources.client().target("/content?mget=true")
             .request()
@@ -459,7 +459,7 @@ public class DocumentContentResourceEndpointTest {
 
   @Test
   public void shouldReturn404WhenContentNotFound() {
-    when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
+    when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class)))
             .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
 
     Response clientResponse = resources.client().target(contentPath).request()
@@ -481,7 +481,7 @@ public class DocumentContentResourceEndpointTest {
 
   @Test
   public void shouldReturn503OnReadWhenMongoIsntReachable() {
-    doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class));
+    doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class));
 
     Response clientResponse = resources.client().target(contentPath).request()
             .get(Response.class);

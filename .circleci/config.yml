@@ -10,7 +10,7 @@ workflows:
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8u171-jdk
+      - image: circleci/openjdk:8-jdk-stretch
       - image: mongo:3.2.18
     steps:
       - checkout
@@ -19,7 +19,10 @@ jobs:
           name: Build package & run tests
           command: |
             export MONGO_TEST_URL=localhost:27017
-            mvn clean package -Djava.net.preferIPv4Stack=true
+            mkdir ~/.m2/
+            curl -v -o ~/.m2/settings.xml "https://raw.githubusercontent.com/Financial-Times/nexus-settings/master/public-settings.xml"
+            mvn clean package -Djava.net.preferIPv4Stack=true  
+            rm -rf ~/.m2/*            
       - run:
           name: Set Docker image tag based on branch or git tag
           command: |
