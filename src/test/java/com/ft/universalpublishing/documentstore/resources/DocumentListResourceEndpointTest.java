@@ -157,7 +157,7 @@ public class DocumentListResourceEndpointTest {
         reset(documentStoreService);
         reset(contentListValidator);
         reset(uuidValidator);
-        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.created(listAsDocument));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class))).thenReturn(DocumentWritten.created(listAsDocument));
     }
 
     //WRITE
@@ -166,12 +166,12 @@ public class DocumentListResourceEndpointTest {
     public void shouldReturn201ForNewDocument() {
         Response clientResponse = writeDocument(uuidPath, listAsDocument);
         assertThat("response", clientResponse, hasProperty("status", equalTo(201)));
-        verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class));
+        verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class));
     }
 
     @Test
     public void shouldReturn200ForUpdatedContent() {
-        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class))).thenReturn(DocumentWritten.updated(listAsDocument));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class), any(String.class))).thenReturn(DocumentWritten.updated(listAsDocument));
 
         Response clientResponse = writeDocument(uuidPath, listAsDocument);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -188,7 +188,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn503WhenCannotAccessExternalSystem() {
-        when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any(), any(String.class))).thenThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo"));
 
         Response clientResponse = writeDocument(uuidPath, listAsDocument);
 
@@ -198,7 +198,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn500WhenExternalSystemHasAnInternalException() {
-        when(documentStoreService.write(eq(RESOURCE_TYPE), any())).thenThrow(new ExternalSystemInternalServerException(new IllegalArgumentException("Some bogus exception")));
+        when(documentStoreService.write(eq(RESOURCE_TYPE), any(), any(String.class))).thenThrow(new ExternalSystemInternalServerException(new IllegalArgumentException("Some bogus exception")));
 
         Response clientResponse = writeDocument(uuidPath, listAsDocument);
 
@@ -217,7 +217,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn200WhenDeletingNonExistentContentList() {
-        doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
+        doThrow(new DocumentNotFoundException(UUID.fromString(uuid))).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class), any(String.class));
 
         Response clientResponse = resources.client().target(uuidPath).request()
                 .delete();
@@ -237,7 +237,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn503OnDeleteWhenMongoIsntReachable() {
-        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class));
+        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).delete(eq(RESOURCE_TYPE), any(UUID.class), any(String.class));
 
         Response clientResponse = resources.client().target(uuidPath).request()
                 .delete();
@@ -248,7 +248,7 @@ public class DocumentListResourceEndpointTest {
     //READ
     @Test
     public void shouldReturn200WhenReadSuccessfully() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(listAsDocument);
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class))).thenReturn(listAsDocument);
         Response clientResponse = resources.client().target(uuidPath).request()
                 .get();
 
@@ -259,7 +259,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturnListWithoutConceptWhenReadSuccessfully() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class))).thenReturn(listWithoutConceptAsDocument);
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class))).thenReturn(listWithoutConceptAsDocument);
         Response clientResponse = resources.client().target(uuidPath).request()
                 .get();
 
@@ -270,7 +270,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn404WhenContentNotFound() {
-        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class)))
+        when(documentStoreService.findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class)))
                 .thenThrow(new DocumentNotFoundException(UUID.fromString(uuid)));
 
         Response clientResponse = resources.client().target(uuidPath).request()
@@ -292,7 +292,7 @@ public class DocumentListResourceEndpointTest {
 
     @Test
     public void shouldReturn503OnReadWhenMongoIsntReachable() {
-        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class));
+        doThrow(new ExternalSystemUnavailableException("Cannot connect to Mongo")).when(documentStoreService).findByUuid(eq(RESOURCE_TYPE), any(UUID.class), any(String.class));
 
         Response clientResponse = resources.client().target(uuidPath).request()
                 .get();
@@ -306,7 +306,7 @@ public class DocumentListResourceEndpointTest {
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
 
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(listAsDocument);
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type), any(String.class))).thenReturn(listAsDocument);
         Response clientResponse = resources.client().target("/lists")
                 .queryParam(typeParam, CONCEPT_UUID.toString())
                 .request()
@@ -322,7 +322,7 @@ public class DocumentListResourceEndpointTest {
         String type = "TopStories";
         String typeParam = "curatedTopStoriesFor";
 
-        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type))).thenReturn(null);
+        when(documentStoreService.findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUID), eq(type), any(String.class))).thenReturn(null);
         Response clientResponse = resources.client().target("/lists")
                 .queryParam(typeParam, CONCEPT_UUID.toString())
                 .request()
