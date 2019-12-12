@@ -10,9 +10,8 @@ import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 import java.util.Map;
 
 import static com.ft.api.jaxrs.errors.ClientError.status;
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.STATUS;
-import static java.lang.String.valueOf;
 import static java.util.UUID.fromString;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
@@ -30,7 +29,7 @@ public class FindListByUuid implements Target {
     @Override
     public Object execute(Context context) {
         Map<String, Object> contentMap = documentStoreService.findByUuid(context.getCollection(),
-                fromString(context.getUuid()), valueOf(context.getParameter(METHOD)));
+                fromString(context.getUuid()), METHOD_GET);
         try {
             ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
             contentList.addIds();

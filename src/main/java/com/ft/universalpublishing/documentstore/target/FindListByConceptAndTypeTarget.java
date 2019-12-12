@@ -12,9 +12,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.ft.api.jaxrs.errors.ClientError.status;
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.STATUS;
-import static java.lang.String.valueOf;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 
@@ -35,7 +34,7 @@ public class FindListByConceptAndTypeTarget implements Target {
         String listType = (String) context.getParameter("listType");
 
         Map<String, Object> result = documentStoreService.findByConceptAndType(context.getCollection(), conceptId,
-                listType, valueOf(context.getParameter(METHOD)));
+                listType, METHOD_GET);
         if (result == null) {
             throw new DocumentNotFoundException(conceptId);
         }

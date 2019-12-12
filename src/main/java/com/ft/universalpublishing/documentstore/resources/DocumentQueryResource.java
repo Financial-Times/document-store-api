@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
@@ -49,7 +50,7 @@ public class DocumentQueryResource {
     public final Response findContentByIdentifier(@QueryParam("identifierAuthority") String authority,
             @QueryParam("identifierValue") String identifierValue) {
         Response response;
-        logger.withMetodName("findContentByIdentifier").withTransactionId(get(TRANSACTION_ID)).withField(METHOD, "GET");
+        logger.withMetodName("findContentByIdentifier").withTransactionId(get(TRANSACTION_ID)).withField(METHOD, METHOD_GET);
 
         if (isNullOrEmpty(authority) || isNullOrEmpty(identifierValue)) {
             response = status(SC_BAD_REQUEST).entity(singletonMap("message",
