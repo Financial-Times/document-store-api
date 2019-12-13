@@ -5,7 +5,10 @@ public interface FluentLoggingUtils {
     String CLIENT = "client";
     String CLASS = "class";
     String METHOD = "method";
-    String METHOD_VALUE = "GET";
+    String METHOD_GET = "GET";
+    String METHOD_POST = "POST";
+    String METHOD_PUT = "PUT";
+    String METHOD_DELETE = "DELETE";
     String HOST = "host";
     String STATUS = "status";
     String ACCEPT = "accept";
@@ -16,8 +19,8 @@ public interface FluentLoggingUtils {
     String MESSAGE = "msg";
     String REASON = "reason";
     String RESPONSE = "response";
-    String EXCEPTION = "exception: ";
-    String STACKTRACE = "stacktrace: ";
+    String EXCEPTION = "exception_message";
+    String STACKTRACE = "stacktrace_log";
     String CONTENT_TYPE = "content-type";
     String USER_AGENT = "userAgent";
     String COLLECTION = "collection";

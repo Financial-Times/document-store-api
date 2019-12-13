@@ -32,34 +32,26 @@ server:
         port: 14181
 
   requestLog:
-
-    appenders:
-      - type: console
-        # Add format needed for 'fluent-logging' library to make in JSON format
-        logFormat: "%m%n"
-        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
-        timeZone: UTC
+    appenders: []
 
 logging:
-
   level: INFO
-
   loggers:
+    io.dropwizard: WARN
     com.sun.jersey.spi.container.ContainerResponse: "OFF"
     org.openrdf.rio.helpers.ParseErrorLogger: "OFF"
-    io.dropwizard: WARN
     org.eclipse.jetty: "OFF"
-    javax.ws.rs.client: WARN
-    com.sun.jersey.api.client: WARN
-    ch.qos.logback: WARN
-    com.ft.api.util.transactionid: ERROR
+    javax.ws.rs.client: "OFF"
+    com.sun.jersey.api.client: "OFF"
+    ch.qos.logback: "OFF"
+    com.ft.api.util.transactionid: "OFF"
     com.ft.platform.dropwizard.HealthCheckPageData: "OFF"
     com.ft.platform.dropwizard.metrics: "OFF"
     com.ft.api.jaxrs.errors: "OFF"
-
+    org.glassfish.jersey.client: "OFF"
   appenders:
-
     - type: console
+      logFormat: "%m%n"
 
 appInfo:
     systemCode: "document-store-api"

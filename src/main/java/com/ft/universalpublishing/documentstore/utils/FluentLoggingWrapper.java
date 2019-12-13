@@ -84,8 +84,8 @@ public class FluentLoggingWrapper {
         return this;
     }
 
-    public FluentLoggingWrapper withRequestParameters(Context context, String path) {
-        withField(METHOD, context.getParameter(METHOD));
+    public FluentLoggingWrapper withRequestParameters(Context context, String method, String path) {
+        withField(METHOD, method);
         withField(PATH, path);
         if (nonNull(context.getContentMap())) {
             withField(CONTENT_TYPE, context.getContentMap().get("type"));
@@ -140,7 +140,6 @@ public class FluentLoggingWrapper {
         iy.yielding(SYSTEM_CODE, APPLICATION_NAME);
         iy.yielding(items);
         items = new HashMap<>();
-        methodName = "";
         return iy;
     }
 

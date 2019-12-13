@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.CLIENT;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
 import static javax.ws.rs.core.Response.ok;
 import static org.slf4j.MDC.get;
@@ -38,7 +39,7 @@ public class DocumentIDResource {
         new FluentLoggingWrapper().withClassName(this.getClass().getCanonicalName())
                 .withMetodName("getIDsForCollectionAndAuthority").withResponse(response)
                 .withTransactionId(get(TRANSACTION_ID)).withField(CLIENT, response.getClass().getCanonicalName())
-                .withField(METHOD, "GET")
+                .withField(METHOD, METHOD_GET)
                 .build().logInfo();
 
         return response;

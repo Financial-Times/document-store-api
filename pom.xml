@@ -6,7 +6,7 @@
 
     <groupId>com.github.Financial-Times</groupId>
     <artifactId>document-store-api</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.6</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -19,7 +19,7 @@
         <advanced-dropwizard-healthcheck.version>4.14.2</advanced-dropwizard-healthcheck.version>
         <jax-rs-build-info-resource.version>1.3.1</jax-rs-build-info-resource.version>
         <jaxrs.error-handling.version>1.1.4</jaxrs.error-handling.version>
-        <jax-rs.transaction-id-handling.version>2.6.8</jax-rs.transaction-id-handling.version>
+        <jax-rs.transaction-id-handling.version>2.6.9</jax-rs.transaction-id-handling.version>
         <jackson.date.serialization.version>0.1.29</jackson.date.serialization.version>
         <junit.version>4.11</junit.version>
         <mockito-core.version>1.9.5</mockito-core.version>

@@ -37,59 +37,48 @@ server:
         logFormat: "%m%n"
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
-
       - type: file
-
         # The file to which current statements will be logged.
         currentLogFilename: /var/log/apps/document-store-api-dw-access.log
-
         # When the log file rotates, the archived log will be renamed to this and gzipped. The
         # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
         # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
         archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-access-%d.log.gz
-
         # The number of archived files to keep.
         archivedFileCount: 6
-
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
 logging:
-
   level: INFO
-
   loggers:
+    io.dropwizard: WARN
     com.sun.jersey.spi.container.ContainerResponse: "OFF"
     org.openrdf.rio.helpers.ParseErrorLogger: "OFF"
-    io.dropwizard: WARN
     org.eclipse.jetty: "OFF"
-    javax.ws.rs.client: WARN
-    com.sun.jersey.api.client: WARN
-    ch.qos.logback: WARN
-    com.ft.api.util.transactionid.TransactionIdFilter: WARN
+    javax.ws.rs.client: "OFF"
+    com.sun.jersey.api.client: "OFF"
+    ch.qos.logback: "OFF"
+    com.ft.api.util.transactionid.TransactionIdFilter: "OFF"
     com.ft.platform.dropwizard.HealthCheckPageData: "OFF"
     com.ft.platform.dropwizard.metrics: "OFF"
     com.ft.api.jaxrs.errors: "OFF"
+    org.glassfish.jersey.client: "OFF"
 
   appenders:
-
     - type: console
-
+      logFormat: "%m%n"
     - type: file
       # Do not write log statements below this threshold to the file.
       threshold: ALL
-
       # The file to which current statements will be logged.
       currentLogFilename: /var/log/apps/document-store-api-dw-app.log
-
       # When the log file rotates, the archived log will be renamed to this and gzipped. The
       # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
       # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
       archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-app-%d.log.gz
-
       # The number of archived files to keep.
       archivedFileCount: 5
-
       # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
       timeZone: UTC
       
