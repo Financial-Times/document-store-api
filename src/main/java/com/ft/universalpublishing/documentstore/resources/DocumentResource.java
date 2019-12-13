@@ -6,12 +6,10 @@ import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_
 import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_FILTERED;
 import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_MULTIPLE_FILTERED;
 import static com.ft.universalpublishing.documentstore.model.read.Operation.REMOVE;
-import static javax.ws.rs.HttpMethod.GET;
-import static javax.ws.rs.HttpMethod.PUT;
-import static javax.ws.rs.HttpMethod.POST;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_DELETE;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_PUT;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.UUID;
 
 import java.util.List;
@@ -62,7 +60,6 @@ public class DocumentResource {
         Context context = new Context();
         context.setUuids(uuidString);
         context.setCollection(collection);
-        context.addParameter(METHOD, GET);
         
         HandlerChain handlerChain = getHandlerChain(collection, GET_BY_ID);
         return handlerChain.execute(context);
@@ -79,7 +76,6 @@ public class DocumentResource {
         context.setUriInfo(uriInfo);
         context.setHttpHeaders(httpHeaders);
         context.setCollection(collection);
-        context.addParameter(METHOD, GET);
         
         HandlerChain handlerChain = getHandlerChain(collection, GET_FILTERED);
         return handlerChain.execute(context);
@@ -107,7 +103,6 @@ public class DocumentResource {
         context.setHttpHeaders(httpHeaders);
         context.setCollection(collection);
         context.setUuids(uuidList);
-        context.addParameter(METHOD, POST);
 
         HandlerChain handlerChain = getHandlerChain(collection, GET_MULTIPLE_FILTERED);
         return handlerChain.execute(context);
@@ -127,9 +122,9 @@ public class DocumentResource {
         context.setUuids(uuidString);
         context.setContentMap(contentMap);
         context.setUriInfo(uriInfo);
-        context.addParameter(METHOD, PUT);
 
-        logger.withMetodName("writeInCollection").withRequestParameters(context, "/{collection}/{uuidString}")
+        logger.withMetodName("writeInCollection")
+                .withRequestParameters(context, METHOD_PUT, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {
@@ -156,9 +151,9 @@ public class DocumentResource {
         context.setUuids(uuidString);
         context.setCollection(collection);
         context.setUriInfo(uriInfo);
-        context.addParameter(METHOD, "DELETE");
 
-        logger.withMetodName("deleteFromCollection").withRequestParameters(context, "/{collection}/{uuidString}")
+        logger.withMetodName("deleteFromCollection")
+                .withRequestParameters(context, METHOD_DELETE, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {

@@ -11,6 +11,7 @@ import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.HOST;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
 import static java.util.Collections.emptySet;
 import static javax.ws.rs.core.HttpHeaders.USER_AGENT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -35,7 +36,7 @@ public class MultipleUuidValidationHandler implements Handler {
         Set<UUID> uuidValues = new LinkedHashSet<>();
         
         
-        logger.withMetodName("handle").withField(METHOD, context.getParameter(METHOD))
+        logger.withMetodName("handle").withField(METHOD, METHOD_GET)
                 .withField(HOST, context.getUriInfo().getAbsolutePath().getHost())
                 .withField(FluentLoggingUtils.USER_AGENT, context.getHttpHeaders().getHeaderString(USER_AGENT))
                 .withField(ACCEPT, APPLICATION_JSON_TYPE);
