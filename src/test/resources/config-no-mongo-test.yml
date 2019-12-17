@@ -33,15 +33,12 @@ server:
 
   requestLog:
     appenders:
-
       - type: console
         # Add format needed for 'fluent-logging' library to make in JSON format
         logFormat: "%m%n"
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
-
       - type: file
-
         # The file to which current statements will be logged.
         currentLogFilename: /var/log/apps/document-store-api-dw-access.log
 
@@ -49,10 +46,8 @@ server:
         # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
         # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
         archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-access-%d.log.gz
-
         # The number of archived files to keep.
         archivedFileCount: 6
-
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
