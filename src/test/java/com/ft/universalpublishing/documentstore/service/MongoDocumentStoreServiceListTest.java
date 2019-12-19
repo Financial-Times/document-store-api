@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+
 public class MongoDocumentStoreServiceListTest {
     @ClassRule
     public static final EmbeddedMongoRule MONGO = new EmbeddedMongoRule();
@@ -95,7 +96,7 @@ public class MongoDocumentStoreServiceListTest {
             .withItems(mockOutboundListItems())
             .build();
 
-        Map<String,Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid, "GET");
+        Map<String,Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid);
         ContentList retrievedContentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
 
         assertThat(retrievedContentList, is(expectedList));
@@ -103,7 +104,7 @@ public class MongoDocumentStoreServiceListTest {
 
     @Test(expected = DocumentNotFoundException.class)
     public void contentListNotInStoreShouldNotBeReturned() {
-        mongoDocumentStoreService.findByUuid("lists", uuid, "GET");
+        mongoDocumentStoreService.findByUuid("lists", uuid);
     }
 
     @Test
@@ -113,7 +114,7 @@ public class MongoDocumentStoreServiceListTest {
             .withItems(mockInboundListItems())
             .build();
 
-        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class), "POST");
+        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class));
         assertThat(result.getMode(), is(Mode.Created));
 
         Document findOne = collection.find().filter(Filters.eq("uuid", uuid.toString())).first();
@@ -129,7 +130,7 @@ public class MongoDocumentStoreServiceListTest {
             .withLayoutHint(hint)
             .build();
 
-        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class), "POST");
+        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class));
         assertThat(result.getMode(), is(Mode.Created));
 
         ContentList actual = new ObjectMapper().convertValue(result.getDocument(), ContentList.class);
@@ -158,7 +159,7 @@ public class MongoDocumentStoreServiceListTest {
             .withLayoutHint(hint)
             .build();
 
-        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid, "GET");
+        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid);
         ContentList retrievedContentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
         assertThat(retrievedContentList, is(expectedList));
     }
@@ -172,7 +173,7 @@ public class MongoDocumentStoreServiceListTest {
                 .withPublishReference(publishReference)
                 .build();
 
-        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class), "POST");
+        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class));
         assertThat(result.getMode(), is(Mode.Created));
 
         ContentList actual = new ObjectMapper().convertValue(result.getDocument(), ContentList.class);
@@ -201,7 +202,7 @@ public class MongoDocumentStoreServiceListTest {
                 .withPublishReference(publishReference)
                 .build();
 
-        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid, "GET");
+        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid);
         ContentList retrievedContentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
         assertThat(retrievedContentList, is(expectedList));
     }
@@ -213,12 +214,12 @@ public class MongoDocumentStoreServiceListTest {
             .withItems(mockInboundListItems())
             .build();
 
-        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class), "POST");
+        DocumentWritten result = mongoDocumentStoreService.write("lists", new ObjectMapper().convertValue(list, Map.class));
         assertThat(result.getMode(), is(Mode.Created));
         Document findOne = collection.find().filter(Filters.eq("uuid", uuid.toString())).first();
         assertThat(findOne , notNullValue());
 
-        mongoDocumentStoreService.delete("lists", uuid, "DELETE");
+        mongoDocumentStoreService.delete("lists", uuid);
         assertThat(collection.find().filter(Filters.eq("uuid", uuid.toString())).first(), nullValue());
     }
 
@@ -227,7 +228,7 @@ public class MongoDocumentStoreServiceListTest {
         exception.expect(DocumentNotFoundException.class);
         exception.expectMessage(String.format("Document with uuid : %s not found!", uuid));
 
-        mongoDocumentStoreService.delete("lists", uuid, "DELETE");
+        mongoDocumentStoreService.delete("lists", uuid);
     }
     
     @Test
@@ -250,7 +251,7 @@ public class MongoDocumentStoreServiceListTest {
 
         collection.insertOne(toInsert);
         
-        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE, "GET");
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE);
         
         assertThat(actual.get("uuid"), is((Object)uuid.toString()));
     }
@@ -259,7 +260,7 @@ public class MongoDocumentStoreServiceListTest {
     public void thatFindByConceptAndTypeReturnsNullWhenNotFound()
             throws Exception {
         
-        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, "NON_EXISTENT_TYPE", "GET");
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, "NON_EXISTENT_TYPE");
         
         assertThat(actual, is(nullValue()));
     }
@@ -292,7 +293,7 @@ public class MongoDocumentStoreServiceListTest {
 
         collection.insertMany(Arrays.asList(toInsert1, toInsert2));
 
-        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE, "GET");
+        Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE);
 
         assertThat(actual.get("uuid"), is((Object) uuid.toString()));
     }

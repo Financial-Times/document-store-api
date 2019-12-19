@@ -1,8 +1,7 @@
 package com.ft.universalpublishing.documentstore.handler;
 
-import com.ft.api.jaxrs.errors.WebApplicationClientException;
+import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.universalpublishing.documentstore.model.read.Context;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 
 import java.util.Set;
 import java.util.UUID;
@@ -11,10 +10,6 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import static com.ft.api.jaxrs.errors.ClientError.status;
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.STATUS;
-import static java.util.UUID.fromString;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 public class ExtractConceptHandler implements Handler {
@@ -27,14 +22,9 @@ public class ExtractConceptHandler implements Handler {
     @Override
     public void handle(Context context) {
         MultivaluedMap<String, String> queryParameters = context.getUriInfo().getQueryParameters();
-        WebApplicationClientException clientException;
-        FluentLoggingWrapper logger = new FluentLoggingWrapper().withClassName(this.getClass().getCanonicalName())
-                .withMetodName("handle");
         if (queryParameters.isEmpty()) {
-            clientException = status(SC_BAD_REQUEST).error("Expected at least one query parameter").exception();
-            logger.withField(STATUS, SC_BAD_REQUEST).withField(MESSAGE, "Expected at least one query parameter")
-                    .withException(clientException).build().logWarn();
-            throw clientException;
+            throw ClientError.status(SC_BAD_REQUEST).error("Expected at least one query parameter")
+                    .exception();
         }
 
         Set<String> keys = queryParameters.keySet();
@@ -48,26 +38,18 @@ public class ExtractConceptHandler implements Handler {
             if (found) {
                 listType = matcher.group(1);
                 try {
-                    conceptId = fromString(queryParameters.getFirst(key));
+                    conceptId = UUID.fromString(queryParameters.getFirst(key));
                 } catch (IllegalArgumentException e) {
-                    clientException = status(SC_BAD_REQUEST).error("The concept ID is not a valid UUID").exception();
-                    logger.withField(STATUS, SC_BAD_REQUEST).withField(MESSAGE, "The concept ID is not a valid UUID")
-                            .withException(clientException).build().logWarn();
-
-                    throw clientException;
+                    throw ClientError.status(SC_BAD_REQUEST).error("The concept ID is not a valid UUID")
+                            .exception();
                 }
             }
         }
 
         if (listType == null) {
-            clientException = status(SC_BAD_REQUEST)
-                    .error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
-            logger.withField(STATUS, SC_BAD_REQUEST)
-                    .withField(MESSAGE,
-                            "Expected at least one query parameter of the form \\\"curated<listType>For\\\"")
-                    .withException(clientException).build().logWarn();
-
-            throw clientException;
+            throw ClientError.status(SC_BAD_REQUEST)
+                    .error("Expected at least one query parameter of the form \"curated<listType>For\"")
+                    .exception();
         }
 
         context.addParameter("conceptId", conceptId);
