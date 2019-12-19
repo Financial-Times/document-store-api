@@ -4,10 +4,10 @@ import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundExcept
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
-import static java.lang.String.valueOf;
-import static java.util.UUID.fromString;
-import static javax.ws.rs.core.Response.ok;
+import java.util.UUID;
+
+import javax.ws.rs.core.Response;
+
 
 public class DeleteDocumentTarget implements Target {
 
@@ -21,11 +21,10 @@ public class DeleteDocumentTarget implements Target {
     @Override
     public Object execute(Context context) {
         try {
-            documentStoreService.delete(context.getCollection(),
-                    fromString(context.getUuid()), valueOf(context.getParameter(METHOD)));
-            return ok().build();
+            documentStoreService.delete(context.getCollection(), UUID.fromString(context.getUuid()));
+            return Response.ok().build();
         } catch (DocumentNotFoundException e) {
-            return ok().build();
+            return Response.ok().build();
         }
     }
 }

@@ -11,14 +11,14 @@ connectionHealthcheckParameters:
     severity: 1
     businessImpact: "Content won't be available for API consumers, including ft.com."
     technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the content platform and affect a variety of products."
-    panicGuideUrl: "https://runbooks.in.ft.com/document-store-api"
+    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 indexHealthcheckParameters:
     name: "MongoDB index health"
     severity: 2
     businessImpact: "Some API consumers may experience slow performance for content requests."
     technicalSummary: "The application indexes for the MongoDB content store may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
-    panicGuideUrl: "https://runbooks.in.ft.com/document-store-api"
+    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 server:
 
@@ -32,9 +32,10 @@ server:
 
   requestLog:
     appenders:
+
       - type: console
-        # Add format needed for 'fluent-logging' library to make in JSON format
-        logFormat: "%m%n"
+        # Add transaction_id to the end of Dropwizard's default format, which is itself based on the "combined" log format
+        logFormat: "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" %D transaction_id=%i{X-Request-Id}"
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
@@ -59,17 +60,8 @@ logging:
   level: INFO
 
   loggers:
-    com.sun.jersey.spi.container.ContainerResponse: "OFF"
-    org.openrdf.rio.helpers.ParseErrorLogger: "OFF"
-    io.dropwizard: WARN
-    org.eclipse.jetty: "OFF"
-    javax.ws.rs.client: WARN
-    com.sun.jersey.api.client: WARN
-    ch.qos.logback: WARN
+    io.dropwizard: DEBUG
     com.ft.api.util.transactionid.TransactionIdFilter: WARN
-    com.ft.platform.dropwizard.HealthCheckPageData: "OFF"
-    com.ft.platform.dropwizard.metrics: "OFF"
-    com.ft.api.jaxrs.errors: "OFF"
 
   appenders:
 
