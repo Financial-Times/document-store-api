@@ -2,7 +2,8 @@ FROM circleci/openjdk:8u232-stretch
 
 COPY . /document-store-api
 
-RUN sudo apt-get install git maven wget \
+RUN sudo apt-get update \
+  && sudo apt-get install git maven wget \
   && cd /tmp \
   && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
