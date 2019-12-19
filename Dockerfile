@@ -2,7 +2,7 @@ FROM circleci/openjdk:8u232-stretch
 
 COPY . /document-store-api
 
-RUN apt-get install git maven wget \
+RUN sudo apt-get install git maven wget \
   && cd /tmp \
   && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
@@ -15,8 +15,8 @@ RUN apt-get install git maven wget \
   && mv config.yaml /config.yaml \
   && mv data-migration-scripts* /data-migration-scripts \
   && mv scripts* /scripts \
-  && apt-get remove --purge go git maven \
-  && apt-get clean \
+  && sudo apt-get remove --purge go git maven \
+  && sudo apt-get clean \
   && rm -rf /document-store-api/target* /root/.m2/* /tmp/*.apk
 
 EXPOSE 8080 8081
