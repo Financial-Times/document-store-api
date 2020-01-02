@@ -155,7 +155,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         collections.put(new Pair<>("generic-lists", Operation.GET_BY_ID),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
         collections.put(new Pair<>("generic-lists", Operation.ADD),
-                new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler).setTarget(writeDocument));
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
         collections.put(new Pair<>("generic-lists", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
