@@ -1,7 +1,5 @@
 package com.ft.universalpublishing.documentstore;
 
-import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
-
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
@@ -32,7 +30,6 @@ import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUu
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
@@ -165,10 +162,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.jersey().register(new DocumentResource(collections));
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
         environment.jersey().register(new DocumentIDResource(documentStoreService));
-
-        FluentLoggingWrapper logger = new FluentLoggingWrapper();
-        logger.withClassName(this.getClass().getCanonicalName()).withMetodName("run")
-                .withField(MESSAGE, "Application started").build().logInfo();
 
     }
 
