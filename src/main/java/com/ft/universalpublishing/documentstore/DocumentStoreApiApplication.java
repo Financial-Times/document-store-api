@@ -99,6 +99,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
         Target findListByUuid = new FindListByUuid(documentStoreService, configuration.getApiHost());
         Target findListByConceptAndType = new FindListByConceptAndTypeTarget(documentStoreService, configuration.getApiHost());
+        Target findAll = new FindAllTarget(documentStoreService);
 
         final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
         collections.put(new Pair<>("content", Operation.GET_FILTERED),
@@ -144,6 +145,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler).setTarget(writeDocument));
         collections.put(new Pair<>("lists", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+        collections.put(new Pair<>("lists", Operation.GET_ALL),
+                new HandlerChain().addHandlers().setTarget(findAll));
 
         collections.put(new Pair<>("generic-lists", Operation.GET_FILTERED),
                 new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
@@ -155,6 +158,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
         collections.put(new Pair<>("generic-lists", Operation.REMOVE),
                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+        collections.put(new Pair<>("generic-lists", Operation.GET_ALL),
+                new HandlerChain().addHandlers().setTarget(findAll));
 
         environment.jersey().register(new DocumentResource(collections));
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));

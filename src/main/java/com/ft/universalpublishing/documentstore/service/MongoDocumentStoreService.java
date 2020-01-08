@@ -71,6 +71,34 @@ public class MongoDocumentStoreService {
         return indexed;
     }
 
+    public Set<Map<String, Object>> findAll(String resourceType) {
+        try {
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+
+            Iterable<Document> results = dbCollection.find();
+
+            Map<UUID, Document> mappedResults = new HashMap<>();
+            results.forEach(doc -> mappedResults.put(UUID.fromString((String) doc.get("uuid")), doc));
+
+            Set<Map<String, Object>> documents = new LinkedHashSet<>();
+            mappedResults.forEach((k, v) -> {
+                Document doc = v;
+                if (doc != null) {
+                    doc.remove("_id");
+                    documents.add(doc);
+                }
+            });
+
+            return documents;
+        } catch (MongoSocketException | MongoTimeoutException e) {
+            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}", resourceType, e);
+            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            LOG.error("Failed to find document(s) in Mongo! Collection {}", resourceType, e);
+            throw new ExternalSystemInternalServerException(e);
+        }
+    }
+
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);

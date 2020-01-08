@@ -51,6 +51,18 @@ public class DocumentResource {
         return handlerChain.execute(context);
     }
 
+    @ApiOperation(value = "Get all documents from the specified list collection")
+    @GET
+    @Timed
+    @Path("list/{collection}/search")
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    public final Object getAllFromCollection(@PathParam("collection") String collection) {
+        Context context = new Context();
+        context.setCollection(collection);
+        HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_ALL);
+        return handlerChain.execute(context);
+    }
+
     @GET
     @Timed
     @Path("/{collection}")
