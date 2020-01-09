@@ -1,10 +1,6 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
-import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
+import com.ft.universalpublishing.documentstore.exception.*;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
@@ -26,14 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -49,7 +38,7 @@ public class MongoDocumentStoreService {
     private final MongoDatabase db;
     private ExecutorService exec;
     private boolean indexed;
-    private Runnable reindexer = () -> applyIndexes();
+    private Runnable reindexer = this::applyIndexes;
 
     public MongoDocumentStoreService(final MongoDatabase db, ExecutorService exec) {
         this.db = db;
@@ -272,12 +261,12 @@ public class MongoDocumentStoreService {
         MongoCursor<Document> cursor = getFindUUIDsQuery(collection, includeSource).iterator();
 
         try {
-            while (cursor.hasNext()){
+            while (cursor.hasNext()) {
                 Document document = cursor.next();
                 outputStream.write((document.toJson() + "\n").getBytes());
             }
             outputStream.flush();
-        }catch (IOException e) {
+        } catch (IOException e) {
             LOG.error("Error occurred while trying to return ids");
             throw new IDStreamingException(resourceType);
         }

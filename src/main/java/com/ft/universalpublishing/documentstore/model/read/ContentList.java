@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import io.swagger.annotations.ApiModel;
 
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+@ApiModel
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "listType", "items", "layoutHint", "publishReference", "lastModified"})
 @JsonDeserialize(builder = ContentList.Builder.class)

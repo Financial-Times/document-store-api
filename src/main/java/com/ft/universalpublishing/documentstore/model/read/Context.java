@@ -1,11 +1,13 @@
 package com.ft.universalpublishing.documentstore.model.read;
 
+import lombok.Data;
+
 import java.util.*;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
-
+@Data
 public class Context {
 
     private Map<String, Object> map;
@@ -43,51 +45,11 @@ public class Context {
         Collections.addAll(this.uuids, uuids);
     }
 
-    public Set<UUID> getValidatedUuids() {
-        return validatedUuids;
-    }
-
-    public void setValidatedUuids(Set<UUID> validatedUuids) {
-        this.validatedUuids = validatedUuids;
-    }
-
-    public UriInfo getUriInfo() {
-        return uriInfo;
-    }
-
-    public void setUriInfo(UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
-    }
-
-    public String getCollection() {
-        return collection;
-    }
-
-    public void setCollection(String collection) {
-        this.collection = collection;
-    }
-
-    public Map<String, Object> getContentMap() {
-        return contentMap;
-    }
-
-    public void setContentMap(Map<String, Object> contentMap) {
-        this.contentMap = contentMap;
-    }
-
     public void addParameter(String key, Object parameter) {
         map.put(key, parameter);
     }
 
     public Object getParameter(String key) {
         return map.get(key);
-    }
-
-    public HttpHeaders getHttpHeaders() {
-        return httpHeaders;
-    }
-
-    public void setHttpHeaders(HttpHeaders httpHeaders) {
-        this.httpHeaders = httpHeaders;
     }
 }

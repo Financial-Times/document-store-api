@@ -1,19 +1,15 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
 
-import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
-
+@Api(tags = {"collections"})
 @Path("/")
 public class DocumentIDResource {
 
@@ -23,11 +19,14 @@ public class DocumentIDResource {
         this.documentStoreService = documentStoreService;
     }
 
+    @ApiOperation(
+            value = "List all available authority identifiers that are allowed to write in the current collection"
+    )
     @GET
     @Path("/{collection}/__ids")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public final Response getIDsForCollectionAndAuthority(@PathParam("collection") String collection,
-                                                          @QueryParam("includeSource") boolean includeSource) throws IOException {
+                                                          @QueryParam("includeSource") boolean includeSource) {
         StreamingOutput streamingOutput = outputStream -> documentStoreService.findUUIDs(collection, includeSource, outputStream);
         return Response.ok().entity(streamingOutput).build();
     }

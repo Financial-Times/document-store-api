@@ -15,7 +15,7 @@ import org.bson.conversions.Bson;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
@@ -106,8 +106,7 @@ public class MongoDocumentStoreServiceConnectionTest {
         // but on the next attempt
         reset(db);
         when(db.runCommand(any(Bson.class))).thenThrow(new MongoException("test exception"));
-        when(db.getCollection(anyString())).thenThrow(new MongoException("test exception"));
-        
+
         assertFalse(service.isConnected());
         assertFalse(service.isIndexed());
     }

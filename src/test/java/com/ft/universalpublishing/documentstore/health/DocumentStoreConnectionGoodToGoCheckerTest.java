@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -68,7 +68,6 @@ public class DocumentStoreConnectionGoodToGoCheckerTest {
     public void thatOtherHealthChecksAreIgnored() {
         when(service.isConnected()).thenReturn(true);
         registry.register("DocumentStoreConnection", documentStoreConnectionHealthCheck());
-        when(service.isIndexed()).thenReturn(false);
         registry.register("DocumentStoreIndex", documentStoreIndexHealthCheck());
         
         DocumentStoreConnectionGoodToGoChecker checker = new DocumentStoreConnectionGoodToGoChecker();
