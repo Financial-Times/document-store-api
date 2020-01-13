@@ -2,52 +2,47 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
-
-import io.dropwizard.testing.junit.ResourceTestRule;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class DocumentQueryResourceEndpointTest {
+
     private final static MongoDocumentStoreService DOC_STORE = mock(MongoDocumentStoreService.class);
     private static final String API_URL_PREFIX = "localhost:12345";
     private static final String CONTENT = "content";
     private static final String AUTHORITY = "http://www.example.com/";
     private static final String IDENTIFIER_VALUE = "http://www.example.com/here-is-the-news";
 
-    @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
+    private static final ResourceExtension resources = ResourceExtension.builder()
             .addResource(new DocumentQueryResource(DOC_STORE, API_URL_PREFIX))
             .build();
 
     private Client client;
     private Response response;
 
-    @Before
+    @BeforeEach
     public void setup() {
         reset(DOC_STORE);
         client = resources.client();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (response != null) {
             response.close();

@@ -3,11 +3,12 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import io.dropwizard.testing.junit.ResourceTestRule;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -21,22 +22,22 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
+
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class DocumentIDResourceTest {
 
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
-    @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new DocumentIDResource(documentStoreService))
-            .build();
     private static final String RESOURCE_TYPE = "content";
     private String IDS_PATH = "/" + RESOURCE_TYPE + "/" + "__ids";
 
+    private static final ResourceExtension resources = ResourceExtension.builder()
+            .addResource(new DocumentIDResource(documentStoreService))
+            .build();
+
+
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturn200WhenIDsSuccessfully() throws IOException {
         final String firstUUID = "d08ef814-f295-11e6-a94b-0e7d0412f5a5";
         final String secondUUID = "8ae3f1dc-f288-11e6-8758-6876151821a6";

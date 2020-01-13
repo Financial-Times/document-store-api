@@ -1,15 +1,20 @@
 FROM openjdk:8u212-jdk-alpine3.9
 
-COPY . /document-store-api
+ADD .git/ /.git/
+ADD . /document-store-api/
+ADD pom.xml /
+
+ARG SONATYPE_USER
+ARG SONATYPE_PASSWORD
 
 RUN apk --update add git maven wget \
   && cd /tmp \
   && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
-  && TAG=$(git tag -l --points-at $HASH) \
+  && TAG=$(git describe --tag --always 2> /dev/null) \
   && VERSION=${TAG:-untagged} \
   && mvn clean versions:set -DnewVersion=$VERSION \
-  && mvn clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true -Dmaven.test.skip=true \
+  && mvn clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true \
   && rm target/document-store-api-*-sources.jar \
   && mv target/document-store-api-*.jar /document-store-api.jar \
   && mv config.yaml /config.yaml \

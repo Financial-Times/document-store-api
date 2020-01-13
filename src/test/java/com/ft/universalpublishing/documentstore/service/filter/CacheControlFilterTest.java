@@ -1,10 +1,10 @@
 package com.ft.universalpublishing.documentstore.service.filter;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -14,19 +14,22 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+
+@ExtendWith(MockitoExtension.class)
 public class CacheControlFilterTest {
 
     private CacheControlFilter filter;
 
     @Mock
-    FilterChain chain;
-    @Mock
-    HttpServletRequest request;
-    @Mock
-    HttpServletResponse response;
+    private FilterChain chain;
 
-    @Before
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private HttpServletResponse response;
+
+    @BeforeEach
     public void setUp() {
         filter = new CacheControlFilter("max-age=10");
     }
@@ -38,5 +41,4 @@ public class CacheControlFilterTest {
         verify(response).setHeader("Vary", "Accept");
         verify(chain).doFilter(request, response);
     }
-
 }

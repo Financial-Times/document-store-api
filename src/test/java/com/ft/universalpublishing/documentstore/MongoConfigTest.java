@@ -1,8 +1,7 @@
 package com.ft.universalpublishing.documentstore;
 
 import com.mongodb.ServerAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,16 +16,10 @@ import static org.junit.Assert.assertThat;
  */
 public class MongoConfigTest {
 
-    MongoConfig config;
-
-    @Before
-    public void setUp() {
-        config = new MongoConfig();
-    }
+    private final MongoConfig config = new MongoConfig();
 
     @Test
     public void shouldConvertSingularHostFieldToServerAddress() {
-
         config.setHost("a.example.com");
 
         List<ServerAddress> result = config.toServerAddresses();
@@ -104,8 +97,6 @@ public class MongoConfigTest {
         assertThat(result.get(0).getPort(),is(1234));
         assertThat(result.get(1).getHost(),is("b.example.com"));
         assertThat(result.get(1).getPort(),is(2345));
-
     }
-
 }
 
