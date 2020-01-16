@@ -7,5 +7,5 @@ public enum Operation {
     GET_MULTIPLE_FILTERED,
     ADD,
     REMOVE,
-    GET_ALL
+    SEARCH
 }

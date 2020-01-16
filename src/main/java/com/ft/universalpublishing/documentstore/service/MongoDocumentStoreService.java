@@ -71,15 +71,34 @@ public class MongoDocumentStoreService {
         return indexed;
     }
 
-    public Set<Map<String, Object>> findAll(String resourceType) {
+    public Set<Map<String, Object>> filterLists(String resourceType, String conceptUUID, String listType, String searchTerm) {
+
+        // todo: Remove after filters are done
+        System.out.println(conceptUUID);
+        System.out.println(listType);
+        System.out.println(searchTerm);
+
+        ArrayList<Bson> queryFilters = new ArrayList<>();
+
+        if (conceptUUID != null) {
+            Bson filterByConceptUUID = Filters.eq("concept.uuid", conceptUUID);
+            queryFilters.add(filterByConceptUUID);
+        }
+        if (listType != null) {
+            Bson filterByListType = Filters.eq("listType", listType);
+            queryFilters.add(filterByListType);
+        }
+        // todo: Add title search (searchTerm) - it should be a substring search
+
+        Bson filter = Filters.and(queryFilters);
+        
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-
-            Iterable<Document> results = dbCollection.find();
+            Iterable<Document> results = dbCollection.find(filter);
+            System.out.println(results);
 
             Map<UUID, Document> mappedResults = new HashMap<>();
             results.forEach(doc -> mappedResults.put(UUID.fromString((String) doc.get("uuid")), doc));
-
             Set<Map<String, Object>> documents = new LinkedHashSet<>();
             mappedResults.forEach((k, v) -> {
                 Document doc = v;
@@ -88,8 +107,8 @@ public class MongoDocumentStoreService {
                     documents.add(doc);
                 }
             });
-
             return documents;
+
         } catch (MongoSocketException | MongoTimeoutException e) {
             LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}", resourceType, e);
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);

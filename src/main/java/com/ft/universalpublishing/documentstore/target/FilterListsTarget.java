@@ -7,12 +7,17 @@ import lombok.RequiredArgsConstructor;
 import java.util.Collections;
 
 @RequiredArgsConstructor
-public class FindAllTarget implements Target {
+public class FilterListsTarget implements Target {
 
     private final MongoDocumentStoreService documentStoreService;
 
     @Override
     public Object execute(Context context) {
-        return Collections.singletonList(documentStoreService.findAll(context.getCollection()));
+        return Collections.singletonList(documentStoreService.filterLists(
+                context.getCollection(),
+                context.getConceptUUID(),
+                context.getListType(),
+                context.getSearchTerm()
+        ));
     }
 }

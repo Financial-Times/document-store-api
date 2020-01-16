@@ -18,6 +18,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,15 +52,21 @@ public class DocumentResource {
         return handlerChain.execute(context);
     }
 
-    @ApiOperation(value = "Get all documents from the specified list collection")
+    @ApiOperation(value = "Search and filter documents from the specified list collection")
     @GET
     @Timed
-    @Path("list/{collection}/search")
+    @Path("search/{collection}")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-    public final Object getAllFromCollection(@PathParam("collection") String collection) {
+    public final Object searchCollection(@PathParam("collection") String collection,
+                                             @QueryParam("conceptUUID") String conceptUUID,
+                                             @QueryParam("listType") String listType,
+                                             @QueryParam("searchTerm") String searchTerm) {
         Context context = new Context();
         context.setCollection(collection);
-        HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_ALL);
+        context.setConceptUUID(conceptUUID);
+        context.setListType(listType);
+        context.setSearchTerm(searchTerm);
+        HandlerChain handlerChain = getHandlerChain(collection, Operation.SEARCH);
         return handlerChain.execute(context);
     }
 

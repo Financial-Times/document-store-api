@@ -24,6 +24,10 @@ public class Context {
 
     private HttpHeaders httpHeaders;
 
+    private String conceptUUID;
+    private String listType;
+    private String searchTerm;
+
     public Context() {
         uuids = new ArrayList<>();
         map = new HashMap<>();
@@ -52,4 +56,12 @@ public class Context {
     public Object getParameter(String key) {
         return map.get(key);
     }
+
+    public void setConceptUUID(String conceptUUID) { this.conceptUUID = conceptUUID; }
+    public void setListType(String listType) { this.listType = listType; }
+    public void setSearchTerm(String searchTerm) { this.searchTerm = searchTerm; }
+
+    public String getConceptUUID() { return this.conceptUUID; }
+    public String getListType() { return this.listType; }
+    public String getSearchTerm() { return this.searchTerm; }
 }
