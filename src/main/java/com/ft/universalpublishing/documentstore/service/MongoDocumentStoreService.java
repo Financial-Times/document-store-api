@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MongoDocumentStoreService {
@@ -88,8 +89,12 @@ public class MongoDocumentStoreService {
             Bson filterByListType = Filters.eq("listType", listType);
             queryFilters.add(filterByListType);
         }
-        // todo: Add title search (searchTerm) - it should be a substring search
-
+        if (searchTerm != null) {
+            Pattern regexSearchTerm = Pattern.compile(searchTerm, Pattern.CASE_INSENSITIVE);
+            Bson filterByTitle = Filters.eq("title", regexSearchTerm);
+            queryFilters.add(filterByTitle);
+        }
+        
         Bson filter = Filters.and(queryFilters);
         
         try {
