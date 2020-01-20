@@ -124,7 +124,7 @@ public class DocumentResource {
         context.setUriInfo(uriInfo);
 
         logger.withMetodName("writeInCollection")
-                .withRequestParameters(context, METHOD_PUT, "/{collection}/{uuidString}")
+                .withRequest(context, METHOD_PUT, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {
@@ -153,7 +153,7 @@ public class DocumentResource {
         context.setUriInfo(uriInfo);
 
         logger.withMetodName("deleteFromCollection")
-                .withRequestParameters(context, METHOD_DELETE, "/{collection}/{uuidString}")
+                .withRequest(context, METHOD_DELETE, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {

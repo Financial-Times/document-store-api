@@ -24,6 +24,7 @@ public interface FluentLoggingUtils {
     String CONTENT_TYPE = "content-type";
     String USER_AGENT = "userAgent";
     String COLLECTION = "collection";
-    String RUNBOOK_URI = "document-store-api (+https://runbooks.in.ft.com/document-store-api)";
+    String RUNBOOK_URI = "https://runbooks.in.ft.com/document-store-api";
+    String TRANSACTION_ID_START_PART = "transaction_id=";
 
 }

@@ -38,6 +38,9 @@ logging:
   level: INFO
   loggers:
     io.dropwizard: WARN
+    io.dropwizard.jersey: "OFF"
+    io.dropwizard.lifecycle: "OFF"
+    io.dropwizard.servlets: "OFF"
     com.sun.jersey.spi.container.ContainerResponse: "OFF"
     org.openrdf.rio.helpers.ParseErrorLogger: "OFF"
     org.eclipse.jetty: "OFF"
@@ -46,8 +49,13 @@ logging:
     ch.qos.logback: "OFF"
     com.ft.api.util.transactionid: "OFF"
     com.ft.platform.dropwizard.HealthCheckPageData: "OFF"
+    com.ft.platform.dropwizard: WARN
     com.ft.platform.dropwizard.metrics: "OFF"
+    com.ft.api.util.transactionid: "OFF"
+    com.ft.api.util.buildinfo: "OFF"
+    com.ft.bodyprocessing: WARN
     com.ft.api.jaxrs.errors: "OFF"
+    com.ft.api.jaxrs: WARN
     org.glassfish.jersey.client: "OFF"
   appenders:
     - type: console

@@ -13,6 +13,7 @@ import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.STACKTRACE;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.STATUS;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID_START_PART;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.URI;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.USER_AGENT;
 import static java.lang.String.valueOf;
@@ -22,7 +23,6 @@ import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.exception.ExceptionUtils.getStackTrace;
 
@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -74,17 +73,19 @@ public class FluentLoggingWrapper {
         return this;
     }
 
-    public FluentLoggingWrapper withException(Throwable e) {
-        if (e != null) {
-            withField(EXCEPTION, e.getLocalizedMessage());
+    public FluentLoggingWrapper withException(Throwable t) {
+        if (nonNull(t)) {
+            withField(EXCEPTION, t.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                withField(STACKTRACE, getStackTrace(e));
+                withField(STACKTRACE, getStackTrace(t));
             }
+        } else {
+            withField(EXCEPTION, "Exception was null");
         }
         return this;
     }
 
-    public FluentLoggingWrapper withRequestParameters(Context context, String method, String path) {
+    public FluentLoggingWrapper withRequest(Context context, String method, String path) {
         withField(METHOD, method);
         withField(PATH, path);
         if (nonNull(context.getContentMap())) {
@@ -128,8 +129,14 @@ public class FluentLoggingWrapper {
     }
     
     public FluentLoggingWrapper withTransactionId(final String transactionId) {
-        withField(TRANSACTION_ID_HEADER, transactionId);
-        withField(TRANSACTION_ID, transactionId);
+        String tid = null;
+        if (!isBlank(transactionId) && transactionId.contains(TRANSACTION_ID_START_PART)) {
+            tid = transactionId;
+        } else if (!isBlank(transactionId)) {
+            tid = TRANSACTION_ID_START_PART + transactionId;
+        }
+        withField(TRANSACTION_ID_HEADER, tid);
+        withField(TRANSACTION_ID, tid);
         return this;
     }
     
