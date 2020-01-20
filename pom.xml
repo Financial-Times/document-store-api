@@ -64,10 +64,6 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-            <id>Nexus</id>
-            <url>https://nexus.in.ft.com/repository/releases</url>
-        </repository>
     </repositories>
 
     <pluginRepositories>
