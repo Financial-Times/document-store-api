@@ -56,7 +56,7 @@ public class MongoDocumentStoreServiceListTest {
         MongoDatabase db = mongo.getDb();
         mongoDocumentStoreService = new MongoDocumentStoreService(db, Executors.newSingleThreadExecutor());
         mongoDocumentStoreService.applyIndexes();
-        collection = db.getCollection("lists");
+        collection = db.getCollection(DB_COLLECTION);
         uuid = UUID.randomUUID();
         contentUuid1 = UUID.randomUUID().toString();
     }
@@ -287,7 +287,6 @@ public class MongoDocumentStoreServiceListTest {
         Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION, CONCEPT_UUID, LIST_TYPE);
         assertThat(actual.get("uuid"), is((Object) uuid.toString()));
     }
-
 
     @Test
     public void thatIndexesAreConfigured() {
