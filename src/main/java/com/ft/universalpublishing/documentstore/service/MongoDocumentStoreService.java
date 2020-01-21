@@ -72,14 +72,9 @@ public class MongoDocumentStoreService {
         return indexed;
     }
 
-    public Set<Map<String, Object>> filterLists(String resourceType, String conceptUUID, String listType, String searchTerm) {
+    public List<Document> filterLists(String resourceType, String conceptUUID, String listType, String searchTerm) {
 
-        // todo: Remove after filters are done
-        System.out.println(conceptUUID);
-        System.out.println(listType);
-        System.out.println(searchTerm);
-
-        ArrayList<Bson> queryFilters = new ArrayList<>();
+        List<Bson> queryFilters = new ArrayList<>();
 
         if (conceptUUID != null) {
             Bson filterByConceptUUID = Filters.eq("concept.uuid", conceptUUID);
@@ -100,13 +95,10 @@ public class MongoDocumentStoreService {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             Iterable<Document> results = dbCollection.find(filter);
-            System.out.println(results);
 
-            Map<UUID, Document> mappedResults = new HashMap<>();
-            results.forEach(doc -> mappedResults.put(UUID.fromString((String) doc.get("uuid")), doc));
-            Set<Map<String, Object>> documents = new LinkedHashSet<>();
-            mappedResults.forEach((k, v) -> {
-                Document doc = v;
+            ArrayList<Document> documents = new ArrayList<>();
+            results.forEach( x -> {
+                Document doc = x;
                 if (doc != null) {
                     doc.remove("_id");
                     documents.add(doc);

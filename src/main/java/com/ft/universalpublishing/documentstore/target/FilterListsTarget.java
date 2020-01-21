@@ -13,11 +13,11 @@ public class FilterListsTarget implements Target {
 
     @Override
     public Object execute(Context context) {
-        return Collections.singletonList(documentStoreService.filterLists(
+        return documentStoreService.filterLists(
                 context.getCollection(),
                 context.getConceptUUID(),
                 context.getListType(),
                 context.getSearchTerm()
-        ));
+        );
     }
 }
