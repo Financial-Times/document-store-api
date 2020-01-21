@@ -11,14 +11,14 @@ connectionHealthcheckParameters:
     severity: 1
     businessImpact: "Content won't be available for API consumers, including ft.com."
     technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the content platform and affect a variety of products."
-    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
+    panicGuideUrl: "https://runbooks.in.ft.com/document-store-api"
 
 indexHealthcheckParameters:
     name: "MongoDB index health"
     severity: 2
     businessImpact: "Some API consumers may experience slow performance for content requests."
     technicalSummary: "The application indexes for the MongoDB content store may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
-    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
+    panicGuideUrl: "https://runbooks.in.ft.com/document-store-api"
 
 server:
 
@@ -32,56 +32,53 @@ server:
 
   requestLog:
     appenders:
-
       - type: console
-        # Add transaction_id to the end of Dropwizard's default format, which is itself based on the "combined" log format
-        logFormat: "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" %D transaction_id=%i{X-Request-Id}"
+        # Add format needed for 'fluent-logging' library to make in JSON format
+        logFormat: "%m%n"
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
-
       - type: file
-
         # The file to which current statements will be logged.
         currentLogFilename: /var/log/apps/document-store-api-dw-access.log
-
         # When the log file rotates, the archived log will be renamed to this and gzipped. The
         # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
         # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
         archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-access-%d.log.gz
-
         # The number of archived files to keep.
         archivedFileCount: 6
-
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
 logging:
-
   level: INFO
-
   loggers:
-    io.dropwizard: DEBUG
-    com.ft.api.util.transactionid.TransactionIdFilter: WARN
+    io.dropwizard: WARN
+    com.sun.jersey.spi.container.ContainerResponse: "OFF"
+    org.openrdf.rio.helpers.ParseErrorLogger: "OFF"
+    org.eclipse.jetty: "OFF"
+    javax.ws.rs.client: "OFF"
+    com.sun.jersey.api.client: "OFF"
+    ch.qos.logback: "OFF"
+    com.ft.api.util.transactionid.TransactionIdFilter: "OFF"
+    com.ft.platform.dropwizard.HealthCheckPageData: "OFF"
+    com.ft.platform.dropwizard.metrics: "OFF"
+    com.ft.api.jaxrs.errors: "OFF"
+    org.glassfish.jersey.client: "OFF"
 
   appenders:
-
     - type: console
-
+      logFormat: "%m%n"
     - type: file
       # Do not write log statements below this threshold to the file.
       threshold: ALL
-
       # The file to which current statements will be logged.
       currentLogFilename: /var/log/apps/document-store-api-dw-app.log
-
       # When the log file rotates, the archived log will be renamed to this and gzipped. The
       # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
       # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
       archivedLogFilenamePattern: /var/log/apps/document-store-api-dw-app-%d.log.gz
-
       # The number of archived files to keep.
       archivedFileCount: 5
-
       # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
       timeZone: UTC
       

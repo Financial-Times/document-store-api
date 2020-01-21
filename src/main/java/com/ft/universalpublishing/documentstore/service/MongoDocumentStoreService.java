@@ -1,10 +1,7 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
-import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
+import com.ft.universalpublishing.documentstore.exception.*;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
@@ -13,34 +10,41 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.ACCEPT;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_DELETE;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_POST;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
+import static java.util.Arrays.asList;
+import static java.util.UUID.fromString;
+import static javax.ws.rs.HttpMethod.GET;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.bson.Document.parse;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MongoDocumentStoreService {
 
     private static final String LISTS_COLLECTION = "lists";
-    private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
     private static final String IDENT_AUTHORITY = "identifiers.authority";
     private static final String IDENT_VALUE = "identifiers.identifierValue";
     private static final String CONCEPT_UUID = "concept.uuid";
@@ -49,22 +53,27 @@ public class MongoDocumentStoreService {
     private final MongoDatabase db;
     private ExecutorService exec;
     private boolean indexed;
-    private Runnable reindexer = () -> applyIndexes();
+    private Runnable reindexer = this::applyIndexes;
+    private FluentLoggingWrapper logger;
 
     public MongoDocumentStoreService(final MongoDatabase db, ExecutorService exec) {
         this.db = db;
         this.exec = exec;
         exec.submit(reindexer);
+        logger = new FluentLoggingWrapper();
+        logger.withClassName(this.getClass().getCanonicalName());
     }
 
     public boolean isConnected() {
         boolean connected = false;
 
+        logger.withMetodName("isConnected").withField(METHOD, GET).withField(ACCEPT, APPLICATION_JSON_TYPE);
+
         try {
-            Document commandResult = db.runCommand(Document.parse("{ serverStatus : 1 }"));
+            Document commandResult = db.runCommand(parse("{ serverStatus : 1 }"));
             connected = !commandResult.isEmpty();
         } catch (MongoException e) {
-            LOG.warn("Cannot verify MongoDB connection", e);
+            logger.withException(e).withField(MESSAGE, "Cannot verify MongoDB connection").build().logWarn();
         }
 
         if (connected && !indexed) {
@@ -82,10 +91,70 @@ public class MongoDocumentStoreService {
         return indexed;
     }
 
-    public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
+    public List<Document> filterLists(String resourceType, String conceptUUID, String listType, String searchTerm) {
+		String errorMessage = null;
+
+        List<Bson> queryFilters = new ArrayList<>();
+
+		logger.withMetodName("filterLists").withField(ACCEPT, APPLICATION_JSON_TYPE);
+
+        if (conceptUUID != null) {
+            Bson filterByConceptUUID = eq("concept.uuid", conceptUUID);
+            queryFilters.add(filterByConceptUUID);
+        }
+        if (listType != null) {
+            Bson filterByListType = eq("listType", listType);
+            queryFilters.add(filterByListType);
+        }
+        if (searchTerm != null) {
+            Pattern regexSearchTerm = Pattern.compile(searchTerm, Pattern.CASE_INSENSITIVE);
+            Bson filterByTitle = eq("title", regexSearchTerm);
+            queryFilters.add(filterByTitle);
+        }
+        
+        Bson filter = and(queryFilters);
+        
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-            Document foundDocument = dbCollection.find().filter(Filters.eq("uuid", uuid.toString())).first();
+            Iterable<Document> results;
+            if (conceptUUID == null && listType == null && searchTerm == null) {
+                results = dbCollection.find();
+            } else {
+                results = dbCollection.find(filter);
+            }
+
+            ArrayList<Document> documents = new ArrayList<>();
+            results.forEach( doc -> {
+                if (doc != null) {
+                    doc.remove("_id");
+                    documents.add(doc);
+                }
+            });
+            return documents;
+
+        } catch (MongoSocketException | MongoTimeoutException e) {
+            errorMessage = "MongoDB connection timed out or caused a socket exception during delete, "
+                    + "please check MongoDB! Collection " + resourceType;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+
+			throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            errorMessage = "Failed to find document(S) in Mongo! Collection "
+                    + resourceType;
+			logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+
+			throw new ExternalSystemInternalServerException(e);
+        }
+    }
+
+    public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
+        String errorMessage = null;
+        
+        logger.withMetodName("findByUuid").withField(METHOD, METHOD_GET).withField(ACCEPT, APPLICATION_JSON_TYPE);
+        
+        try {
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            Document foundDocument = dbCollection.find().filter(eq("uuid", uuid.toString())).first();
             if (foundDocument == null) {
                 throw new DocumentNotFoundException(uuid);
             }
@@ -93,23 +162,33 @@ public class MongoDocumentStoreService {
             foundDocument.remove("_id");
             return foundDocument;
         } catch (MongoSocketException | MongoTimeoutException e) {
-            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}, uuids {}", resourceType, uuid, e);
+            errorMessage = "MongoDB connection timed out or caused a socket exception during delete, "
+                    + "please check MongoDB! Collection " + resourceType + ", uuids " + uuid;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
-            LOG.error("Failed to find document in Mongo! Collection {}, uuids {}", resourceType, uuid, e);
+            errorMessage = "Failed to find document in Mongo! Collection "
+                    + resourceType + ", uuids " + uuid;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemInternalServerException(e);
         }
     }
 
     public Set<Map<String, Object>> findByUuids(String resourceType, Set<UUID> uuids) {
+        String errorMessage = null;
+
+        logger.withMetodName("findByUuids").withField(METHOD, METHOD_GET).withField(ACCEPT, APPLICATION_JSON_TYPE);
+
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
 
             Iterable<Document> results = dbCollection.find().filter(
-                    Filters.in("uuid", uuids.stream().map(UUID::toString).collect(Collectors.toList())));
+                    in("uuid", uuids.stream().map(UUID::toString).collect(Collectors.toList())));
 
             Map<UUID, Document> mappedResults = new HashMap<>();
-            results.forEach(doc -> mappedResults.put(UUID.fromString((String) doc.get("uuid")), doc));
+            results.forEach(doc -> mappedResults.put(fromString((String) doc.get("uuid")), doc));
 
             // preserve the order of the queried UUIDs in the found documents
             Set<Map<String, Object>> documents = new LinkedHashSet<>();
@@ -123,18 +202,28 @@ public class MongoDocumentStoreService {
 
             return documents;
         } catch (MongoSocketException | MongoTimeoutException e) {
-            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}, uuids {}", resourceType, uuids, e);
+            errorMessage = "MongoDB connection timed out or caused a socket exception during delete,"
+                    + " please check MongoDB! Collection " + resourceType + ", uuids " + uuids.toString();
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
-            LOG.error("Failed to find document(s) in Mongo! Collection {}, uuids {}", resourceType, uuids, e);
+            errorMessage = "Failed to find document(s) in Mongo! Collection "
+                    + resourceType + ", uuids " + uuids.toString();
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemInternalServerException(e);
         }
     }
 
     public Map<String, Object> findByIdentifier(String resourceType, String authority, String identifierValue) {
-        Bson filter = Filters.and(
-                Filters.eq("identifiers.authority", authority),
-                Filters.eq("identifiers.identifierValue", identifierValue)
+        String errorMessage = null;
+
+        logger.withMetodName("findByIdentifier").withField(METHOD, GET).withField(ACCEPT, APPLICATION_JSON_TYPE);
+        
+        Bson filter = and(
+                eq("identifiers.authority", authority),
+                eq("identifiers.identifierValue", identifierValue)
         );
 
         try {
@@ -146,23 +235,32 @@ public class MongoDocumentStoreService {
                     found = doc;
                     found.remove("_id");
                 } else {
-                    LOG.warn("found too many results for collection {} identifier {}:{}: at least {} and {}",
-                            resourceType, authority, identifierValue, found, doc);
+                    errorMessage = "found too many results for collection " + resourceType + " identifier " + authority
+                            + ":" + identifierValue + ": at least " + found + " and " + doc;
+                    logger.withField(MESSAGE, errorMessage).build().logError();
                     throw new QueryResultNotUniqueException();
                 }
             }
 
             return found;
         } catch (MongoException e) {
-            LOG.error("Failed to find document in Mongo! Collection {}, authority {}, identifierValue {}", resourceType, authority, identifierValue, e);
+            errorMessage = "Failed to find document in Mongo! Collection " + resourceType + ", authority " + authority
+                    + ", identifierValue " + identifierValue;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemInternalServerException(e);
         }
     }
 
-    public Map<String, Object> findByConceptAndType(String resourceType, UUID conceptId, String listType) {
-        Bson filter = Filters.and(
-                Filters.eq("concept.uuid", conceptId.toString()),
-                Filters.eq("listType", listType)
+    public Map<String, Object> findByConceptAndType(String resourceType, UUID conceptId,
+            String listType) {
+        String errorMessage = null;
+
+        logger.withMetodName("findByConceptAndType").withField(METHOD, METHOD_GET).withField(ACCEPT, APPLICATION_JSON_TYPE);
+
+        Bson filter = and(
+                eq("concept.uuid", conceptId.toString()),
+                eq("listType", listType)
         );
 
         try {
@@ -174,52 +272,77 @@ public class MongoDocumentStoreService {
                     found = doc;
                     found.remove("_id");
                 } else {
-                    LOG.error("found too many results for collection {} identifier {}:{}: at least {} and {}",
-                            resourceType, conceptId, listType, found, doc);
+                    errorMessage = "found too many results for collection " + resourceType + " identifier " + conceptId
+                            + ":" + listType + ": at least " + found + " and " + doc;
+                    logger.withField(MESSAGE, errorMessage).build().logError();
                     return found; // just return the first one we found (graceful degradation) and log the error
                 }
             }
 
             return found;
         } catch (MongoException e) {
-            LOG.error("Failed to find document in Mongo! Collection {}, uuid {}, listType {}", resourceType, conceptId, listType, e);
+            errorMessage = "Failed to find document in Mongo! Collection " + resourceType + ", uuid " + conceptId
+                    + ", listType " + listType;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemInternalServerException(e);
         }
     }
 
     public void delete(String resourceType, UUID uuid) {
+        String errorMessage = null;
+
+        logger.withMetodName("delete").withField(METHOD, METHOD_DELETE).withField(ACCEPT, APPLICATION_JSON_TYPE);
+
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-            DeleteResult deleteResult = dbCollection.deleteOne(Filters.eq("uuid", uuid.toString()));
+            DeleteResult deleteResult = dbCollection.deleteOne(eq("uuid", uuid.toString()));
 
             if (deleteResult.getDeletedCount() == 0) {
                 throw new DocumentNotFoundException(uuid);
             }
 
         } catch (MongoSocketException | MongoTimeoutException e) {
-            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}, uuid {}", resourceType, uuid, e);
+            errorMessage = "MongoDB connection timed out or caused a socket exception during delete, "
+                    + "please check MongoDB! Collection " + resourceType + ", uuid " + uuid;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
-            LOG.error("Failed to delete document to Mongo! Collection {}, uuid {}", resourceType, uuid, e);
+            errorMessage = "Failed to delete document to Mongo! Collection "
+                    + resourceType + ", uuid " + uuid;
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemInternalServerException(e);
         }
     }
 
     public DocumentWritten write(String resourceType, Map<String, Object> content) {
+        String errorMessage = null;
+        
+        logger.withMetodName("write").withField(METHOD, METHOD_POST).withField(ACCEPT, APPLICATION_JSON_TYPE);
+
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             final String uuid = (String) content.get("uuid");
             Document document = new Document(content);
-            UpdateResult updateResult = dbCollection.replaceOne(Filters.eq("uuid", uuid), document, new UpdateOptions().upsert(true));
+            UpdateResult updateResult = dbCollection.replaceOne(eq("uuid", uuid), document, new UpdateOptions().upsert(true));
             if (updateResult.getUpsertedId() == null) {
                 return DocumentWritten.updated(document);
             }
             return DocumentWritten.created(document);
         } catch (MongoSocketException | MongoTimeoutException e) {
-            LOG.error("MongoDB connection timed out or caused a socket exception during write, please check MongoDB! Collection {}, uuid {}", resourceType, content.get("uuid"), e);
+            errorMessage = "MongoDB connection timed out or caused a socket exception during write, "
+                    + "please check MongoDB! Collection "
+                    + resourceType + ", uuid " + content.get("uuid");
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
         } catch (MongoException e) {
-            LOG.error("Failed to write document to Mongo! Collection {}, uuid {}", resourceType, content.get("uuid"), e);
+            errorMessage = "Failed to write document to Mongo! Collection "
+                    + resourceType + ", uuid " + content.get("uuid");
+            logger.withException(e).withField(MESSAGE, errorMessage).build().logError();
+            
             throw new ExternalSystemInternalServerException(e);
         }
     }
@@ -234,18 +357,18 @@ public class MongoDocumentStoreService {
     @SuppressWarnings("rawtypes")
     private void applyIndexForListCollection() {
         MongoCollection lists = db.getCollection(LISTS_COLLECTION);
-        LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
         createUuidIndex(lists);
-        LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
+        logger.withMetodName("applyIndexForListCollection")
+                .withField(MESSAGE, "Created UUID index on collection " + LISTS_COLLECTION).build().logInfo();
         createConceptAndListTypeIndex(lists);
     }
 
     @SuppressWarnings("rawtypes")
     private void applyIndexForCollection(String collection) {
         MongoCollection mongoCollection = db.getCollection(collection);
-        LOG.info("Creating UUID index on collection [{}]", collection);
         createUuidIndex(mongoCollection);
-        LOG.info("Created UUID index on collection [{}]", collection);
+        logger.withMetodName("applyIndexForCollection")
+                .withField(MESSAGE, "Created UUID index on collection " + collection).build().logInfo();
         createIdentifierIndex(mongoCollection);
     }
 
@@ -271,23 +394,26 @@ public class MongoDocumentStoreService {
         MongoCollection<Document> collection = db.getCollection(resourceType);
         MongoCursor<Document> cursor = getFindUUIDsQuery(collection, includeSource).iterator();
 
+        logger.withMetodName("findUUIDs").withField(METHOD, GET).withField(ACCEPT, APPLICATION_JSON_TYPE);
+        
         try {
-            while (cursor.hasNext()){
+            while (cursor.hasNext()) {
                 Document document = cursor.next();
                 outputStream.write((document.toJson() + "\n").getBytes());
             }
             outputStream.flush();
-        }catch (IOException e) {
-            LOG.error("Error occurred while trying to return ids");
+        } catch (IOException e) {
+            logger.withException(e).withField(MESSAGE, "Error occurred while trying to return ids").build().logError();
+            
             throw new IDStreamingException(resourceType);
         }
     }
 
     private FindIterable<Document> getFindUUIDsQuery(MongoCollection<Document> collection, boolean includeSource) {
-        List<Bson> projections = new ArrayList<>(Arrays.asList(Projections.include("uuid"), Projections.excludeId()));
+        List<Bson> projections = new ArrayList<>(asList(include("uuid"), excludeId()));
         if (includeSource) {
-            projections.add(Projections.include(IDENT_AUTHORITY));
+            projections.add(include(IDENT_AUTHORITY));
         }
-        return collection.find().projection(Projections.fields(projections));
+        return collection.find().projection(fields(projections));
     }
 }

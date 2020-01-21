@@ -1,13 +1,12 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Strings;
+import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 import com.google.common.net.HostAndPort;
+import io.swagger.annotations.Api;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -16,47 +15,81 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+import java.util.Collections;
 
 import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_GET;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static java.util.Collections.singletonMap;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.*;
+import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.UriBuilder.fromPath;
+import static org.slf4j.MDC.get;
 
+@Api(tags = {"collections"})
 @Path("/content-query")
 @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
 public class DocumentQueryResource {
 
-  private final MongoDocumentStoreService documentStoreService;
-  private final HostAndPort apiHost;
+    private final MongoDocumentStoreService documentStoreService;
+    private final HostAndPort apiHost;
+    private FluentLoggingWrapper logger;
 
-  public DocumentQueryResource(MongoDocumentStoreService documentStoreService, String apiHost) {
-    this.documentStoreService = documentStoreService;
-    this.apiHost = HostAndPort.fromString(apiHost);
-  }
-
-  @GET
-  @Timed
-  public final Response findContentByIdentifier(@QueryParam("identifierAuthority") String authority, @QueryParam("identifierValue") String identifierValue) {
-    if (Strings.isNullOrEmpty(authority) || Strings.isNullOrEmpty(identifierValue)) {
-      return Response.status(SC_BAD_REQUEST).entity(
-              Collections.singletonMap("message", "Query parameters \"identifierAuthority\" and \"identifierValue\" are required."))
-              .build();
+    public DocumentQueryResource(MongoDocumentStoreService documentStoreService, String apiHost) {
+        this.documentStoreService = documentStoreService;
+        this.apiHost = HostAndPort.fromString(apiHost);
+        logger = new FluentLoggingWrapper();
+        logger.withClassName(this.getClass().getCanonicalName());
     }
 
-    Map<String, Object> content = documentStoreService.findByIdentifier("content", authority, identifierValue);
-    if (content == null) {
-      return Response.status(SC_NOT_FOUND).entity(Collections.singletonMap("message", String.format("Not found: %s:%s", authority, identifierValue))).build();
+    @GET
+    @Timed
+    public final Response findContentByIdentifier(@QueryParam("identifierAuthority") String authority,
+            @QueryParam("identifierValue") String identifierValue) {
+        Response response;
+        logger.withMetodName("findContentByIdentifier").withTransactionId(get(TRANSACTION_ID)).withField(METHOD, METHOD_GET);
+
+        if (isNullOrEmpty(authority) || isNullOrEmpty(identifierValue)) {
+            response = status(SC_BAD_REQUEST).entity(singletonMap("message",
+                    "Query parameters \"identifierAuthority\" and \"identifierValue\" are required.")).build();
+            logger.withResponse(response)
+                    .withField(MESSAGE,
+                            "Query parameters \"identifierAuthority\" and \"identifierValue\" are required.")
+                    .build().logWarn();
+
+            return response;
+        }
+
+        Map<String, Object> content = documentStoreService.findByIdentifier("content", authority, identifierValue);
+        if (content == null) {
+            response = status(SC_NOT_FOUND)
+                    .entity(singletonMap("message", format("Not found: %s:%s", authority, identifierValue))).build();
+            logger.withResponse(response).withField(MESSAGE, format("Not found: %s:%s", authority, identifierValue))
+                    .build().logWarn();
+
+            return response;
+        }
+
+        String uuid = content.get("uuid").toString();
+        response = status(SC_MOVED_PERMANENTLY).location(createApiUri(uuid)).build();
+        logger.withUriInfo(createApiUri(uuid)).withResponse(response)
+                .withField(MESSAGE, format("Not found: %s:%s", authority, identifierValue)).build().logError();
+
+        return response;
     }
 
-    return Response.status(SC_MOVED_PERMANENTLY).location(createApiUri(content.get("uuid").toString())).build();
-  }
-
-  private URI createApiUri(String uuid){
-    return UriBuilder.fromPath("/content/" + uuid)
-            .scheme("http")
-            .host(apiHost.getHostText())
-            .port(apiHost.getPortOrDefault(-1))
-            .build();
-  }
+    private URI createApiUri(String uuid) {
+        return fromPath("/content/" + uuid)
+                .scheme("http")
+                .host(apiHost.getHost())
+                .port(apiHost.getPortOrDefault(-1))
+                .build();
+    }
 }
