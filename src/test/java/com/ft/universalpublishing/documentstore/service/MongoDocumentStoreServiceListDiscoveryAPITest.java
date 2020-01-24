@@ -19,18 +19,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 
-public class MongoDocumentStoreServiceGenericListsTest {
+public class MongoDocumentStoreServiceListDiscoveryAPITest {
 
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "generic-lists";
-    private static final String DB_COLLECTION0 = "lists";
-
-//    private static final UUID listUUID0 = UUID.randomUUID();
-//    private static final UUID listUUID1 = UUID.randomUUID();
-//    private static final UUID listUUID2 = UUID.randomUUID();
-//    private static final UUID listUUID3 = UUID.randomUUID();
-//
-//    private static final UUID conceptUUID = UUID.randomUUID();
 
     private static final Map<String, Object> TEST_DATA_All = ImmutableMap.<String, Object>builder()
             .put("uuid", UUID.randomUUID())
@@ -104,7 +96,7 @@ public class MongoDocumentStoreServiceGenericListsTest {
             .append("concept", TEST_CONCEPT3)
             .append("listType", TEST_DATA_LIST_TYPE.get("listType"));
 
-    private static final List<Document> TEST_DATA_TO_INSERT = Arrays.asList(LIST0, LIST1, LIST2, LIST3);
+    private static final List<Document> TEST_DATA = Arrays.asList(LIST0, LIST1, LIST2, LIST3);
 
     @RegisterExtension
     static EmbeddedMongoExtension mongo = EmbeddedMongoExtension.builder()
@@ -120,29 +112,37 @@ public class MongoDocumentStoreServiceGenericListsTest {
         MongoDatabase db = mongo.getDb();
         mongoDocumentStoreService = new MongoDocumentStoreService(db, Executors.newSingleThreadExecutor());
         mongoDocumentStoreService.applyIndexes();
-
         collection = db.getCollection(DB_COLLECTION);
-        collection.insertMany(TEST_DATA_TO_INSERT);
     }
 
-    //    todo: Should think about how to implement that test as I need an empty collection for it.
-
-//    @Test
-//    public void searchWithNoParamsAndNoListsShouldReturnEmptyArray() {}
-    
     @Test
-    public void searchWithNoParamsShouldReturnAllLists() {
+    public void searchWithNoParamsAndNoListsShouldReturnEmptyArray() {
         String tConceptUUID = null;
         String tListType = null;
         String tSearchTerm = null;
 
         List<Document> filteredLists = mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUID, tListType, tSearchTerm);
 
-        assertThat(filteredLists.size(), is(TEST_DATA_TO_INSERT.size()));
+        assertThat(filteredLists.size(), is(0));
+    }
+
+    @Test
+    public void searchWithNoParamsShouldReturnAllLists() {
+        collection.insertMany(TEST_DATA);
+
+        String tConceptUUID = null;
+        String tListType = null;
+        String tSearchTerm = null;
+
+        List<Document> filteredLists = mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUID, tListType, tSearchTerm);
+
+        assertThat(filteredLists.size(), is(TEST_DATA.size()));
     }
 
     @Test
     public void searchByConceptUUIDReturnsAllListsWithThisConcept() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = TEST_DATA_CONCEPT.get("conceptUUID").toString();;
         String tListType = null;
         String tSearchTerm = null;
@@ -164,6 +164,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
     @Test
     public void searchByConceptUUIDReturnsEmptyArrayWhenNoMatches() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = UUID.randomUUID().toString();
         String tListType = null;
         String tSearchTerm = null;
@@ -175,6 +177,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
     @Test
     public void searchByListTypeReturnsAllListsWithThisListType() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = null;
         String tListType = TEST_DATA_LIST_TYPE.get("listType").toString();
         String tSearchTerm = null;
@@ -196,6 +200,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
     @Test
     public void searchByListTypeReturnsEmptyArrayWhenNoMatches() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = null;
         String tListType = "NonExistent";
         String tSearchTerm = null;
@@ -207,6 +213,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
     @Test
     public void searchBySearchTermReturnsAllListsWithThisTermInTitle() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = null;
         String tListType = null;
         String tSearchTerm = "LookFor";
@@ -227,6 +235,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
     }
     @Test
     public void searchBySearchTermReturnsEmptyArrayWhenNoMatches() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = null;
         String tListType = null;
         String tSearchTerm = "NonExistent";
@@ -238,6 +248,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
     @Test
     public void searchByConceptUUIDListTypeAndSearchTermReturnsAllListsMatchingAllCriteria() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = TEST_DATA_All.get("conceptUUID").toString();
         String tListType = TEST_DATA_All.get("listType").toString();
         String tSearchTerm = "MatchAll";
@@ -259,6 +271,8 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
     @Test
     public void searchByConceptUUIDListTypeAndSearchTermReturnsEmptyArrayWhenNoMatches() {
+        collection.insertMany(TEST_DATA);
+
         String tConceptUUID = UUID.randomUUID().toString();
         String tListType = "NonExistent";
         String tSearchTerm = "NonExistent";
