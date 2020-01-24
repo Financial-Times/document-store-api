@@ -129,19 +129,17 @@ public class MongoDocumentStoreServiceGenericListsTest {
 
 //    @Test
 //    public void searchWithNoParamsAndNoListsShouldReturnEmptyArray() {}
+    
+    @Test
+    public void searchWithNoParamsShouldReturnAllLists() {
+        String tConceptUUID = null;
+        String tListType = null;
+        String tSearchTerm = null;
 
-    //    todo: This test fails as the endpoint does not work when no params are given. Should fix that first.
+        List<Document> filteredLists = mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUID, tListType, tSearchTerm);
 
-//    @Test
-//    public void searchWithNoParamsShouldReturnAllLists() {
-//        String tConceptUUID = null;
-//        String tListType = null;
-//        String tSearchTerm = null;
-//
-//        List<Document> filteredLists = mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUID, tListType, tSearchTerm);
-//
-//        assertThat(filteredLists.size(), is(TEST_DATA_TO_INSERT.size()));
-//    }
+        assertThat(filteredLists.size(), is(TEST_DATA_TO_INSERT.size()));
+    }
 
     @Test
     public void searchByConceptUUIDReturnsAllListsWithThisConcept() {

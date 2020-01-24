@@ -94,7 +94,12 @@ public class MongoDocumentStoreService {
         
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-            Iterable<Document> results = dbCollection.find(filter);
+            Iterable<Document> results;
+            if (conceptUUID == null && listType == null && searchTerm == null) {
+                results = dbCollection.find();
+            } else {
+                results = dbCollection.find(filter);
+            }
 
             ArrayList<Document> documents = new ArrayList<>();
             results.forEach( x -> {
