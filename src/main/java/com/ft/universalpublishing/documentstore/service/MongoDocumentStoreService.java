@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class MongoDocumentStoreService {
 
@@ -102,8 +103,7 @@ public class MongoDocumentStoreService {
             }
 
             ArrayList<Document> documents = new ArrayList<>();
-            results.forEach( x -> {
-                Document doc = x;
+            results.forEach( doc -> {
                 if (doc != null) {
                     doc.remove("_id");
                     documents.add(doc);
