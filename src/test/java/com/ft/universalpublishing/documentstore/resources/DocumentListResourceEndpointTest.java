@@ -38,10 +38,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DocumentListResourceEndpointTest {
-
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);

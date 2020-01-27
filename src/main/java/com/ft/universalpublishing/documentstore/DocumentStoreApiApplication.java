@@ -35,7 +35,6 @@ import io.swagger.annotations.Tag;
 import javax.servlet.DispatcherType;
 import java.util.*;
 
-
 @SwaggerDefinition(tags = {@Tag(
         name = "collections",
         description = "Operations on document-store MongoDB collections"

@@ -19,10 +19,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DocumentQueryResourceEndpointTest {
-
     private final static MongoDocumentStoreService DOC_STORE = mock(MongoDocumentStoreService.class);
     private static final String API_URL_PREFIX = "localhost:12345";
     private static final String CONTENT = "content";

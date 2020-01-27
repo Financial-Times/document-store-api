@@ -15,9 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
 public class ContentListValidatorTest {
-
     private ContentListValidator contentListValidator = new ContentListValidator(new UuidValidator());
     private ContentList.Builder builder = new ContentList.Builder();
     private String uuid;

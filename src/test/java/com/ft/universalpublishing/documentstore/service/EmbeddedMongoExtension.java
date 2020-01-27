@@ -17,7 +17,6 @@ import java.util.Collections;
 public class EmbeddedMongoExtension implements BeforeEachCallback {
 
     private String dbName;
-
     private String dbCollection;
 
     @Getter
@@ -38,7 +37,6 @@ public class EmbeddedMongoExtension implements BeforeEachCallback {
         if (urlAddress.length != 2) {
             Assert.fail("System property MONGO_TEST_URL should be set to a valid mongo server instance, e.g. MONGO_TEST_URL=localhost:27017. Alternatively you could skip these tests by providig the -Dshort java program flag");
         }
-
         serverAddress = new ServerAddress(urlAddress[0], Integer.parseInt(urlAddress[1]));
 
         MongoClientOptions mongoClientOptions = MongoClientOptions.builder()

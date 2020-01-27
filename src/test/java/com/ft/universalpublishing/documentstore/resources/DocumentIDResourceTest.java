@@ -1,6 +1,5 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-
 import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -24,10 +23,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DocumentIDResourceTest {
-
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
     private static final String RESOURCE_TYPE = "content";
     private String IDS_PATH = "/" + RESOURCE_TYPE + "/" + "__ids";
@@ -35,7 +32,6 @@ public class DocumentIDResourceTest {
     private static final ResourceExtension resources = ResourceExtension.builder()
             .addResource(new DocumentIDResource(documentStoreService))
             .build();
-
 
     @Test
     public void shouldReturn200WhenIDsSuccessfully() throws IOException {

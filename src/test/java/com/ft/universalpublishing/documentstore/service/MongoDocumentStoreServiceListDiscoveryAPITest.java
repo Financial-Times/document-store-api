@@ -18,9 +18,7 @@ import java.util.concurrent.Executors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-
 public class MongoDocumentStoreServiceListDiscoveryAPITest {
-
     private static final String DB_NAME = "upp-store";
     private static final String DB_COLLECTION = "generic-lists";
 
@@ -143,7 +141,7 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
     public void searchByConceptUUIDReturnsAllListsWithThisConcept() {
         collection.insertMany(TEST_DATA);
 
-        String tConceptUUID = TEST_DATA_CONCEPT.get("conceptUUID").toString();;
+        String tConceptUUID = TEST_DATA_CONCEPT.get("conceptUUID").toString();
         String tListType = null;
         String tSearchTerm = null;
 
@@ -233,6 +231,7 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
 
         assertThat(retrievedList, is(expectedList));
     }
+
     @Test
     public void searchBySearchTermReturnsEmptyArrayWhenNoMatches() {
         collection.insertMany(TEST_DATA);

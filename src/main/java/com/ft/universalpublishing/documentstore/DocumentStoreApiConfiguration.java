@@ -10,20 +10,15 @@ import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class DocumentStoreApiConfiguration extends Configuration implements ConfigWithAppInfo, ConfigWithGTG {
-
     @JsonProperty
     private AppInfo appInfo = new AppInfo();
-
     @JsonProperty
     private GTGConfig gtgConfig = new GTGConfig();
-
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
-
     private final String apiHost;
     private final MongoConfig mongo;
     private final String cacheTtl;
-
     private HealthcheckParameters connectionHealthcheckParameters;
     private HealthcheckParameters indexHealthcheckParameters;
 

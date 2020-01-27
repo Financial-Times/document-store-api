@@ -14,18 +14,13 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.verify;
 
-
 @ExtendWith(MockitoExtension.class)
 public class CacheControlFilterTest {
-
     private CacheControlFilter filter;
-
     @Mock
     private FilterChain chain;
-
     @Mock
     private HttpServletRequest request;
-
     @Mock
     private HttpServletResponse response;
 

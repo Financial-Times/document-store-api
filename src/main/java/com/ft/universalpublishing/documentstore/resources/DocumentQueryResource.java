@@ -20,7 +20,6 @@ import java.util.Map;
 import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
 import static javax.servlet.http.HttpServletResponse.*;
 
-
 @Api(tags = {"collections"})
 @Path("/content-query")
 @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)

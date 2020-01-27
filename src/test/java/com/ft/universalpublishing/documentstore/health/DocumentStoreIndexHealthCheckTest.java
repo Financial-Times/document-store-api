@@ -12,7 +12,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
 public class DocumentStoreIndexHealthCheckTest {
 

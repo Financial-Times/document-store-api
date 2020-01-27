@@ -15,13 +15,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
 public class DocumentStoreConnectionGoodToGoCheckerTest {
-
     @Mock
     private Environment env;
-
     @Mock
     private MongoDocumentStoreService service;
 
