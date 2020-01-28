@@ -16,5 +16,4 @@ public class UuidValidator {
             throw new ValidationException("invalid UUID: " + uuid + ", does not conform to RFC 4122");
         }
     }
-
 }

@@ -37,7 +37,6 @@ public class HandlerChain {
         return target.execute(context);
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

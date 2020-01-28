@@ -2,17 +2,14 @@ package com.ft.universalpublishing.documentstore.target;
 
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 
-
+@RequiredArgsConstructor
 public class FindMultipleResourcesByUuidsTarget implements Target {
 
-    private MongoDocumentStoreService documentStoreService;
-
-    public FindMultipleResourcesByUuidsTarget(MongoDocumentStoreService documentStoreService) {
-        this.documentStoreService = documentStoreService;
-    }
+    private final MongoDocumentStoreService documentStoreService;
 
     @Override
     public Object execute(Context context) {

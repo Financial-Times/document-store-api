@@ -21,7 +21,7 @@ RUN apk --update add git maven curl \
   && TAG=$GIT_TAG \
   && VERSION=${TAG:-untagged} \
   # Set Maven artifact version
-  && mvn versions:set -DnewVersion=$VERSION \
+  && mvn clean versions:set -DnewVersion=$VERSION \
   # Build project without tests
   && mvn clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true -DskipTests \
   # Remove sources jar

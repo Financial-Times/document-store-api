@@ -3,18 +3,14 @@ package com.ft.universalpublishing.documentstore.target;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import lombok.RequiredArgsConstructor;
 
 import javax.ws.rs.core.Response;
 
-
+@RequiredArgsConstructor
 public class WriteDocumentTarget implements Target {
 
-
-    private MongoDocumentStoreService documentStoreService;
-
-    public WriteDocumentTarget(MongoDocumentStoreService documentStoreService) {
-        this.documentStoreService = documentStoreService;
-    }
+    private final MongoDocumentStoreService documentStoreService;
 
     @Override
     public Object execute(Context context) {

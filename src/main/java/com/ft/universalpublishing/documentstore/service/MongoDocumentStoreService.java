@@ -1,10 +1,6 @@
 package com.ft.universalpublishing.documentstore.service;
 
-import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
-import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
-import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
-import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
+import com.ft.universalpublishing.documentstore.exception.*;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
@@ -26,16 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class MongoDocumentStoreService {
 
@@ -49,7 +40,7 @@ public class MongoDocumentStoreService {
     private final MongoDatabase db;
     private ExecutorService exec;
     private boolean indexed;
-    private Runnable reindexer = () -> applyIndexes();
+    private Runnable reindexer = this::applyIndexes;
 
     public MongoDocumentStoreService(final MongoDatabase db, ExecutorService exec) {
         this.db = db;
@@ -80,6 +71,53 @@ public class MongoDocumentStoreService {
 
     public boolean isIndexed() {
         return indexed;
+    }
+
+    public List<Document> filterLists(String resourceType, String conceptUUID, String listType, String searchTerm) {
+
+        List<Bson> queryFilters = new ArrayList<>();
+
+        if (conceptUUID != null) {
+            Bson filterByConceptUUID = Filters.eq("concept.uuid", conceptUUID);
+            queryFilters.add(filterByConceptUUID);
+        }
+        if (listType != null) {
+            Bson filterByListType = Filters.eq("listType", listType);
+            queryFilters.add(filterByListType);
+        }
+        if (searchTerm != null) {
+            Pattern regexSearchTerm = Pattern.compile(searchTerm, Pattern.CASE_INSENSITIVE);
+            Bson filterByTitle = Filters.eq("title", regexSearchTerm);
+            queryFilters.add(filterByTitle);
+        }
+        
+        Bson filter = Filters.and(queryFilters);
+        
+        try {
+            MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+            Iterable<Document> results;
+            if (conceptUUID == null && listType == null && searchTerm == null) {
+                results = dbCollection.find();
+            } else {
+                results = dbCollection.find(filter);
+            }
+
+            ArrayList<Document> documents = new ArrayList<>();
+            results.forEach( doc -> {
+                if (doc != null) {
+                    doc.remove("_id");
+                    documents.add(doc);
+                }
+            });
+            return documents;
+
+        } catch (MongoSocketException | MongoTimeoutException e) {
+            LOG.error("MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}", resourceType, e);
+            throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
+        } catch (MongoException e) {
+            LOG.error("Failed to find document(s) in Mongo! Collection {}", resourceType, e);
+            throw new ExternalSystemInternalServerException(e);
+        }
     }
 
     public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
@@ -272,12 +310,12 @@ public class MongoDocumentStoreService {
         MongoCursor<Document> cursor = getFindUUIDsQuery(collection, includeSource).iterator();
 
         try {
-            while (cursor.hasNext()){
+            while (cursor.hasNext()) {
                 Document document = cursor.next();
                 outputStream.write((document.toJson() + "\n").getBytes());
             }
             outputStream.flush();
-        }catch (IOException e) {
+        } catch (IOException e) {
             LOG.error("Error occurred while trying to return ids");
             throw new IDStreamingException(resourceType);
         }

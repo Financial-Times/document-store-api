@@ -5,22 +5,19 @@ import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.UUID;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
+@RequiredArgsConstructor
 public class FindListByUuid implements Target {
 
-    private MongoDocumentStoreService documentStoreService;
+    private final MongoDocumentStoreService documentStoreService;
 
-    private String apiPath;
-
-    public FindListByUuid(MongoDocumentStoreService documentStoreService, String apiPath) {
-        this.documentStoreService = documentStoreService;
-        this.apiPath = apiPath;
-    }
+    private final String apiPath;
 
     @Override
     public Object execute(Context context) {
