@@ -41,6 +41,7 @@ jobs:
             docker build \
             --build-arg SONATYPE_USER=${SONATYPE_USER} \
             --build-arg SONATYPE_PASSWORD=${SONATYPE_PASSWORD} \
+            --build-arg GIT_TAG=${DOCKER_TAG} \
             --tag nexus.in.ft.com:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
       - deploy:
           name: Push Docker image

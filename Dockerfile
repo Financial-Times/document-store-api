@@ -6,18 +6,19 @@ ADD pom.xml /
 
 ARG SONATYPE_USER
 ARG SONATYPE_PASSWORD
+ARG GIT_TAG
 
 ENV MAVEN_HOME=/root/.m2
 
 RUN apk --update add git maven curl \
-  && rm -rf /root/.m2/ \
+  && rm -rf $MAVEN_HOME/ \
   # Set Nexus credentials in settings.xml file
   && mkdir $MAVEN_HOME \
   && curl -v -o $MAVEN_HOME/settings.xml "https://raw.githubusercontent.com/Financial-Times/nexus-settings/master/public-settings.xml" \
   # Generate docker tag
   && cd document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
-  && TAG=$(git describe --tag --always 2> /dev/null) \
+  && TAG=$GIT_TAG \
   && VERSION=${TAG:-untagged} \
   # Set Maven artifact version
   && mvn versions:set -DnewVersion=$VERSION \
@@ -44,4 +45,5 @@ CMD exec java $JAVA_OPTS \
          -Ddw.cacheTtl=$CACHE_TTL \
 		 -Ddw.apiHost=$API_HOST \
 		 -Ddw.logging.appenders[0].logFormat="%m%n" \
+		 -DgitTag=$GIT_TAG \
 		 -jar document-store-api.jar server config.yaml
