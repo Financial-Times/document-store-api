@@ -1,11 +1,13 @@
 package com.ft.universalpublishing.documentstore.model.read;
 
+import lombok.Data;
+
 import java.util.*;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
-
+@Data
 public class Context {
 
     private Map<String, Object> map;
@@ -21,6 +23,10 @@ public class Context {
     private UriInfo uriInfo;
 
     private HttpHeaders httpHeaders;
+
+    private String conceptUUID;
+    private String listType;
+    private String searchTerm;
 
     public Context() {
         uuids = new ArrayList<>();
@@ -43,38 +49,6 @@ public class Context {
         Collections.addAll(this.uuids, uuids);
     }
 
-    public Set<UUID> getValidatedUuids() {
-        return validatedUuids;
-    }
-
-    public void setValidatedUuids(Set<UUID> validatedUuids) {
-        this.validatedUuids = validatedUuids;
-    }
-
-    public UriInfo getUriInfo() {
-        return uriInfo;
-    }
-
-    public void setUriInfo(UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
-    }
-
-    public String getCollection() {
-        return collection;
-    }
-
-    public void setCollection(String collection) {
-        this.collection = collection;
-    }
-
-    public Map<String, Object> getContentMap() {
-        return contentMap;
-    }
-
-    public void setContentMap(Map<String, Object> contentMap) {
-        this.contentMap = contentMap;
-    }
-
     public void addParameter(String key, Object parameter) {
         map.put(key, parameter);
     }
@@ -83,11 +57,11 @@ public class Context {
         return map.get(key);
     }
 
-    public HttpHeaders getHttpHeaders() {
-        return httpHeaders;
-    }
+    public void setConceptUUID(String conceptUUID) { this.conceptUUID = conceptUUID; }
+    public void setListType(String listType) { this.listType = listType; }
+    public void setSearchTerm(String searchTerm) { this.searchTerm = searchTerm; }
 
-    public void setHttpHeaders(HttpHeaders httpHeaders) {
-        this.httpHeaders = httpHeaders;
-    }
+    public String getConceptUUID() { return this.conceptUUID; }
+    public String getListType() { return this.listType; }
+    public String getSearchTerm() { return this.searchTerm; }
 }

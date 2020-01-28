@@ -1,27 +1,18 @@
 package com.ft.universalpublishing.documentstore.write;
 
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 
+@Getter
+@RequiredArgsConstructor
 public class DocumentWritten {
 
     private final Mode mode;
-    private final Document written;
+    private final Document document;
 
-    public DocumentWritten(Mode mode, Document written) {
-        this.mode = mode;
-        this.written = written;
-    }
-
-    public Document getDocument() {
-        return written;
-    }
-
-    public Mode getMode() {
-        return mode;
-    }
-
-    public static enum Mode {
+    public enum Mode {
         Created, Updated, Deleted
     }
 
@@ -29,12 +20,12 @@ public class DocumentWritten {
         return new DocumentWritten(Mode.Updated, document);
 
     }
-    
+
     public static DocumentWritten created(Document content) {
         return new DocumentWritten(Mode.Created, content);
     }
 
     public static DocumentWritten deleted(Document content) {
-		return new DocumentWritten(Mode.Deleted, content);
-	}
+        return new DocumentWritten(Mode.Deleted, content);
+    }
 }

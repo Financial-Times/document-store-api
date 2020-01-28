@@ -1,0 +1,210 @@
+---
+swagger: "2.0"
+info:
+  description: "Document Store API"
+  version: "v1"
+  title: "Document Store API"
+  contact:
+    name: "UPP Team"
+tags:
+  - name: "collections"
+    description: "Operations on document-store MongoDB collections"
+schemes:
+  - "http"
+paths:
+  /{collection}/__ids:
+    get:
+      tags:
+        - "collections"
+      summary: "List all available authority identifiers that are allowed to write\
+        \ in the current collection"
+      description: ""
+      operationId: "getIDsForCollectionAndAuthority"
+      produces:
+        - "application/octet-stream"
+      parameters:
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "includeSource"
+          in: "query"
+          required: false
+          type: "boolean"
+      responses:
+        default:
+          description: "successful operation"
+  /content-query:
+    get:
+      tags:
+        - "collections"
+      operationId: "findContentByIdentifier"
+      produces:
+        - "application/json;charset=utf-8"
+      parameters:
+        - name: "identifierAuthority"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "identifierValue"
+          in: "query"
+          required: false
+          type: "string"
+      responses:
+        default:
+          description: "successful operation"
+  /{collection}/{uuidString}:
+    get:
+      tags:
+        - "collections"
+      summary: "Get documents from the specified collection per content type UUID"
+      description: ""
+      operationId: "getFromCollectionByUuid"
+      produces:
+        - "application/json;charset=utf-8"
+      parameters:
+        - name: "uuidString"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+    put:
+      tags:
+        - "collections"
+      summary: "Add/update a document identified by UUID"
+      description: ""
+      operationId: "writeInCollection"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "uuidString"
+          in: "path"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          required: false
+          schema:
+            type: "object"
+            additionalProperties:
+              type: "object"
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+    delete:
+      tags:
+        - "collections"
+      summary: "Delete a document identified by UUID"
+      description: ""
+      operationId: "deleteFromCollection"
+      parameters:
+        - name: "uuidString"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+  /search/{collection}:
+    get:
+      tags:
+        - "collections"
+      summary: "Search and filter documents from the specified list collection"
+      description: ""
+      operationId: "searchCollection"
+      produces:
+        - "application/json;charset=utf-8"
+      parameters:
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "conceptUUID"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "listType"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "searchTerm"
+          in: "query"
+          required: false
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+  /{collection}:
+    get:
+      tags:
+        - "collections"
+      operationId: "getFromCollectionByUuids_1"
+      produces:
+        - "application/json;charset=utf-8"
+      parameters:
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          headers: {}
+          schema:
+            type: "object"
+    post:
+      tags:
+        - "collections"
+      summary: "Get documents from the specified collection per list of content type\
+        \ UUIDs"
+      description: ""
+      operationId: "getFromCollectionByUuids"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json;charset=utf-8"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: false
+          schema:
+            type: "array"
+            items:
+              type: "string"
+        - name: "collection"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "mget"
+          in: "query"
+          required: false
+          type: "boolean"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"

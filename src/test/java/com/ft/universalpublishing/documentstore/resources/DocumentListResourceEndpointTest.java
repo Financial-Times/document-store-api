@@ -1,48 +1,33 @@
 package com.ft.universalpublishing.documentstore.resources;
 
-import com.google.common.collect.ImmutableList;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.ft.universalpublishing.documentstore.exception.DocumentNotFoundException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemInternalServerException;
 import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavailableException;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
-import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
-import com.ft.universalpublishing.documentstore.handler.Handler;
-import com.ft.universalpublishing.documentstore.handler.HandlerChain;
-import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
-import com.ft.universalpublishing.documentstore.model.read.Concept;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.ft.universalpublishing.documentstore.model.read.Operation;
-import com.ft.universalpublishing.documentstore.model.read.Pair;
+import com.ft.universalpublishing.documentstore.handler.*;
+import com.ft.universalpublishing.documentstore.model.read.*;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
-import com.ft.universalpublishing.documentstore.target.FindListByConceptAndTypeTarget;
-import com.ft.universalpublishing.documentstore.target.FindListByUuid;
-import com.ft.universalpublishing.documentstore.target.Target;
-import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
+import com.ft.universalpublishing.documentstore.target.*;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-
+import com.google.common.collect.ImmutableList;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
 import org.bson.Document;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import io.dropwizard.testing.junit.ResourceTestRule;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
@@ -51,14 +36,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class DocumentListResourceEndpointTest {
-
     private final static MongoDocumentStoreService documentStoreService = mock(MongoDocumentStoreService.class);
     private final static ContentListValidator contentListValidator = mock(ContentListValidator.class);
     private final static UuidValidator uuidValidator = mock(UuidValidator.class);
@@ -67,10 +48,9 @@ public class DocumentListResourceEndpointTest {
     private static final UUID CONCEPT_UUID = UUID.randomUUID();
     private static final String CONCEPT_PREF_LABEL = "World";
 
-    @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
-        .addResource(new DocumentResource(getCollectionMap()))
-        .build();
+    private static final ResourceExtension resources = ResourceExtension.builder()
+            .addResource(new DocumentResource(getCollectionMap()))
+            .build();
 
     private String uuid;
     private Document listAsDocument;
@@ -92,32 +72,32 @@ public class DocumentListResourceEndpointTest {
         this.uuidPath = "/" + RESOURCE_TYPE + "/" + uuid;
     }
 
-  private static Map<Pair<String, Operation>, HandlerChain> getCollectionMap() {
-    Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
-    Handler extractConceptHandler = new ExtractConceptHandler();
-    Handler contentListValidationHandler = new ContentListValidationHandler(contentListValidator);
-    Target writeDocument = new WriteDocumentTarget(documentStoreService);
-    Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
-    Target findListByUuid = new FindListByUuid(documentStoreService, API_URL_PREFIX_CONTENT);
-    Target findListByConceptAndType = new FindListByConceptAndTypeTarget(documentStoreService,
-        API_URL_PREFIX_CONTENT);
+    private static Map<Pair<String, Operation>, HandlerChain> getCollectionMap() {
+        Handler uuidValidationHandler = new UuidValidationHandler(uuidValidator);
+        Handler extractConceptHandler = new ExtractConceptHandler();
+        Handler contentListValidationHandler = new ContentListValidationHandler(contentListValidator);
+        Target writeDocument = new WriteDocumentTarget(documentStoreService);
+        Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
+        Target findListByUuid = new FindListByUuid(documentStoreService, API_URL_PREFIX_CONTENT);
+        Target findListByConceptAndType = new FindListByConceptAndTypeTarget(documentStoreService,
+                API_URL_PREFIX_CONTENT);
 
-    final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
-    collections.put(new Pair<>("lists", Operation.GET_FILTERED),
-        new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
-    collections.put(new Pair<>("lists", Operation.GET_BY_ID),
-        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
-    collections.put(new Pair<>("lists", Operation.ADD),
-        new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler)
-            .setTarget(writeDocument));
-    collections.put(new Pair<>("lists", Operation.REMOVE),
-        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+        final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
+        collections.put(new Pair<>("lists", Operation.GET_FILTERED),
+                new HandlerChain().addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
+        collections.put(new Pair<>("lists", Operation.GET_BY_ID),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
+        collections.put(new Pair<>("lists", Operation.ADD),
+                new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler)
+                        .setTarget(writeDocument));
+        collections.put(new Pair<>("lists", Operation.REMOVE),
+                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
-    return collections;
-  }
+        return collections;
+    }
 
-  private static ContentList getContentList(String listUuid, String firstContentUuid,
-      String secondContentUuid) {
+    private static ContentList getContentList(String listUuid, String firstContentUuid,
+                                              String secondContentUuid) {
         ListItem contentItem1 = new ListItem();
         contentItem1.setUuid(firstContentUuid);
         ListItem contentItem2 = new ListItem();
@@ -152,7 +132,7 @@ public class DocumentListResourceEndpointTest {
         return contentList;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         reset(documentStoreService);
         reset(contentListValidator);
@@ -193,7 +173,6 @@ public class DocumentListResourceEndpointTest {
         Response clientResponse = writeDocument(uuidPath, listAsDocument);
 
         assertThat("", clientResponse, hasProperty("status", equalTo(503)));
-
     }
 
     @Test
@@ -205,7 +184,7 @@ public class DocumentListResourceEndpointTest {
         assertThat("", clientResponse, hasProperty("status", equalTo(500)));
     }
 
-  //REMOVE
+    //REMOVE
 
     @Test
     public void shouldReturn200WhenDeletedSuccessfully() {
@@ -337,7 +316,7 @@ public class DocumentListResourceEndpointTest {
                 .get();
 
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-        validateErrorMessage("Expected at least one query parameter",  clientResponse);
+        validateErrorMessage("Expected at least one query parameter", clientResponse);
     }
 
     @Test
@@ -391,5 +370,4 @@ public class DocumentListResourceEndpointTest {
         final ErrorEntity responseBodyMessage = clientResponse.readEntity(ErrorEntity.class);
         assertThat("message", responseBodyMessage, hasProperty("message", equalTo(expectedErrorMessage)));
     }
-
 }

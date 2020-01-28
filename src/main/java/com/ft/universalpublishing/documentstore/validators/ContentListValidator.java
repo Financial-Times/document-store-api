@@ -6,17 +6,14 @@ import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.ListItem;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-
+@RequiredArgsConstructor
 public class ContentListValidator {
 
-    private UuidValidator uuidValidator;
-
-    public ContentListValidator(UuidValidator uuidValidator) {
-        this.uuidValidator = uuidValidator;
-    }
+    private final UuidValidator uuidValidator;
 
     public void validate(String uuidString, ContentList contentList) {
         if (contentList == null) {

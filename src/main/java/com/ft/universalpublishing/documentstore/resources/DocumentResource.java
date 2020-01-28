@@ -1,36 +1,30 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.WebApplicationClientException;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
-
-import com.codahale.metrics.annotation.Timed;
 import com.savoirtech.logging.slf4j.json.LoggerFactory;
 import com.savoirtech.logging.slf4j.json.logger.JsonLogger;
 import com.savoirtech.logging.slf4j.json.logger.Logger;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
+@Api(tags = {"collections"})
 @Path("/")
 public class DocumentResource {
 
@@ -44,6 +38,7 @@ public class DocumentResource {
         this.collections = collections;
     }
 
+    @ApiOperation(value = "Get documents from the specified collection per content type UUID")
     @GET
     @Timed
     @Path("/{collection}/{uuidString}")
@@ -54,6 +49,24 @@ public class DocumentResource {
         context.setUuids(uuidString);
         context.setCollection(collection);
         HandlerChain handlerChain = getHandlerChain(collection, Operation.GET_BY_ID);
+        return handlerChain.execute(context);
+    }
+
+    @ApiOperation(value = "Search and filter documents from the specified list collection")
+    @GET
+    @Timed
+    @Path("search/{collection}")
+    @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
+    public final Object searchCollection(@PathParam("collection") String collection,
+                                             @QueryParam("conceptUUID") String conceptUUID,
+                                             @QueryParam("listType") String listType,
+                                             @QueryParam("searchTerm") String searchTerm) {
+        Context context = new Context();
+        context.setCollection(collection);
+        context.setConceptUUID(conceptUUID);
+        context.setListType(listType);
+        context.setSearchTerm(searchTerm);
+        HandlerChain handlerChain = getHandlerChain(collection, Operation.SEARCH);
         return handlerChain.execute(context);
     }
 
@@ -72,6 +85,7 @@ public class DocumentResource {
         return handlerChain.execute(context);
     }
 
+    @ApiOperation(value = "Get documents from the specified collection per list of content type UUIDs")
     @POST
     @Timed
     @Path("/{collection}")
@@ -98,6 +112,7 @@ public class DocumentResource {
         return handlerChain.execute(context);
     }
 
+    @ApiOperation(value = "Add/update a document identified by UUID")
     @PUT
     @Timed
     @Path("/{collection}/{uuidString}")
@@ -142,6 +157,7 @@ public class DocumentResource {
         }
     }
 
+    @ApiOperation(value = "Delete a document identified by UUID")
     @DELETE
     @Timed
     @Path("/{collection}/{uuidString}")
