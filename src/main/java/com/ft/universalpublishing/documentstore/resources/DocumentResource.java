@@ -14,7 +14,6 @@ import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.UUID;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

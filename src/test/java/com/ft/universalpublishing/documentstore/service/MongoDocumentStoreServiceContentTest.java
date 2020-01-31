@@ -98,7 +98,8 @@ public class MongoDocumentStoreServiceContentTest {
         collection.insertOne(toInsert);
 
 
-        Map<String, Object> contentMap = new HashMap<>(mongoDocumentStoreService.findByUuid("content", uuid));
+        Map<String, Object> contentMap = new HashMap<>(
+                mongoDocumentStoreService.findByUuid("content", uuid));
         contentMap.remove("_id");
         assertThat(contentMap, is(outboundContent));
     }

@@ -48,6 +48,13 @@ swagger:
   description: Document Store API
   contact: UPP Team
 
+swagger:
+  resourcePackage: com.ft.universalpublishing.documentstore,com.ft.universalpublishing.documentstore.resources
+  title: Document Store API
+  version: v1
+  description: Document Store API
+  contact: UPP Team
+
 logging:
   level: INFO
   loggers:
@@ -77,4 +84,4 @@ logging:
 
 appInfo:
     systemCode: "document-store-api"
-    description: "document-store-api" 
+    description: "document-store-api"

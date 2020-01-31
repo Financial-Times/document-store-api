@@ -91,7 +91,7 @@ public class MongoDocumentStoreServiceListTest {
                 .withItems(mockOutboundListItems())
                 .build();
 
-        Map<String,Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid);
+        Map<String, Object> contentMap = mongoDocumentStoreService.findByUuid("lists", uuid);
         ContentList retrievedContentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
 
         assertThat(retrievedContentList, is(expectedList));

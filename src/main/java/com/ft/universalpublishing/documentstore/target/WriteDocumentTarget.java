@@ -2,7 +2,6 @@ package com.ft.universalpublishing.documentstore.target;
 
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import lombok.RequiredArgsConstructor;
 

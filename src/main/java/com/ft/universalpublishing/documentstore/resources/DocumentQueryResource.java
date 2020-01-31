@@ -15,7 +15,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 
 import static com.ft.universalpublishing.documentstore.resources.DocumentResource.CHARSET_UTF_8;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
@@ -25,9 +24,6 @@ import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.*;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.UriBuilder.fromPath;

@@ -1,13 +1,7 @@
 package com.ft.universalpublishing.documentstore.validators;
 
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
-import com.ft.universalpublishing.documentstore.model.read.ContentList;
-import com.ft.universalpublishing.documentstore.model.read.ListItem;
-import com.google.common.collect.ImmutableList;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
