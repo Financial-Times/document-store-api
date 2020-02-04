@@ -6,7 +6,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
@@ -22,13 +22,10 @@ public class DocumentNotFoundException extends WebApplicationException {
     private static final ErrorMessage MESSAGE = new ErrorMessage("Requested item does not exist");
 
     private final UUID uuid;
-    private FluentLoggingWrapper logger;
 
     public DocumentNotFoundException(UUID uuid) {
         super();
         this.uuid = uuid;
-        logger = new FluentLoggingWrapper();
-        logger.withClassName(this.getClass().getCanonicalName());
     }
 
     public UUID getUuid() {
@@ -44,7 +41,7 @@ public class DocumentNotFoundException extends WebApplicationException {
     public Response getResponse() {
         Response response = status(SC_NOT_FOUND).type(APPLICATION_JSON).entity(MESSAGE).build();
 
-        logger.withMetodName("getResponse").withResponse(response).withTransactionId(get(TRANSACTION_ID))
+        FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "getResponse").withResponse(response).withTransactionId(get(TRANSACTION_ID))
                 .withField(METHOD, "GET").withField(FluentLoggingUtils.MESSAGE, getMessage()).withField(UUID, uuid)
                 .build().logWarn();
 

@@ -41,39 +41,35 @@ import com.ft.membership.logging.IntermediateYield;
 import com.ft.membership.logging.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 
-public class FluentLoggingWrapper {
-    private final static Logger logger = LoggerFactory.getLogger(FluentLoggingWrapper.class);
+public class FluentLoggingBuilder {
+    private final static Logger logger = LoggerFactory.getLogger(FluentLoggingBuilder.class);
 
     public static final String SYSTEM_CODE = "systemcode";
     public static final String APPLICATION_NAME = "document-store-api";
-    
+
     private Map<String, Object> items;
     private String methodName;
     private String loggingClassName;
-    
-    public FluentLoggingWrapper() {
+
+    public static FluentLoggingBuilder getNewInstance(String loggingClassName, String methodName) {
+        return new FluentLoggingBuilder(loggingClassName, methodName);
+    }
+
+    private FluentLoggingBuilder(String loggingClassName, String methodName) {
+        this.loggingClassName = loggingClassName;
+        this.methodName = methodName;
         items = new HashMap<>();
     }
 
-    public FluentLoggingWrapper withField(String fieldName, Object fieldValue) {
+    public FluentLoggingBuilder withField(String fieldName, Object fieldValue) {
         if (isBlank(fieldName) || isNull(fieldValue) || isBlank(valueOf(fieldValue))) {
             return this;
         }
         items.put(fieldName, fieldValue);
         return this;
     }
-    
-    public FluentLoggingWrapper withClassName(String loggingClassName) {
-        this.loggingClassName = loggingClassName;
-        return this;
-    }
 
-    public FluentLoggingWrapper withMetodName(final String name) {
-        methodName = name;
-        return this;
-    }
-
-    public FluentLoggingWrapper withException(Throwable t) {
+    public FluentLoggingBuilder withException(Throwable t) {
         if (nonNull(t)) {
             withField(EXCEPTION, t.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
@@ -85,7 +81,7 @@ public class FluentLoggingWrapper {
         return this;
     }
 
-    public FluentLoggingWrapper withRequest(Context context, String method, String path) {
+    public FluentLoggingBuilder withRequest(Context context, String method, String path) {
         withField(METHOD, method);
         withField(PATH, path);
         if (nonNull(context.getContentMap())) {
@@ -94,8 +90,8 @@ public class FluentLoggingWrapper {
         withField(COLLECTION, context.getCollection());
         return this;
     }
-    
-    public FluentLoggingWrapper withUriInfo(URI uri) {
+
+    public FluentLoggingBuilder withUriInfo(URI uri) {
         if (nonNull(uri)) {
             withField(URI, uri.toString());
             withField(PATH, uri.getPath());
@@ -103,7 +99,7 @@ public class FluentLoggingWrapper {
         return this;
     }
 
-    public FluentLoggingWrapper withUriInfo(UriInfo uri) {
+    public FluentLoggingBuilder withUriInfo(UriInfo uri) {
         if (nonNull(uri)) {
             withField(URI, uri.getAbsolutePath().toString());
             withField(PATH, uri.getPath());
@@ -111,7 +107,7 @@ public class FluentLoggingWrapper {
         return this;
     }
 
-    public FluentLoggingWrapper withResponse(Response response) {
+    public FluentLoggingBuilder withResponse(Response response) {
         if (nonNull(response)) {
             withField(STATUS, valueOf(response.getStatus()));
             withField(CLIENT, response.getClass().getCanonicalName());
@@ -120,15 +116,15 @@ public class FluentLoggingWrapper {
         return this;
     }
 
-    private FluentLoggingWrapper withOutboundHeaders(Response response) {
+    private FluentLoggingBuilder withOutboundHeaders(Response response) {
         String contentTypeHeader = flattenHeaderToString(response, CONTENT_TYPE);
         withField(CONTENT_TYPE, contentTypeHeader);
         withField(USER_AGENT, getOutboundUserAgentHeader());
         withField(ACCEPT, APPLICATION_JSON_TYPE.toString());
         return this;
     }
-    
-    public FluentLoggingWrapper withTransactionId(final String transactionId) {
+
+    public FluentLoggingBuilder withTransactionId(final String transactionId) {
         String tid = null;
         if (!isBlank(transactionId) && transactionId.contains(TRANSACTION_ID_START_PART)) {
             tid = transactionId;
@@ -139,7 +135,7 @@ public class FluentLoggingWrapper {
         withField(TRANSACTION_ID, tid);
         return this;
     }
-    
+
     public IntermediateYield build() {
         Operation operationJson = operation(methodName).jsonLayout().initiate(loggingClassName);
         IntermediateYield iy = operationJson.logIntermediate();
@@ -160,7 +156,7 @@ public class FluentLoggingWrapper {
         }
         return userAgentValue;
     }
-    
+
     private static String flattenHeaderToString(Response response, String headerKey) {
         if (isNull(response.getHeaders())) {
             return EMPTY;
@@ -168,7 +164,7 @@ public class FluentLoggingWrapper {
         List<Object> headersPerHeaderKey = response.getHeaders().get(headerKey);
         if (nonNull(headersPerHeaderKey)) {
             return headersPerHeaderKey.stream().map(Object::toString).collect(joining(";"));
-        }    
+        }
 
         return EMPTY;
     }

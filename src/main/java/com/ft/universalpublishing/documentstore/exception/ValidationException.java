@@ -8,7 +8,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
@@ -22,9 +22,10 @@ public class ValidationException extends WebApplicationException {
 
     @Override
     public Response getResponse() {
-        Response response = status(SC_BAD_REQUEST).type(APPLICATION_JSON).entity(new ErrorMessage(getMessage())).build();
-        new FluentLoggingWrapper().withClassName(this.getClass().getCanonicalName()).withMetodName("getResponse")
-                .withResponse(response).withTransactionId(get(TRANSACTION_ID)).withField(METHOD, "GET")
+        Response response = status(SC_BAD_REQUEST).type(APPLICATION_JSON).entity(new ErrorMessage(getMessage()))
+                .build();
+        FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "getResponse").withResponse(response)
+                .withTransactionId(get(TRANSACTION_ID)).withField(METHOD, "GET")
                 .withField(FluentLoggingUtils.MESSAGE, getMessage()).build().logWarn();
 
         return response;

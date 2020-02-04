@@ -3,7 +3,7 @@ package com.ft.universalpublishing.documentstore.resources;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -37,8 +37,8 @@ public class DocumentIDResource {
                                                           @QueryParam("includeSource") boolean includeSource) {
         StreamingOutput streamingOutput = outputStream -> documentStoreService.findUUIDs(collection, includeSource, outputStream);
         Response response = ok().entity(streamingOutput).build();
-        new FluentLoggingWrapper().withClassName(this.getClass().getCanonicalName())
-                .withMetodName("getIDsForCollectionAndAuthority").withResponse(response)
+        FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "getIDsForCollectionAndAuthority")
+                .withResponse(response)
                 .withTransactionId(get(TRANSACTION_ID)).withField(CLIENT, response.getClass().getCanonicalName())
                 .withField(METHOD, METHOD_GET)
                 .build().logInfo();

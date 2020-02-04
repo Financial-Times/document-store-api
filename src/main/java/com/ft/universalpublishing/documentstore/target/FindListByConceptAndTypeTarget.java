@@ -7,7 +7,7 @@ import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import lombok.RequiredArgsConstructor;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,8 +42,8 @@ public class FindListByConceptAndTypeTarget implements Target {
         } catch (IllegalArgumentException e) {
             WebApplicationClientException clientException = status(SC_INTERNAL_SERVER_ERROR).error(e.getMessage())
                     .exception();
-            new FluentLoggingWrapper().withClassName(this.getClass().getCanonicalName()).withMetodName("execute")
-                    .withField(STATUS, SC_INTERNAL_SERVER_ERROR).withException(clientException).build().logWarn();
+            FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "execute")
+                    .withField(STATUS, SC_INTERNAL_SERVER_ERROR).withException(clientException).build().logError();
 
             throw clientException;
         }
