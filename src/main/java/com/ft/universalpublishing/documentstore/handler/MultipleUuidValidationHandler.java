@@ -4,7 +4,7 @@ package com.ft.universalpublishing.documentstore.handler;
 import com.ft.universalpublishing.documentstore.exception.ValidationException;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.ACCEPT;
@@ -23,20 +23,17 @@ import java.util.UUID;
 public class MultipleUuidValidationHandler implements Handler {
 
     private UuidValidator validator;
-    private FluentLoggingWrapper logger;
 
     public MultipleUuidValidationHandler(UuidValidator validator) {
         this.validator = validator;
-        logger = new FluentLoggingWrapper();
-        logger.withClassName(this.getClass().getCanonicalName());
     }
 
     @Override
     public void handle(Context context) {
         Set<UUID> uuidValues = new LinkedHashSet<>();
-        
-        
-        logger.withMetodName("handle").withField(METHOD, METHOD_GET)
+
+        FluentLoggingBuilder logger = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "handle")
+                .withField(METHOD, METHOD_GET)
                 .withField(HOST, context.getUriInfo().getAbsolutePath().getHost())
                 .withField(FluentLoggingUtils.USER_AGENT, context.getHttpHeaders().getHeaderString(USER_AGENT))
                 .withField(ACCEPT, APPLICATION_JSON_TYPE);
@@ -53,7 +50,7 @@ public class MultipleUuidValidationHandler implements Handler {
                 exceptionMessages.add(e.getMessage());
             }
         }
-        
+
         if (!exceptionMessages.isEmpty()) {
             logger.withField(MESSAGE,
                     "Invalid uuids=" + uuidsForLogging.toString() + "exceptionMessage=" + exceptionMessages.toString())

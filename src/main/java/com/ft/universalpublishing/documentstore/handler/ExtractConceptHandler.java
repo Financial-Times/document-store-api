@@ -2,7 +2,7 @@ package com.ft.universalpublishing.documentstore.handler;
 
 import com.ft.api.jaxrs.errors.WebApplicationClientException;
 import com.ft.universalpublishing.documentstore.model.read.Context;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import java.util.Set;
 import java.util.UUID;
@@ -20,19 +20,17 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 public class ExtractConceptHandler implements Handler {
 
     private static final String LIST_QUERY_PARAM_TEMPLATE = "curated([a-zA-Z]*)For";
-    private static final Pattern LIST_QUERY_PARAM_PATTERN = Pattern
-            .compile(LIST_QUERY_PARAM_TEMPLATE);
-
+    private static final Pattern LIST_QUERY_PARAM_PATTERN = Pattern.compile(LIST_QUERY_PARAM_TEMPLATE);
 
     @Override
     public void handle(Context context) {
         MultivaluedMap<String, String> queryParameters = context.getUriInfo().getQueryParameters();
         WebApplicationClientException clientException;
-        FluentLoggingWrapper logger = new FluentLoggingWrapper().withClassName(this.getClass().getCanonicalName())
-                .withMetodName("handle");
+        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(),
+                "handle");
         if (queryParameters.isEmpty()) {
             clientException = status(SC_BAD_REQUEST).error("Expected at least one query parameter").exception();
-            logger.withField(STATUS, SC_BAD_REQUEST).withField(MESSAGE, "Expected at least one query parameter")
+            loggerBuilder.withField(STATUS, SC_BAD_REQUEST).withField(MESSAGE, "Expected at least one query parameter")
                     .withException(clientException).build().logWarn();
             throw clientException;
         }
@@ -51,8 +49,9 @@ public class ExtractConceptHandler implements Handler {
                     conceptId = fromString(queryParameters.getFirst(key));
                 } catch (IllegalArgumentException e) {
                     clientException = status(SC_BAD_REQUEST).error("The concept ID is not a valid UUID").exception();
-                    logger.withField(STATUS, SC_BAD_REQUEST).withField(MESSAGE, "The concept ID is not a valid UUID")
-                            .withException(clientException).build().logWarn();
+                    loggerBuilder.withField(STATUS, SC_BAD_REQUEST)
+                            .withField(MESSAGE, "The concept ID is not a valid UUID").withException(clientException)
+                            .build().logWarn();
 
                     throw clientException;
                 }
@@ -62,7 +61,7 @@ public class ExtractConceptHandler implements Handler {
         if (listType == null) {
             clientException = status(SC_BAD_REQUEST)
                     .error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
-            logger.withField(STATUS, SC_BAD_REQUEST)
+            loggerBuilder.withField(STATUS, SC_BAD_REQUEST)
                     .withField(MESSAGE,
                             "Expected at least one query parameter of the form \\\"curated<listType>For\\\"")
                     .withException(clientException).build().logWarn();

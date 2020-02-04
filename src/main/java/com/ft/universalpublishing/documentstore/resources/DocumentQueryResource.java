@@ -2,7 +2,7 @@ package com.ft.universalpublishing.documentstore.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 import com.google.common.net.HostAndPort;
 import io.swagger.annotations.Api;
 
@@ -36,13 +36,10 @@ public class DocumentQueryResource {
 
     private final MongoDocumentStoreService documentStoreService;
     private final HostAndPort apiHost;
-    private FluentLoggingWrapper logger;
 
     public DocumentQueryResource(MongoDocumentStoreService documentStoreService, String apiHost) {
         this.documentStoreService = documentStoreService;
         this.apiHost = HostAndPort.fromString(apiHost);
-        logger = new FluentLoggingWrapper();
-        logger.withClassName(this.getClass().getCanonicalName());
     }
 
     @GET
@@ -50,12 +47,12 @@ public class DocumentQueryResource {
     public final Response findContentByIdentifier(@QueryParam("identifierAuthority") String authority,
             @QueryParam("identifierValue") String identifierValue) {
         Response response;
-        logger.withMetodName("findContentByIdentifier").withTransactionId(get(TRANSACTION_ID)).withField(METHOD, METHOD_GET);
+        FluentLoggingBuilder loggingBuilder = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "findContentByIdentifier").withTransactionId(get(TRANSACTION_ID)).withField(METHOD, METHOD_GET);
 
         if (isNullOrEmpty(authority) || isNullOrEmpty(identifierValue)) {
             response = status(SC_BAD_REQUEST).entity(singletonMap("message",
                     "Query parameters \"identifierAuthority\" and \"identifierValue\" are required.")).build();
-            logger.withResponse(response)
+            loggingBuilder.withResponse(response)
                     .withField(MESSAGE,
                             "Query parameters \"identifierAuthority\" and \"identifierValue\" are required.")
                     .build().logWarn();
@@ -67,7 +64,7 @@ public class DocumentQueryResource {
         if (content == null) {
             response = status(SC_NOT_FOUND)
                     .entity(singletonMap("message", format("Not found: %s:%s", authority, identifierValue))).build();
-            logger.withResponse(response).withField(MESSAGE, format("Not found: %s:%s", authority, identifierValue))
+            loggingBuilder.withResponse(response).withField(MESSAGE, format("Not found: %s:%s", authority, identifierValue))
                     .build().logWarn();
 
             return response;
@@ -75,7 +72,7 @@ public class DocumentQueryResource {
 
         String uuid = content.get("uuid").toString();
         response = status(SC_MOVED_PERMANENTLY).location(createApiUri(uuid)).build();
-        logger.withUriInfo(createApiUri(uuid)).withResponse(response)
+        loggingBuilder.withUriInfo(createApiUri(uuid)).withResponse(response)
                 .withField(MESSAGE, format("Not found: %s:%s", authority, identifierValue)).build().logError();
 
         return response;

@@ -49,6 +49,13 @@ server:
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
+swagger:
+  resourcePackage: com.ft.universalpublishing.documentstore,com.ft.universalpublishing.documentstore.resources
+  title: Document Store API
+  version: v1
+  description: Document Store API
+  contact: UPP Team
+
 logging:
   level: INFO
   loggers:

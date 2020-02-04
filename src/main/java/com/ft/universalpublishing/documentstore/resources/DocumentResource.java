@@ -28,7 +28,7 @@ import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
-import com.ft.universalpublishing.documentstore.utils.FluentLoggingWrapper;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,12 +41,8 @@ public class DocumentResource {
 
     private Map<Pair<String, Operation>, HandlerChain> collections;
     
-    private FluentLoggingWrapper logger;
-    
     public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
         this.collections = collections;
-        logger = new FluentLoggingWrapper();
-        logger.withClassName(this.getClass().getCanonicalName());
     }
 
     @ApiOperation(value = "Get documents from the specified collection per content type UUID")
@@ -142,7 +138,7 @@ public class DocumentResource {
         context.setContentMap(contentMap);
         context.setUriInfo(uriInfo);
 
-        logger.withMetodName("writeInCollection")
+        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "writeInCollection")
                 .withTransactionId(get(TRANSACTION_ID))
                 .withRequest(context, METHOD_PUT, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
@@ -150,12 +146,12 @@ public class DocumentResource {
         try {
             HandlerChain handlerChain = getHandlerChain(collection, ADD);
             Object result = handlerChain.execute(context);
-            logger.withField(MESSAGE, "Successfully saved").build().log();
+            loggerBuilder.withField(MESSAGE, "Successfully saved").build().log();
 
             return result;
 
         } catch (WebApplicationClientException ex) {
-            logger.withField(MESSAGE, "Error: " + ex.getMessage()).build().logError();
+            loggerBuilder.withField(MESSAGE, "Error: " + ex.getMessage()).build().logError();
 
             throw ex;
         }
@@ -173,7 +169,7 @@ public class DocumentResource {
         context.setCollection(collection);
         context.setUriInfo(uriInfo);
 
-        logger.withMetodName("deleteFromCollection")
+        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "deleteFromCollection")
                 .withTransactionId(get(TRANSACTION_ID))
                 .withRequest(context, METHOD_DELETE, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
@@ -181,12 +177,12 @@ public class DocumentResource {
         try {
             HandlerChain handlerChain = getHandlerChain(collection, REMOVE);
             Object result = handlerChain.execute(context);
-            logger.withField(MESSAGE, "Successfully deleted").build().log();
+            loggerBuilder.withField(MESSAGE, "Successfully deleted").build().log();
 
             return result;
 
         } catch (WebApplicationClientException e) {
-            logger.withField(MESSAGE, "Error: " + e.getMessage()).build().logError();
+            loggerBuilder.withField(MESSAGE, "Error: " + e.getMessage()).build().logError();
 
             throw e;
         }
