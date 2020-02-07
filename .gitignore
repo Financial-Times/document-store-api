@@ -9,3 +9,6 @@ target/
 
 # MongoDB local test dir
 data/db
+
+.vscode
+.factorypath

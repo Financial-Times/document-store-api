@@ -15,6 +15,7 @@ public interface FluentLoggingUtils {
     String TRANSACTION_ID = "transaction_id";
     String URI = "uri";
     String PATH = "path";
+    String PROTOCOL = "protocol";
     String UUID = "uuid";
     String MESSAGE = "msg";
     String REASON = "reason";

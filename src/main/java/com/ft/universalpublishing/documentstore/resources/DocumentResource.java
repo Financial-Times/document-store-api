@@ -6,18 +6,26 @@ import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_
 import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_FILTERED;
 import static com.ft.universalpublishing.documentstore.model.read.Operation.GET_MULTIPLE_FILTERED;
 import static com.ft.universalpublishing.documentstore.model.read.Operation.REMOVE;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.slf4j.MDC.get;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_DELETE;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.METHOD_PUT;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.TRANSACTION_ID;
 import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.UUID;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.slf4j.MDC.get;
 
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
@@ -33,14 +41,14 @@ import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Api(tags = {"collections"})
+@Api(tags = { "collections" })
 @Path("/")
 public class DocumentResource {
 
     protected static final String CHARSET_UTF_8 = ";charset=utf-8";
 
     private Map<Pair<String, Operation>, HandlerChain> collections;
-    
+
     public DocumentResource(Map<Pair<String, Operation>, HandlerChain> collections) {
         this.collections = collections;
     }
@@ -50,12 +58,12 @@ public class DocumentResource {
     @Timed
     @Path("/{collection}/{uuidString}")
     @Produces(APPLICATION_JSON + CHARSET_UTF_8)
-    public final Object getFromCollectionByUuid(
-            @PathParam("uuidString") String uuidString, @PathParam("collection") String collection) {
+    public final Object getFromCollectionByUuid(@PathParam("uuidString") String uuidString,
+            @PathParam("collection") String collection) {
         Context context = new Context();
         context.setUuids(uuidString);
         context.setCollection(collection);
-        
+
         HandlerChain handlerChain = getHandlerChain(collection, GET_BY_ID);
         return handlerChain.execute(context);
     }
@@ -66,9 +74,8 @@ public class DocumentResource {
     @Path("search/{collection}")
     @Produces(APPLICATION_JSON + CHARSET_UTF_8)
     public final Object searchCollection(@PathParam("collection") String collection,
-                                             @QueryParam("conceptUUID") String conceptUUID,
-                                             @QueryParam("listType") String listType,
-                                             @QueryParam("searchTerm") String searchTerm) {
+            @QueryParam("conceptUUID") String conceptUUID, @QueryParam("listType") String listType,
+            @QueryParam("searchTerm") String searchTerm) {
         Context context = new Context();
         context.setCollection(collection);
         context.setConceptUUID(conceptUUID);
@@ -82,14 +89,13 @@ public class DocumentResource {
     @Timed
     @Path("/{collection}")
     @Produces(APPLICATION_JSON + CHARSET_UTF_8)
-    public final Object getFromCollectionByUuids(
-            @javax.ws.rs.core.Context HttpHeaders httpHeaders,
+    public final Object getFromCollectionByUuids(@javax.ws.rs.core.Context HttpHeaders httpHeaders,
             @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
         Context context = new Context();
         context.setUriInfo(uriInfo);
         context.setHttpHeaders(httpHeaders);
         context.setCollection(collection);
-        
+
         HandlerChain handlerChain = getHandlerChain(collection, GET_FILTERED);
         return handlerChain.execute(context);
     }
@@ -101,15 +107,15 @@ public class DocumentResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON + CHARSET_UTF_8)
     public final Object getFromCollectionByUuids(@javax.ws.rs.core.Context HttpHeaders httpHeaders,
-                                                 List<String> uuidList,
-                                                 @javax.ws.rs.core.Context UriInfo uriInfo,
-                                                 @PathParam("collection") String collection,
-                                                 @QueryParam("mget") boolean mget) {
+            List<String> uuidList, @javax.ws.rs.core.Context UriInfo uriInfo,
+            @PathParam("collection") String collection, @QueryParam("mget") boolean mget) {
         if (!mget) {
-            throw status(400).exception(new IllegalArgumentException("This is an endpoint for retrieving data, not writing. You must supply query parameter ?mget=true"));
+            throw status(400).exception(new IllegalArgumentException(
+                    "This is an endpoint for retrieving data, not writing. You must supply query parameter ?mget=true"));
         }
         if (uuidList == null) {
-            throw status(400).exception(new IllegalArgumentException("Incorrect format of request body. It's not an array of strings."));
+            throw status(400).exception(
+                    new IllegalArgumentException("Incorrect format of request body. It's not an array of strings."));
         }
 
         Context context = new Context();
@@ -128,9 +134,8 @@ public class DocumentResource {
     @Path("/{collection}/{uuidString}")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Object writeInCollection(@PathParam("uuidString") String uuidString,
-                                    Map<String, Object> contentMap, @javax.ws.rs.core.Context UriInfo uriInfo,
-                                    @PathParam("collection") String collection) {
+    public Object writeInCollection(@PathParam("uuidString") String uuidString, Map<String, Object> contentMap,
+            @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
 
         Context context = new Context();
         context.setCollection(collection);
@@ -138,9 +143,9 @@ public class DocumentResource {
         context.setContentMap(contentMap);
         context.setUriInfo(uriInfo);
 
-        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "writeInCollection")
-                .withTransactionId(get(TRANSACTION_ID))
-                .withRequest(context, METHOD_PUT, "/{collection}/{uuidString}")
+        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder
+                .getNewInstance(this.getClass().getCanonicalName(), "writeInCollection")
+                .withTransactionId(get(TRANSACTION_ID)).withRequest(context, METHOD_PUT, "/{collection}/{uuidString}")
                 .withUriInfo(uriInfo).withField(UUID, uuidString);
 
         try {
@@ -162,17 +167,18 @@ public class DocumentResource {
     @Timed
     @Path("/{collection}/{uuidString}")
     public Object deleteFromCollection(@PathParam("uuidString") String uuidString,
-                                       @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
+            @javax.ws.rs.core.Context UriInfo uriInfo, @PathParam("collection") String collection) {
 
         Context context = new Context();
         context.setUuids(uuidString);
         context.setCollection(collection);
         context.setUriInfo(uriInfo);
 
-        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "deleteFromCollection")
+        FluentLoggingBuilder loggerBuilder = FluentLoggingBuilder
+                .getNewInstance(this.getClass().getCanonicalName(), "deleteFromCollection")
                 .withTransactionId(get(TRANSACTION_ID))
-                .withRequest(context, METHOD_DELETE, "/{collection}/{uuidString}")
-                .withUriInfo(uriInfo).withField(UUID, uuidString);
+                .withRequest(context, METHOD_DELETE, "/{collection}/{uuidString}").withUriInfo(uriInfo)
+                .withField(UUID, uuidString);
 
         try {
             HandlerChain handlerChain = getHandlerChain(collection, REMOVE);

@@ -31,15 +31,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ft.membership.logging.IntermediateYield;
 import com.ft.membership.logging.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Context;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FluentLoggingBuilder {
     private final static Logger logger = LoggerFactory.getLogger(FluentLoggingBuilder.class);
@@ -88,6 +89,17 @@ public class FluentLoggingBuilder {
             withField(CONTENT_TYPE, context.getContentMap().get("type"));
         }
         withField(COLLECTION, context.getCollection());
+        return this;
+    }
+
+    public FluentLoggingBuilder withRequest(HttpServletRequest request) {
+        if (nonNull(request)) {
+            withField(FluentLoggingUtils.PROTOCOL, request.getProtocol());
+            withField(FluentLoggingUtils.HOST, request.getLocalAddr());
+            withField(METHOD, request.getMethod());
+            withField(CLIENT, request.getRemoteAddr());
+            withHttpServletRequestHeaders(request);
+        }
         return this;
     }
 
@@ -167,6 +179,12 @@ public class FluentLoggingBuilder {
         }
 
         return EMPTY;
+    }
+
+    private void withHttpServletRequestHeaders(HttpServletRequest request) {
+        withField(ACCEPT, request.getHeader("accept"));
+        withField(CONTENT_TYPE, request.getHeader("content-type"));
+        withField(USER_AGENT, request.getHeader("user-agent"));
     }
 
 }
