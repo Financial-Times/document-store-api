@@ -9,6 +9,7 @@ ARG SONATYPE_PASSWORD
 ARG GIT_TAG
 
 ENV MAVEN_HOME=/root/.m2
+ENV TAG=$GIT_TAG
 
 RUN apk --update add git maven curl \
   # Set Nexus credentials in settings.xml file
@@ -17,7 +18,7 @@ RUN apk --update add git maven curl \
   # Generate docker tag
   && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
-  && TAG=$GIT_TAG \
+  && TAG=$(git tag --sort=committerdate | tail -1) \
   && VERSION=${TAG:-untagged} \
   # Set Maven artifact version
   && mvn clean versions:set -DnewVersion=$VERSION \
@@ -44,5 +45,5 @@ CMD exec java $JAVA_OPTS \
          -Ddw.cacheTtl=$CACHE_TTL \
 		 -Ddw.apiHost=$API_HOST \
 		 -Ddw.logging.appenders[0].logFormat="%m%n" \
-		 -DgitTag=$GIT_TAG \
+		 -DgitTag=$TAG \
 		 -jar document-store-api.jar server config.yaml
