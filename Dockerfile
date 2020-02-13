@@ -33,8 +33,8 @@ RUN apk --update add git maven curl \
   && mv data-migration-scripts* /data-migration-scripts \
   && mv scripts* /scripts \
   # Clean up unnecessary dependencies and binaries
-  && apk del go git maven \
-  && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
+  && apk del git maven curl \
+  && rm -rf /var/cache/apk/* /document-store-api/target/* /root/.m2/* /tmp/*.apk
 
 EXPOSE 8080 8081
 

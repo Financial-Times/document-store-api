@@ -1,0 +1,22 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.java]
+indent_style = space
+indent_size = 4
+continuation_indent_size = 8
+max_line_length=120
+curly_bracket_next_line=false
+
+[*.json]
+indent_style=space
+indent_size=2
+
+[{*.yml,*.yaml}]
+indent_style=space
+indent_size=2

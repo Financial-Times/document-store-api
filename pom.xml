@@ -33,7 +33,6 @@
         <mongo-java-driver.version>3.0.3</mongo-java-driver.version>
         <embed.mongo.version>1.50.2</embed.mongo.version>
         <lombok.version>1.18.10</lombok.version>
-        <slf4j-json-logger.version>2.0.2</slf4j-json-logger.version>
 
         <mockito.version>3.2.4</mockito.version>
         <junit-jupiter.version>5.5.2</junit-jupiter.version>
@@ -178,12 +177,6 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.savoirtech.logging</groupId>
-            <artifactId>slf4j-json-logger</artifactId>
-            <version>${slf4j-json-logger.version}</version>
         </dependency>
 
         <dependency>

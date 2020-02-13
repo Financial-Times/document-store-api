@@ -1,5 +1,7 @@
 package com.ft.universalpublishing.documentstore;
 
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.MESSAGE;
+
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
@@ -17,6 +19,7 @@ import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.target.*;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
@@ -79,6 +82,9 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
         registerHealthChecks(configuration, environment, documentStoreService);
         registerResources(configuration, environment, documentStoreService);
+
+        FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "run")
+                .withField(MESSAGE, "Application started").build().logInfo();
     }
 
 
@@ -163,7 +169,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         environment.jersey().register(new DocumentResource(collections));
         environment.jersey().register(new DocumentQueryResource(documentStoreService, configuration.getApiHost()));
         environment.jersey().register(new DocumentIDResource(documentStoreService));
-
     }
 
     private void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment, MongoDocumentStoreService service) {

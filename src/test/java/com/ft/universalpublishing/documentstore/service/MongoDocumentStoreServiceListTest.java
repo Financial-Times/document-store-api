@@ -30,7 +30,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
 public class MongoDocumentStoreServiceListTest {
 
     private static final String DB_NAME = "upp-store";
@@ -227,7 +226,7 @@ public class MongoDocumentStoreServiceListTest {
                 () -> mongoDocumentStoreService.delete("lists", uuid));
         assertThat(exception.getMessage(), equalTo(expectedMessage));
     }
-
+    
     @Test
     public void thatFindByConceptAndTypeReturnsDocument() {
         BasicDBList items = new BasicDBList();

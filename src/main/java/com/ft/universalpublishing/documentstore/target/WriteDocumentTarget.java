@@ -5,6 +5,9 @@ import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreServic
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import lombok.RequiredArgsConstructor;
 
+import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.ok;
+
 import javax.ws.rs.core.Response;
 
 @RequiredArgsConstructor
@@ -18,14 +21,15 @@ public class WriteDocumentTarget implements Target {
         final Response response;
         switch (written.getMode()) {
             case Created:
-                response = Response.created(context.getUriInfo().getRequestUri()).build();
+                response = created(context.getUriInfo().getRequestUri()).build();
                 break;
             case Updated:
-                response = Response.ok(written.getDocument()).build();
+                response = ok(written.getDocument()).build();
                 break;
             default:
                 throw new IllegalStateException("unknown write mode " + written.getMode());
         }
+        
         return response;
     }
 }

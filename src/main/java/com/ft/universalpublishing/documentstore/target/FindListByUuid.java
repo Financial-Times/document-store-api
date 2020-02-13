@@ -1,15 +1,18 @@
 package com.ft.universalpublishing.documentstore.target;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.api.jaxrs.errors.WebApplicationClientException;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import lombok.RequiredArgsConstructor;
+import com.ft.universalpublishing.documentstore.utils.FluentLoggingBuilder;
 
 import java.util.Map;
-import java.util.UUID;
 
+import static com.ft.api.jaxrs.errors.ClientError.status;
+import static com.ft.universalpublishing.documentstore.utils.FluentLoggingUtils.STATUS;
+import static java.util.UUID.fromString;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 @RequiredArgsConstructor
@@ -21,8 +24,8 @@ public class FindListByUuid implements Target {
 
     @Override
     public Object execute(Context context) {
-        Map<String, Object> contentMap = documentStoreService
-                .findByUuid(context.getCollection(), UUID.fromString(context.getUuid()));
+        Map<String, Object> contentMap = documentStoreService.findByUuid(context.getCollection(),
+                fromString(context.getUuid()));
         try {
             ContentList contentList = new ObjectMapper().convertValue(contentMap, ContentList.class);
             contentList.addIds();
@@ -30,7 +33,12 @@ public class FindListByUuid implements Target {
             contentList.removePrivateFields();
             return contentList;
         } catch (IllegalArgumentException e) {
-            throw ClientError.status(SC_INTERNAL_SERVER_ERROR).error(e.getMessage()).exception();
+            WebApplicationClientException clientException = status(SC_INTERNAL_SERVER_ERROR).error(e.getMessage())
+                    .exception();
+             FluentLoggingBuilder.getNewInstance(this.getClass().getCanonicalName(), "execute")
+                    .withField(STATUS, SC_INTERNAL_SERVER_ERROR).withException(clientException).build().logWarn();
+
+            throw clientException;
         }
     }
 }

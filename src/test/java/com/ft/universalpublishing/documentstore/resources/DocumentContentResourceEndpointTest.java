@@ -245,7 +245,7 @@ public class DocumentContentResourceEndpointTest {
         Set<Map<String, Object>> documents = new LinkedHashSet<>();
         documents.add(document1);
         documents.add(document2);
-
+        
         when(documentStoreService.findByUuids(eq(RESOURCE_TYPE), eq(uuids))).thenReturn(documents);
 
         Response clientResponse = resources.target("/content")

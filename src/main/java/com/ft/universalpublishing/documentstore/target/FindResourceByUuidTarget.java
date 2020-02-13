@@ -4,7 +4,7 @@ import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import lombok.RequiredArgsConstructor;
 
-import java.util.UUID;
+import static java.util.UUID.fromString;
 
 @RequiredArgsConstructor
 public class FindResourceByUuidTarget implements Target {
@@ -13,6 +13,6 @@ public class FindResourceByUuidTarget implements Target {
 
     @Override
     public Object execute(Context context) {
-        return documentStoreService.findByUuid(context.getCollection(), UUID.fromString(context.getUuid()));
+        return documentStoreService.findByUuid(context.getCollection(), fromString(context.getUuid()));
     }
 }
