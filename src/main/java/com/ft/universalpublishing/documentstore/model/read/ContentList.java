@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @ApiModel
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "listType", "items", "layoutHint", "publishReference", "lastModified"})
+@JsonPropertyOrder({"id", "title", "uuid", "apiUrl", "concept", "listType", "items", "layoutHint", "publishReference", "lastModified", "publishedDate"})
 @JsonDeserialize(builder = ContentList.Builder.class)
 public class ContentList {
 
@@ -43,6 +43,7 @@ public class ContentList {
         private List<ListItem> items;
         private String layoutHint;
         private String publishReference;
+        private Date publishedDate;
         private Date lastModified;
 
         public Builder withId(String id) {
@@ -95,8 +96,13 @@ public class ContentList {
             return this;
         }
 
+        public Builder withPublishedDate(Date publishedDate) {
+            this.publishedDate = publishedDate;
+            return this;
+        }
+
         public ContentList build() {
-            ContentList list = new ContentList(id, uuid, apiUrl, concept, listType, title, items, layoutHint, publishReference, lastModified);
+            ContentList list = new ContentList(id, uuid, apiUrl, concept, listType, title, items, layoutHint, publishReference, lastModified, publishedDate);
             return list;
         }
     }
@@ -108,13 +114,13 @@ public class ContentList {
     private Concept concept;
     private String listType;
     private List<ListItem> items;
-    private Date publishedDate;
     private String layoutHint;
     private String publishReference;
     private Date lastModified;
+    private Date publishedDate;
 
     private ContentList(String id, UUID uuid, String apiUrl, Concept concept, String listType, String title, List<ListItem> items,
-                        String layoutHint, String publishReference, Date lastModified) {
+                        String layoutHint, String publishReference, Date lastModified, Date publishedDate) {
 
         setId(id);
         if (uuid != null) {
@@ -128,6 +134,7 @@ public class ContentList {
         this.layoutHint = layoutHint;
         this.publishReference = publishReference;
         this.lastModified = lastModified;
+        this.publishedDate = publishedDate;
     }
 
     public String getId() {
@@ -254,6 +261,7 @@ public class ContentList {
                 .add("layoutHint", layoutHint)
                 .add("publishReference", publishReference)
                 .add("lastModified", lastModified)
+                .add("publishedDate", publishedDate)
                 .toString();
 
     }
@@ -271,15 +279,15 @@ public class ContentList {
                 && Objects.equal(this.concept, other.concept)
                 && Objects.equal(this.listType, other.listType)
                 && Objects.equal(this.items, other.items)
-                && Objects.equal(this.publishedDate, other.publishedDate)
                 && Objects.equal(this.layoutHint, other.layoutHint)
                 && Objects.equal(this.publishReference, publishReference)
-                && Objects.equal(this.lastModified, lastModified);
+                && Objects.equal(this.lastModified, lastModified)
+                && Objects.equal(this.publishedDate, other.publishedDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, uuid, title, apiUrl, concept, listType, items, publishedDate, layoutHint, publishReference, lastModified);
+        return Objects.hashCode(id, uuid, title, apiUrl, concept, listType, items, publishedDate, layoutHint, publishReference, lastModified, publishedDate);
     }
 
 }

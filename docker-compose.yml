@@ -8,15 +8,19 @@ services:
       - "8081:8081"
     depends_on:
       - mongodb
+    environment:
+      MONGO_ADDRESSES: mongodb:27017
+      JAVA_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -server"
+      CACHE_TTL: 60
+      API_HOST: "localhost:8080"
 
   mongodb:
     image: mongo:3.4.17
-    container_name: "mongodb"
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
       - ./data/db:/data/db
     ports:
-      - "27017:27017"
+      - 27017:27017
     command: mongod --smallfiles --logpath=/dev/null # --quiet
