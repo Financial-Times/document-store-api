@@ -1,10 +1,11 @@
 package com.ft.universalpublishing.documentstore.target;
 
+import java.util.ArrayList;
+
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class FindMultipleResourcesByUuidsTarget implements Target {

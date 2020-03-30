@@ -6,6 +6,7 @@ import com.ft.platform.dropwizard.ConfigWithAppInfo;
 import com.ft.platform.dropwizard.ConfigWithGTG;
 import com.ft.platform.dropwizard.GTGConfig;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
+
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
@@ -18,22 +19,34 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
     private final String apiHost;
     private final MongoConfig mongo;
+    private final PublicConceptsApiConfig publicConceptsApiConfig;
+    private final PublicConcordancesApiConfig publicConcordancesApiConfig;
     private final String cacheTtl;
     private HealthcheckParameters connectionHealthcheckParameters;
     private HealthcheckParameters indexHealthcheckParameters;
 
-    public DocumentStoreApiConfiguration(
-            @JsonProperty("mongo") MongoConfig mongo,
-            @JsonProperty("apiHost") String apiHost,
-            @JsonProperty("cacheTtl") String cacheTtl,
+    public DocumentStoreApiConfiguration(@JsonProperty("mongo") MongoConfig mongo,
+            @JsonProperty("publicConceptsApi") PublicConceptsApiConfig publicConceptsApi,
+            @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApi,
+            @JsonProperty("apiHost") String apiHost, @JsonProperty("cacheTtl") String cacheTtl,
             @JsonProperty("connectionHealthcheckParameters") HealthcheckParameters connectionHealthcheckParameters,
             @JsonProperty("indexHealthcheckParameters") HealthcheckParameters indexHealthcheckParameters) {
         super();
         this.mongo = mongo;
+        this.publicConceptsApiConfig = publicConceptsApi;
+        this.publicConcordancesApiConfig = publicConcordancesApi;
         this.apiHost = apiHost;
         this.cacheTtl = cacheTtl;
         this.connectionHealthcheckParameters = connectionHealthcheckParameters;
         this.indexHealthcheckParameters = indexHealthcheckParameters;
+    }
+
+    public PublicConcordancesApiConfig getPublicConcordancesApiConfig() {
+        return publicConcordancesApiConfig;
+    }
+
+    public PublicConceptsApiConfig getPublicConceptsApiConfig() {
+        return publicConceptsApiConfig;
     }
 
     public MongoConfig getMongo() {
