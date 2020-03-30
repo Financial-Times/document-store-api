@@ -1,13 +1,20 @@
 package com.ft.universalpublishing.documentstore.model.read;
 
-import lombok.Data;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
+import lombok.Data;
+
 @Data
+// TODO: consider modifying the structure to fit the new needs
 public class Context {
 
     private Map<String, Object> map;
@@ -57,11 +64,27 @@ public class Context {
         return map.get(key);
     }
 
-    public void setConceptUUID(String conceptUUID) { this.conceptUUID = conceptUUID; }
-    public void setListType(String listType) { this.listType = listType; }
-    public void setSearchTerm(String searchTerm) { this.searchTerm = searchTerm; }
+    public void setConceptUUID(String conceptUUID) {
+        this.conceptUUID = conceptUUID;
+    }
 
-    public String getConceptUUID() { return this.conceptUUID; }
-    public String getListType() { return this.listType; }
-    public String getSearchTerm() { return this.searchTerm; }
+    public void setListType(String listType) {
+        this.listType = listType;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+    }
+
+    public String getConceptUUID() {
+        return this.conceptUUID;
+    }
+
+    public String getListType() {
+        return this.listType;
+    }
+
+    public String getSearchTerm() {
+        return this.searchTerm;
+    }
 }
