@@ -2,40 +2,38 @@ mongo:
   hosts: ["localhost"]
   port: 27017
   db: upp-store
-  
+
 apiHost: localhost
 cacheTtl: 30
 
 connectionHealthcheckParameters:
-    name: "Connectivity to MongoDB"
-    severity: 1
-    businessImpact: "Content won't be available for API consumers, including ft.com."
-    technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the content platform and affect a variety of products."
-    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
+  name: "Connectivity to MongoDB"
+  severity: 1
+  businessImpact: "Content won't be available for API consumers, including ft.com."
+  technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the content platform and affect a variety of products."
+  panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 indexHealthcheckParameters:
-    name: "MongoDB index health"
-    severity: 2
-    businessImpact: "Some API consumers may experience slow performance for content requests."
-    technicalSummary: "The application indexes for the MongoDB content store may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
-    panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
+  name: "MongoDB index health"
+  severity: 2
+  businessImpact: "Some API consumers may experience slow performance for content requests."
+  technicalSummary: "The application indexes for the MongoDB content store may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
+  panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 server:
-
   applicationConnectors:
     - type: http
       port: 14180
 
   adminConnectors:
-      - type: http
-        port: 14181
+    - type: http
+      port: 14181
 
   requestLog:
     appenders:
-
       - type: console
         # Add transaction_id to the end of Dropwizard's default format, which is itself based on the "combined" log format
-        logFormat: "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" %D transaction_id=%i{X-Request-Id}"
+        logFormat: '%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" %D transaction_id=%i{X-Request-Id}'
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
@@ -55,8 +53,14 @@ server:
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
-logging:
+swagger:
+  resourcePackage: com.ft.universalpublishing.documentstore,com.ft.universalpublishing.documentstore.resources
+  title: Document Store API
+  version: v1
+  description: Document Store API
+  contact: UPP Team
 
+logging:
   level: INFO
 
   loggers:
@@ -64,7 +68,6 @@ logging:
     com.ft.api.util.transactionid.TransactionIdFilter: WARN
 
   appenders:
-
     - type: console
 
     - type: file
@@ -84,7 +87,7 @@ logging:
 
       # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
       timeZone: UTC
-      
+
 appInfo:
-    systemCode: "document-store-api"
-    description: "document-store-api" 
+  systemCode: "document-store-api"
+  description: "document-store-api"
