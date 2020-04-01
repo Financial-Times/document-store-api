@@ -42,8 +42,8 @@ CMD exec java $JAVA_OPTS \
   -Ddw.server.applicationConnectors[0].port=8080 \
   -Ddw.server.adminConnectors[0].port=8081 \
   -Ddw.mongo.addresses=$MONGO_ADDRESSES \
-  -Ddw.publicConcordancesApi.baseURL=$PUBLIC_CONCORDANCES_API_HOST \
-  -Ddw.publicConceptsApi.baseURL=$PUBLIC_CONCEPTS_API_HOST \
+  -Ddw.publicConcordancesApi.host=$PUBLIC_CONCORDANCES_API_HOST \
+  -Ddw.publicConceptsApi.host=$PUBLIC_CONCEPTS_API_HOST \
   -Ddw.cacheTtl=$CACHE_TTL \
   -Ddw.apiHost=$API_HOST \
   -Ddw.logging.appenders[0].logFormat="%m%n" \

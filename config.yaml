@@ -5,7 +5,7 @@ mongo:
   db: upp-store
 
 publicConceptsApi:
-  baseURL: ""
+  host: ""
   healthcheckParameters:
     name: "Public Concepts API health"
     severity: 1
@@ -14,7 +14,7 @@ publicConceptsApi:
     panicGuideUrl: "https://runbooks.in.ft.com/public-concepts-api"
 
 publicConcordancesApi:
-  baseURL: ""
+  host: ""
   healthcheckParameters:
     name: "Public Concordances API health"
     severity: 1
