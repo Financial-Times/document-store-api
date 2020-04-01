@@ -9,11 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.DispatcherType;
+import javax.ws.rs.client.Client;
 
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.platform.dropwizard.GoodToGoConfiguredBundle;
+import com.ft.universalpublishing.documentstore.clients.PublicConceptsApiClient;
 import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
@@ -26,12 +28,15 @@ import com.ft.universalpublishing.documentstore.health.DocumentStoreConnectionGo
 import com.ft.universalpublishing.documentstore.health.DocumentStoreConnectionHealthCheck;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreIndexHealthCheck;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
+import com.ft.universalpublishing.documentstore.health.PublicConceptsApiConnectionHealthCheck;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.PublicConceptsApiService;
+import com.ft.universalpublishing.documentstore.service.PublicConceptsApiServiceImpl;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
 import com.ft.universalpublishing.documentstore.target.FilterListsTarget;
@@ -47,6 +52,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+
+import org.glassfish.jersey.client.JerseyClientBuilder;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -99,7 +106,14 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 final MongoDocumentStoreService documentStoreService = new MongoDocumentStoreService(database,
                                 environment.lifecycle().executorService("reindexer").build());
 
-                registerHealthChecks(configuration, environment, documentStoreService);
+                Client client = new JerseyClientBuilder().build();
+                PublicConceptsApiClient publicConceptsApiClient = new PublicConceptsApiClient(
+                                configuration.getPublicConceptsApiConfig().getBaseURL(), client);
+
+                final PublicConceptsApiService publicConceptsApiService = new PublicConceptsApiServiceImpl(
+                                publicConceptsApiClient);
+
+                registerHealthChecks(configuration, environment, documentStoreService, publicConceptsApiService);
                 registerResources(configuration, environment, documentStoreService);
         }
 
@@ -168,31 +182,35 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 // TODO: apply for both "lists" and "generic-lists"
                 // pseudo
                 // get by id
-                collections.put(new Pair<>("lists", Operation.GET_BY_ID),
-                                new HandlerChain().addHandlers(uuidValidationHandler, findListByUuid)
-                                                .setTarget(findListWithConcordedConcept));
+                // collections.put(new Pair<>("lists", Operation.GET_BY_ID),
+                // new HandlerChain().addHandlers(uuidValidationHandler, findListByUuid)
+                // .setTarget(findListWithConcordedConcept));
 
-                // get by listTypeAndCuratedFor
-                collections.put(new Pair<>("lists", Operation.GET_FILTERED),
-                                new HandlerChain().addHandlers(extractConceptHandler, findListByConceptAndType)
-                                                .setTarget(findListWithConcordedConcept));
+                // // get by listTypeAndCuratedFor
+                // collections.put(new Pair<>("lists", Operation.GET_FILTERED),
+                // new HandlerChain().addHandlers(extractConceptHandler,
+                // findListByConceptAndType)
+                // .setTarget(findListWithConcordedConcept));
 
-                // search GET lists?conceptUUID&listType&searchTerm - all params are optional
-                // todo: create new handler if there is a conceptUUID parameter -> search in
-                // public_concordance_api and save to
-                // todo: match concorded concepts that are returned from public-concepts-api to
-                // the lists from mongo
-                collections.put(new Pair<>("lists", Operation.SEARCH),
-                                new HandlerChain().addHandlers(PUBLIC_CONCORDANCES_API_HANDLER, getSearchResults)
-                                                .setTarget(findListsWithConcordedConcept));
+                // // search GET lists?conceptUUID&listType&searchTerm - all params are optional
+                // // todo: create new handler if there is a conceptUUID parameter -> search in
+                // // public_concordance_api and save to
+                // // todo: match concorded concepts that are returned from public-concepts-api
+                // to
+                // // the lists from mongo
+                // collections.put(new Pair<>("lists", Operation.SEARCH),
+                // new HandlerChain().addHandlers(PUBLIC_CONCORDANCES_API_HANDLER,
+                // getSearchResults)
+                // .setTarget(findListsWithConcordedConcept));
 
-                // search POST lists
-                // create a new handler that corresponds to findMultipleResourcesByUuidsTarget
-                collections.put(new Pair<>("lists", Operation.GET_MULTIPLE_FILTERED),
-                                new HandlerChain()
-                                                .addHandlers(multipleUuidValidationHandler,
-                                                                findMultipleResourcesByUuidsTarget)
-                                                .setTarget(findListsWithConcordedConcept));
+                // // search POST lists
+                // // create a new handler that corresponds to
+                // findMultipleResourcesByUuidsTarget
+                // collections.put(new Pair<>("lists", Operation.GET_MULTIPLE_FILTERED),
+                // new HandlerChain()
+                // .addHandlers(multipleUuidValidationHandler,
+                // findMultipleResourcesByUuidsTarget)
+                // .setTarget(findListsWithConcordedConcept));
 
                 collections.put(new Pair<>("lists", Operation.GET_FILTERED), new HandlerChain()
                                 .addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
@@ -231,7 +249,13 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         }
 
         private void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment,
-                        MongoDocumentStoreService service) {
+                        MongoDocumentStoreService service, PublicConceptsApiService publicConceptsApiService) {
+
+                // TODO: REMOVE
+                System.out.println(String.format("url: %s", configuration.getPublicConceptsApiConfig().getBaseURL()));
+                System.out.println(
+                                String.format("url: %s", configuration.getPublicConcordancesApiConfig().getBaseURL()));
+
                 HealthcheckParameters healthcheckParameters = configuration.getConnectionHealthcheckParameters();
                 environment.healthChecks().register(healthcheckParameters.getName(),
                                 new DocumentStoreConnectionHealthCheck(service, healthcheckParameters));
@@ -239,6 +263,12 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 healthcheckParameters = configuration.getIndexHealthcheckParameters();
                 environment.healthChecks().register(healthcheckParameters.getName(),
                                 new DocumentStoreIndexHealthCheck(service, healthcheckParameters));
+
+                HealthcheckParameters publicConceptsApiHealthcheckParameters = configuration
+                                .getPublicConceptsApiConfig().getHealthcheckParameters();
+                environment.healthChecks().register(publicConceptsApiHealthcheckParameters.getName(),
+                                new PublicConceptsApiConnectionHealthCheck(publicConceptsApiService,
+                                                publicConceptsApiHealthcheckParameters));
         }
 
         private MongoClient getMongoClient(MongoConfig config) {
