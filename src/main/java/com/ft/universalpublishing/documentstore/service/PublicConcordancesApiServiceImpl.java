@@ -5,7 +5,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.universalpublishing.documentstore.clients.PublicConceptsApiClient;
+import com.ft.universalpublishing.documentstore.clients.PublicConcordancesApiClient;
 import com.ft.universalpublishing.documentstore.health.HealthcheckService;
 
 import lombok.AccessLevel;
@@ -17,12 +17,12 @@ import lombok.experimental.FieldDefaults;
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class PublicConceptsApiServiceImpl implements PublicConceptsApiService, HealthcheckService {
-    PublicConceptsApiClient publicConceptsApiClient;
+public class PublicConcordancesApiServiceImpl implements PublicConcordancesApiService, HealthcheckService {
+    PublicConcordancesApiClient publicConcordancesApiClient;
 
     @Override
     public boolean isHealthcheckOK() {
-        final Response response = publicConceptsApiClient.getHealthcheck();
+        final Response response = publicConcordancesApiClient.getHealthcheck();
 
         Boolean isOK = null;
 

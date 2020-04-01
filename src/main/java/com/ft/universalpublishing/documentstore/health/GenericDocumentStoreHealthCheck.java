@@ -2,16 +2,13 @@ package com.ft.universalpublishing.documentstore.health;
 
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
-import com.ft.universalpublishing.documentstore.service.PublicConceptsApiService;
 
-public class PublicConceptsApiConnectionHealthCheck extends AdvancedHealthCheck {
-    private static final String MESSAGE = "Public Concepts Api is not healthy";
+public class GenericDocumentStoreHealthCheck extends AdvancedHealthCheck {
 
-    private final PublicConceptsApiService service;
+    private final HealthcheckService service;
     private final HealthcheckParameters healthcheckParameters;
 
-    public PublicConceptsApiConnectionHealthCheck(PublicConceptsApiService service,
-            HealthcheckParameters healthcheckParameters) {
+    public GenericDocumentStoreHealthCheck(HealthcheckService service, HealthcheckParameters healthcheckParameters) {
         super(healthcheckParameters.getName());
         this.service = service;
         this.healthcheckParameters = healthcheckParameters;
@@ -23,7 +20,7 @@ public class PublicConceptsApiConnectionHealthCheck extends AdvancedHealthCheck 
             return AdvancedResult.healthy("OK");
         }
 
-        return AdvancedResult.error(this, MESSAGE);
+        return AdvancedResult.error(this, healthcheckParameters.getTechnicalSummary());
     }
 
     @Override

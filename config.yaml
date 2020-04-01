@@ -7,7 +7,7 @@ mongo:
 publicConceptsApi:
   baseURL: ""
   healthcheckParameters:
-    name: "Public-Concepts-Api health"
+    name: "Public Concepts API health"
     severity: 1
     businessImpact: "Document Store API would not be able to forward any incoming request"
     technicalSummary: "Tests that the Public Concepts API is running and responding to /__health requests"
@@ -16,7 +16,7 @@ publicConceptsApi:
 publicConcordancesApi:
   baseURL: ""
   healthcheckParameters:
-    name: "Public-Concordances-Api health"
+    name: "Public Concordances API health"
     severity: 1
     businessImpact: "Document Store API would not be able to forward any incoming request"
     technicalSummary: "Tests that the Public Concordances API is running and responding to /__health requests"

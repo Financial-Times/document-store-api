@@ -19,14 +19,14 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
     private final String apiHost;
     private final MongoConfig mongo;
-    private final PublicConceptsApi publicConceptsApiConfig;
+    private final PublicConceptsApiConfig publicConceptsApiConfig;
     private final PublicConcordancesApiConfig publicConcordancesApiConfig;
     private final String cacheTtl;
     private HealthcheckParameters connectionHealthcheckParameters;
     private HealthcheckParameters indexHealthcheckParameters;
 
     public DocumentStoreApiConfiguration(@JsonProperty("mongo") MongoConfig mongo,
-            @JsonProperty("publicConceptsApi") PublicConceptsApi publicConceptsApi,
+            @JsonProperty("publicConceptsApi") PublicConceptsApiConfig publicConceptsApi,
             @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApiConfig,
             @JsonProperty("apiHost") String apiHost, @JsonProperty("cacheTtl") String cacheTtl,
             @JsonProperty("connectionHealthcheckParameters") HealthcheckParameters connectionHealthcheckParameters,
@@ -45,7 +45,7 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
         return publicConcordancesApiConfig;
     }
 
-    public PublicConceptsApi getPublicConceptsApiConfig() {
+    public PublicConceptsApiConfig getPublicConceptsApiConfig() {
         return publicConceptsApiConfig;
     }
 

@@ -16,6 +16,7 @@ import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.platform.dropwizard.GoodToGoConfiguredBundle;
 import com.ft.universalpublishing.documentstore.clients.PublicConceptsApiClient;
+import com.ft.universalpublishing.documentstore.clients.PublicConcordancesApiClient;
 import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
@@ -27,16 +28,17 @@ import com.ft.universalpublishing.documentstore.handler.UuidValidationHandler;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreConnectionGoodToGoChecker;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreConnectionHealthCheck;
 import com.ft.universalpublishing.documentstore.health.DocumentStoreIndexHealthCheck;
+import com.ft.universalpublishing.documentstore.health.GenericDocumentStoreHealthCheck;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
-import com.ft.universalpublishing.documentstore.health.PublicConceptsApiConnectionHealthCheck;
+import com.ft.universalpublishing.documentstore.health.HealthcheckService;
 import com.ft.universalpublishing.documentstore.model.read.Operation;
 import com.ft.universalpublishing.documentstore.model.read.Pair;
 import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.service.PublicConceptsApiService;
 import com.ft.universalpublishing.documentstore.service.PublicConceptsApiServiceImpl;
+import com.ft.universalpublishing.documentstore.service.PublicConcordancesApiServiceImpl;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
 import com.ft.universalpublishing.documentstore.target.FilterListsTarget;
@@ -110,10 +112,16 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 PublicConceptsApiClient publicConceptsApiClient = new PublicConceptsApiClient(
                                 configuration.getPublicConceptsApiConfig().getBaseURL(), client);
 
-                final PublicConceptsApiService publicConceptsApiService = new PublicConceptsApiServiceImpl(
-                                publicConceptsApiClient);
+                PublicConcordancesApiClient publicConcordancesApiClient = new PublicConcordancesApiClient(
+                                configuration.getPublicConcordancesApiConfig().getBaseURL(), client);
 
-                registerHealthChecks(configuration, environment, documentStoreService, publicConceptsApiService);
+                final PublicConceptsApiServiceImpl publicConceptsApiService = new PublicConceptsApiServiceImpl(
+                                publicConceptsApiClient);
+                final PublicConcordancesApiServiceImpl publicConcordancesApiService = new PublicConcordancesApiServiceImpl(
+                                publicConcordancesApiClient);
+
+                registerHealthChecks(configuration, environment, documentStoreService, publicConceptsApiService,
+                                publicConcordancesApiService);
                 registerResources(configuration, environment, documentStoreService);
         }
 
@@ -249,7 +257,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         }
 
         private void registerHealthChecks(DocumentStoreApiConfiguration configuration, Environment environment,
-                        MongoDocumentStoreService service, PublicConceptsApiService publicConceptsApiService) {
+                        MongoDocumentStoreService service, HealthcheckService publicConceptsApiService,
+                        HealthcheckService publicConcordancesApiService) {
 
                 // TODO: REMOVE
                 System.out.println(String.format("url: %s", configuration.getPublicConceptsApiConfig().getBaseURL()));
@@ -267,8 +276,14 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 HealthcheckParameters publicConceptsApiHealthcheckParameters = configuration
                                 .getPublicConceptsApiConfig().getHealthcheckParameters();
                 environment.healthChecks().register(publicConceptsApiHealthcheckParameters.getName(),
-                                new PublicConceptsApiConnectionHealthCheck(publicConceptsApiService,
+                                new GenericDocumentStoreHealthCheck(publicConceptsApiService,
                                                 publicConceptsApiHealthcheckParameters));
+
+                HealthcheckParameters publicConcordancesApiHealthcheckParameters = configuration
+                                .getPublicConcordancesApiConfig().getHealthcheckParameters();
+                environment.healthChecks().register(publicConcordancesApiHealthcheckParameters.getName(),
+                                new GenericDocumentStoreHealthCheck(publicConcordancesApiService,
+                                                publicConcordancesApiHealthcheckParameters));
         }
 
         private MongoClient getMongoClient(MongoConfig config) {

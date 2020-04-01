@@ -5,13 +5,11 @@ import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
 
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
-public class PublicConceptsApi {
+public class PublicConceptsApiConfig {
 
     @JsonProperty
     String baseURL;
