@@ -110,10 +110,10 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
                 Client client = new JerseyClientBuilder().build();
                 PublicConceptsApiClient publicConceptsApiClient = new PublicConceptsApiClient(
-                                configuration.getPublicConceptsApiConfig().getBaseURL(), client);
+                                configuration.getPublicConceptsApiConfig().getHost(), client);
 
                 PublicConcordancesApiClient publicConcordancesApiClient = new PublicConcordancesApiClient(
-                                configuration.getPublicConcordancesApiConfig().getBaseURL(), client);
+                                configuration.getPublicConcordancesApiConfig().getHost(), client);
 
                 final PublicConceptsApiServiceImpl publicConceptsApiService = new PublicConceptsApiServiceImpl(
                                 publicConceptsApiClient);
@@ -261,9 +261,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                         HealthcheckService publicConcordancesApiService) {
 
                 // TODO: REMOVE
-                System.out.println(String.format("url: %s", configuration.getPublicConceptsApiConfig().getBaseURL()));
-                System.out.println(
-                                String.format("url: %s", configuration.getPublicConcordancesApiConfig().getBaseURL()));
+                System.out.println(String.format("url: %s", configuration.getPublicConceptsApiConfig().getHost()));
+                System.out.println(String.format("url: %s", configuration.getPublicConcordancesApiConfig().getHost()));
 
                 HealthcheckParameters healthcheckParameters = configuration.getConnectionHealthcheckParameters();
                 environment.healthChecks().register(healthcheckParameters.getName(),

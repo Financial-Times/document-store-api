@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 public class PublicConceptsApiConfig {
 
     @JsonProperty
-    String baseURL;
+    String host;
 
     @JsonProperty
     HealthcheckParameters healthcheckParameters;

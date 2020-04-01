@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class PublicConcordancesApiConfig {
 
     @JsonProperty
-    String baseURL;
+    String host;
 
     @JsonProperty
     HealthcheckParameters healthcheckParameters;

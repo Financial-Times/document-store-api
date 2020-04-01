@@ -18,7 +18,7 @@ public class PublicConcordancesApiClient {
     Client client;
 
     public Response getHealthcheck() {
-        return client.target(String.format("%s/__health", baseURL)).request(MediaType.APPLICATION_JSON).get();
+        return client.target(String.format("http://%s/__health", baseURL)).request(MediaType.APPLICATION_JSON).get();
     }
 
 }
