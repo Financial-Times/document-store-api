@@ -20,6 +20,10 @@ import com.ft.universalpublishing.documentstore.clients.PublicConcordancesApiCli
 import com.ft.universalpublishing.documentstore.handler.ContentListValidationHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractConceptHandler;
 import com.ft.universalpublishing.documentstore.handler.ExtractUuidsHandler;
+import com.ft.universalpublishing.documentstore.handler.FilterListsHandler;
+import com.ft.universalpublishing.documentstore.handler.FindListByConceptAndTypeHandler;
+import com.ft.universalpublishing.documentstore.handler.FindListByUuidHandler;
+import com.ft.universalpublishing.documentstore.handler.GetConcordedConceptsHandler;
 import com.ft.universalpublishing.documentstore.handler.Handler;
 import com.ft.universalpublishing.documentstore.handler.HandlerChain;
 import com.ft.universalpublishing.documentstore.handler.MultipleUuidValidationHandler;
@@ -37,13 +41,14 @@ import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.ft.universalpublishing.documentstore.service.PublicConceptsApiService;
 import com.ft.universalpublishing.documentstore.service.PublicConceptsApiServiceImpl;
+import com.ft.universalpublishing.documentstore.service.PublicConcordancesApiService;
 import com.ft.universalpublishing.documentstore.service.PublicConcordancesApiServiceImpl;
 import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
+import com.ft.universalpublishing.documentstore.target.ApplyConcordedConceptToList;
+import com.ft.universalpublishing.documentstore.target.ApplyConcordedConceptsToLists;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
-import com.ft.universalpublishing.documentstore.target.FilterListsTarget;
-import com.ft.universalpublishing.documentstore.target.FindListByConceptAndTypeTarget;
-import com.ft.universalpublishing.documentstore.target.FindListByUuid;
 import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
@@ -122,11 +127,14 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
 
                 registerHealthChecks(configuration, environment, documentStoreService, publicConceptsApiService,
                                 publicConcordancesApiService);
-                registerResources(configuration, environment, documentStoreService);
+                registerResources(configuration, environment, documentStoreService, publicConceptsApiService,
+                                publicConcordancesApiService);
         }
 
         private void registerResources(DocumentStoreApiConfiguration configuration, Environment environment,
-                        MongoDocumentStoreService documentStoreService) {
+                        MongoDocumentStoreService documentStoreService,
+                        PublicConceptsApiService publicConceptsApiService,
+                        PublicConcordancesApiService publicConcordancesApiService) {
                 final UuidValidator uuidValidator = new UuidValidator();
                 final ContentListValidator contentListValidator = new ContentListValidator(uuidValidator);
 
@@ -136,15 +144,28 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 Handler extractConceptHandler = new ExtractConceptHandler();
                 Handler contentListValidationHandler = new ContentListValidationHandler(contentListValidator);
                 Handler preSaveFieldRemovalHandler = new PreSaveFieldRemovalHandler();
+                Handler findListByUuidHandler = new FindListByUuidHandler(documentStoreService,
+                                configuration.getApiHost());
+                Handler findListByConceptAndTypeHandler = new FindListByConceptAndTypeHandler(documentStoreService);
+                Handler getConcordedConceptsHandler = new GetConcordedConceptsHandler(publicConcordancesApiService);
+                Handler getSearchResultsHandler = new FilterListsHandler(documentStoreService);
                 Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);
                 Target findMultipleResourcesByUuidsTarget = new FindMultipleResourcesByUuidsTarget(
                                 documentStoreService);
                 Target writeDocument = new WriteDocumentTarget(documentStoreService);
                 Target deleteDocument = new DeleteDocumentTarget(documentStoreService);
-                Target findListByUuid = new FindListByUuid(documentStoreService, configuration.getApiHost());
-                Target findListByConceptAndType = new FindListByConceptAndTypeTarget(documentStoreService,
+
+                // TODO: remove class
+                // Target findListByUuid = new FindListByUuid(documentStoreService,
+                // configuration.getApiHost());
+                // Target findListByConceptAndType = new
+                // FindListByConceptAndTypeTarget(documentStoreService,
+                // configuration.getApiHost());
+                // Target getSearchResults = new FilterListsHandler(documentStoreService);
+                Target applyConcordedConceptToList = new ApplyConcordedConceptToList(publicConceptsApiService,
                                 configuration.getApiHost());
-                Target getSearchResults = new FilterListsTarget(documentStoreService);
+                Target applyConcordedConceptsToLists = new ApplyConcordedConceptsToLists(publicConceptsApiService,
+                                configuration.getApiHost());
 
                 final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
                 collections.put(new Pair<>("content", Operation.GET_FILTERED),
@@ -190,15 +211,16 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 // TODO: apply for both "lists" and "generic-lists"
                 // pseudo
                 // get by id
-                // collections.put(new Pair<>("lists", Operation.GET_BY_ID),
-                // new HandlerChain().addHandlers(uuidValidationHandler, findListByUuid)
-                // .setTarget(findListWithConcordedConcept));
+                collections.put(new Pair<>("lists", Operation.GET_BY_ID),
+                                new HandlerChain().addHandlers(uuidValidationHandler, findListByUuidHandler)
+                                                .setTarget(applyConcordedConceptToList));
 
                 // // get by listTypeAndCuratedFor
-                // collections.put(new Pair<>("lists", Operation.GET_FILTERED),
-                // new HandlerChain().addHandlers(extractConceptHandler,
-                // findListByConceptAndType)
-                // .setTarget(findListWithConcordedConcept));
+                collections.put(new Pair<>("lists", Operation.GET_FILTERED),
+                                new HandlerChain()
+                                                .addHandlers(extractConceptHandler, getConcordedConceptsHandler,
+                                                                findListByConceptAndTypeHandler)
+                                                .setTarget(applyConcordedConceptToList));
 
                 // // search GET lists?conceptUUID&listType&searchTerm - all params are optional
                 // // todo: create new handler if there is a conceptUUID parameter -> search in
@@ -207,9 +229,9 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 // to
                 // // the lists from mongo
                 // collections.put(new Pair<>("lists", Operation.SEARCH),
-                // new HandlerChain().addHandlers(PUBLIC_CONCORDANCES_API_HANDLER,
-                // getSearchResults)
-                // .setTarget(findListsWithConcordedConcept));
+                // new HandlerChain().addHandlers(getConcordedConceptsHandler,
+                // getSearchResultsHandler)
+                // .setTarget(applyConcordedConceptsToLists));
 
                 // // search POST lists
                 // // create a new handler that corresponds to
@@ -218,36 +240,48 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 // new HandlerChain()
                 // .addHandlers(multipleUuidValidationHandler,
                 // findMultipleResourcesByUuidsTarget)
-                // .setTarget(findListsWithConcordedConcept));
+                // .setTarget(applyConcordedConceptsToLists));
 
-                collections.put(new Pair<>("lists", Operation.GET_FILTERED), new HandlerChain()
-                                .addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
+                // collections.put(new Pair<>("lists", Operation.GET_FILTERED), new
+                // HandlerChain()
+                // .addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
                 collections.put(new Pair<>("lists", Operation.GET_MULTIPLE_FILTERED),
                                 new HandlerChain().addHandlers(multipleUuidValidationHandler)
                                                 .setTarget(findMultipleResourcesByUuidsTarget));
-                collections.put(new Pair<>("lists", Operation.GET_BY_ID),
-                                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
+                // collections.put(new Pair<>("lists", Operation.GET_BY_ID),
+                // new
+                // HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
                 collections.put(new Pair<>("lists", Operation.ADD),
                                 new HandlerChain().addHandlers(uuidValidationHandler, contentListValidationHandler)
                                                 .setTarget(writeDocument));
                 collections.put(new Pair<>("lists", Operation.REMOVE),
                                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
                 collections.put(new Pair<>("lists", Operation.SEARCH),
-                                new HandlerChain().addHandlers().setTarget(getSearchResults));
+                                new HandlerChain().addHandlers(getConcordedConceptsHandler, getSearchResultsHandler)
+                                                .setTarget(applyConcordedConceptsToLists));
 
-                collections.put(new Pair<>("generic-lists", Operation.GET_FILTERED), new HandlerChain()
-                                .addHandlers(extractConceptHandler).setTarget(findListByConceptAndType));
+                collections.put(new Pair<>("generic-lists", Operation.GET_FILTERED),
+                                new HandlerChain()
+                                                .addHandlers(extractConceptHandler, getConcordedConceptsHandler,
+                                                                findListByConceptAndTypeHandler)
+                                                .setTarget(applyConcordedConceptToList));
                 collections.put(new Pair<>("generic-lists", Operation.GET_MULTIPLE_FILTERED),
                                 new HandlerChain().addHandlers(multipleUuidValidationHandler)
                                                 .setTarget(findMultipleResourcesByUuidsTarget));
                 collections.put(new Pair<>("generic-lists", Operation.GET_BY_ID),
-                                new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
+                                new HandlerChain().addHandlers(uuidValidationHandler, findListByUuidHandler)
+                                                .setTarget(applyConcordedConceptToList));
+                // collections.put(new Pair<>("generic-lists", Operation.GET_BY_ID),
+                // new
+                // HandlerChain().addHandlers(uuidValidationHandler).setTarget(findListByUuid));
                 collections.put(new Pair<>("generic-lists", Operation.ADD),
                                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
                 collections.put(new Pair<>("generic-lists", Operation.REMOVE),
                                 new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
-                collections.put(new Pair<>("generic-lists", Operation.SEARCH),
-                                new HandlerChain().addHandlers().setTarget(getSearchResults));
+                // collections.put(new Pair<>("generic-lists", Operation.SEARCH),
+                // new HandlerChain().addHandlers(getConcordedConceptsHandler,
+                // getSearchResultsHandler)
+                // .setTarget(getSearchResults));
 
                 environment.jersey().register(new DocumentResource(collections));
                 environment.jersey()

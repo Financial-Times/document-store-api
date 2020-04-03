@@ -1,12 +1,19 @@
 package com.ft.universalpublishing.documentstore.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.universalpublishing.documentstore.clients.PublicConcordancesApiClient;
 import com.ft.universalpublishing.documentstore.health.HealthcheckService;
+import com.ft.universalpublishing.documentstore.model.read.Concordance;
+import com.ft.universalpublishing.documentstore.model.read.Concordances;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +44,24 @@ public class PublicConcordancesApiServiceImpl implements PublicConcordancesApiSe
             }
         }
         return isOK;
+    }
+
+    @Override
+    public List<Concordance> getUPPConcordances(String conceptUUID)
+            throws JsonMappingException, JsonProcessingException {
+        Response response = publicConcordancesApiClient.getConcordances(conceptUUID);
+
+        final String payload = response.readEntity(String.class);
+        Concordances concordances = new ObjectMapper().readValue(payload, Concordances.class);
+
+        List<Concordance> filteredConcordances = new ArrayList<>();
+        if (concordances != null && concordances.getConcordances() != null) {
+            // get only concordances that have UPP-compliant UUIDs
+            filteredConcordances = concordances.getConcordances().stream()
+                    .filter(concordance -> concordance.getIdentifier().getAuthority().endsWith("/system/UPP"))
+                    .collect(Collectors.toList());
+        }
+
+        return filteredConcordances;
     }
 }

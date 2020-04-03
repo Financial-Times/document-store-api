@@ -27,14 +27,14 @@ public class DocumentStoreApiConfiguration extends Configuration implements Conf
 
     public DocumentStoreApiConfiguration(@JsonProperty("mongo") MongoConfig mongo,
             @JsonProperty("publicConceptsApi") PublicConceptsApiConfig publicConceptsApi,
-            @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApiConfig,
+            @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApi,
             @JsonProperty("apiHost") String apiHost, @JsonProperty("cacheTtl") String cacheTtl,
             @JsonProperty("connectionHealthcheckParameters") HealthcheckParameters connectionHealthcheckParameters,
             @JsonProperty("indexHealthcheckParameters") HealthcheckParameters indexHealthcheckParameters) {
         super();
         this.mongo = mongo;
         this.publicConceptsApiConfig = publicConceptsApi;
-        this.publicConcordancesApiConfig = publicConcordancesApiConfig;
+        this.publicConcordancesApiConfig = publicConcordancesApi;
         this.apiHost = apiHost;
         this.cacheTtl = cacheTtl;
         this.connectionHealthcheckParameters = connectionHealthcheckParameters;

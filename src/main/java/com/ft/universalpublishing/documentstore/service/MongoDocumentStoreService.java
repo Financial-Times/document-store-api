@@ -20,6 +20,7 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavaila
 import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
@@ -85,14 +86,15 @@ public class MongoDocumentStoreService {
     }
 
     // TODO: refactor to take in List<String> conceptUUIDs parameter
-    public List<Document> filterLists(String resourceType, String conceptUUID, String listType, String searchTerm) {
+    public List<Document> filterLists(String resourceType, UUID[] conceptUUIDs, String listType, String searchTerm) {
 
         List<Bson> queryFilters = new ArrayList<>();
+        String[] conceptUUIDStrings = Arrays.asList(conceptUUIDs).stream().map(uuid -> uuid.toString())
+                .toArray(String[]::new);
 
-        if (conceptUUID != null) {
-
+        if (conceptUUIDs.length > 0) {
             // todo: Filters.in
-            Bson filterByConceptUUID = Filters.eq("concept.uuid", conceptUUID);
+            Bson filterByConceptUUID = Filters.in("concept.uuid", conceptUUIDStrings);
             queryFilters.add(filterByConceptUUID);
         }
         if (listType != null) {
@@ -110,7 +112,7 @@ public class MongoDocumentStoreService {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             Iterable<Document> results;
-            if (conceptUUID == null && listType == null && searchTerm == null) {
+            if (conceptUUIDStrings.length == 0 && listType == null && searchTerm == null) {
                 results = dbCollection.find();
             } else {
                 results = dbCollection.find(filter);
@@ -216,28 +218,36 @@ public class MongoDocumentStoreService {
         }
     }
 
-    public Map<String, Object> findByConceptAndType(String resourceType, UUID conceptId, String listType) {
-        Bson filter = Filters.and(Filters.eq("concept.uuid", conceptId.toString()), Filters.eq("listType", listType));
+    public Map<String, Object> findByConceptAndType(String resourceType, UUID[] conceptUUIDs, String listType) {
+        String[] conceptUUIDStrings = Arrays.asList(conceptUUIDs).stream().map(uuid -> uuid.toString())
+                .toArray(String[]::new);
+        Bson filter = Filters.and(Filters.in("concept.uuid", conceptUUIDStrings), Filters.eq("listType", listType));
 
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
             Document found = null;
 
-            for (Document doc : dbCollection.find(filter).limit(2)) {
-                if (found == null) {
-                    found = doc;
-                    found.remove("_id");
-                } else {
-                    LOG.error("found too many results for collection {} identifier {}:{}: at least {} and {}",
-                            resourceType, conceptId, listType, found, doc);
-                    return found; // just return the first one we found (graceful degradation) and log the error
-                }
-            }
+            // sorting the results by lastModified so we always return the most recently
+            // modified list
+            found = dbCollection.find(filter).sort(new BasicDBObject("lastModified", -1)).limit(1).first();
+
+            // {
+            // if (found == null) {
+            // found = doc;
+            // found.remove("_id");
+            // } else {
+            // LOG.error("found too many results for collection {} identifier {}:{}: at
+            // least {} and {}",
+            // resourceType, conceptUUIDs, listType, found, doc);
+            // return found; // just return the first one we found (graceful degradation)
+            // and log the error
+            // }
+            // }
 
             return found;
         } catch (MongoException e) {
-            LOG.error("Failed to find document in Mongo! Collection {}, uuid {}, listType {}", resourceType, conceptId,
-                    listType, e);
+            LOG.error("Failed to find document in Mongo! Collection {}, uuid {}, listType {}", resourceType,
+                    conceptUUIDs, listType, e);
             throw new ExternalSystemInternalServerException(e);
         }
     }

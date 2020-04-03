@@ -14,8 +14,6 @@ import com.ft.universalpublishing.documentstore.model.read.Context;
 
 public class ExtractConceptHandler implements Handler {
 
-    // TODO: publicConcordancesService
-
     private static final String LIST_QUERY_PARAM_TEMPLATE = "curated([a-zA-Z]*)For";
     private static final Pattern LIST_QUERY_PARAM_PATTERN = Pattern.compile(LIST_QUERY_PARAM_TEMPLATE);
 
@@ -29,7 +27,7 @@ public class ExtractConceptHandler implements Handler {
         Set<String> keys = queryParameters.keySet();
 
         String listType = null;
-        UUID conceptId = null;
+        UUID conceptUUID = null;
 
         for (String key : keys) {
             Matcher matcher = LIST_QUERY_PARAM_PATTERN.matcher(key);
@@ -37,7 +35,7 @@ public class ExtractConceptHandler implements Handler {
             if (found) {
                 listType = matcher.group(1);
                 try {
-                    conceptId = UUID.fromString(queryParameters.getFirst(key));
+                    conceptUUID = UUID.fromString(queryParameters.getFirst(key));
                 } catch (IllegalArgumentException e) {
                     throw ClientError.status(SC_BAD_REQUEST).error("The concept ID is not a valid UUID").exception();
                 }
@@ -49,8 +47,9 @@ public class ExtractConceptHandler implements Handler {
                     .error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
         }
 
-        // TODO: add currentConceptId and concordedConceptId to the context
-        context.addParameter("conceptId", conceptId);
+        // TODO: remove
+        // context.addParameter("conceptId", conceptId);
+        context.setConceptUUID(conceptUUID.toString());
         context.addParameter("listType", listType);
     }
 }
