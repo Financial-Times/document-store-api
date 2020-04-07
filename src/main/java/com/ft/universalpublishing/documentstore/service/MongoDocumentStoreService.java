@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +85,6 @@ public class MongoDocumentStoreService {
         return indexed;
     }
 
-    // TODO: refactor to take in List<String> conceptUUIDs parameter
     public List<Document> filterLists(String resourceType, UUID[] conceptUUIDs, String listType, String searchTerm) {
 
         List<Bson> queryFilters = new ArrayList<>();
@@ -159,7 +158,7 @@ public class MongoDocumentStoreService {
         }
     }
 
-    public Set<Map<String, Object>> findByUuids(String resourceType, Set<UUID> uuids) {
+    public List<Document> findByUuids(String resourceType, Set<UUID> uuids) {
         try {
             MongoCollection<Document> dbCollection = db.getCollection(resourceType);
 
@@ -170,7 +169,7 @@ public class MongoDocumentStoreService {
             results.forEach(doc -> mappedResults.put(UUID.fromString((String) doc.get("uuid")), doc));
 
             // preserve the order of the queried UUIDs in the found documents
-            Set<Map<String, Object>> documents = new LinkedHashSet<>();
+            List<Document> documents = new LinkedList<>();
             uuids.forEach(uuid -> {
                 Document doc = mappedResults.get(uuid);
                 if (doc != null) {

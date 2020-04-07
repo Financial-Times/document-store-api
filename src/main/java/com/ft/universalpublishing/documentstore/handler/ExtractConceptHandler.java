@@ -47,8 +47,6 @@ public class ExtractConceptHandler implements Handler {
                     .error("Expected at least one query parameter of the form \"curated<listType>For\"").exception();
         }
 
-        // TODO: remove
-        // context.addParameter("conceptId", conceptId);
         context.setConceptUUID(conceptUUID.toString());
         context.addParameter("listType", listType);
     }

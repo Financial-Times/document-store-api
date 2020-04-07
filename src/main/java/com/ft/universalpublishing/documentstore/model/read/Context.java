@@ -11,10 +11,11 @@ import java.util.UUID;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
+import org.bson.Document;
+
 import lombok.Data;
 
 @Data
-// TODO: consider modifying the structure to fit the new needs
 public class Context {
 
     private Map<String, Object> map;
@@ -35,9 +36,19 @@ public class Context {
     private String listType;
     private String searchTerm;
 
+    private List<Document> documents;
+
     public Context() {
         uuids = new ArrayList<>();
         map = new HashMap<>();
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<Document> documents) {
+        this.documents = documents;
     }
 
     public String getUuid() {

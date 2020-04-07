@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ApplyConcordedConceptToList implements Target {
+public class ApplyConcordedConceptToListTarget implements Target {
 
     PublicConceptsApiService publicConceptsApiService;
     String apiPath;
