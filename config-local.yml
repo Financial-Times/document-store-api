@@ -9,7 +9,7 @@ publicConceptsApi:
     name: "Public Concepts API health"
     severity: 1
     businessImpact: "Document Store API would not be able to forward any incoming request"
-    technicalSummary: "Tests that the Public Concepts API is running and responding to /__health requests"
+    technicalSummary: "Tests that the Public Concepts API is running and responding to /__gtg requests"
     panicGuideUrl: "https://runbooks.in.ft.com/public-concepts-api"
 
 publicConcordancesApi:
@@ -18,7 +18,7 @@ publicConcordancesApi:
     name: "Public Concordances API health"
     severity: 1
     businessImpact: "Document Store API would not be able to forward any incoming request"
-    technicalSummary: "Tests that the Public Concordances API is running and responding to /__health requests"
+    technicalSummary: "Tests that the Public Concordances API is running and responding to /__gtg requests"
     panicGuideUrl: "https://runbooks.in.ft.com/public-concordances-api"
 
 apiHost: localhost

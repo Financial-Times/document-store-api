@@ -2,7 +2,9 @@ package com.ft.universalpublishing.documentstore.exception;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import java.util.Arrays;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -25,12 +27,10 @@ public class DocumentsNotFoundException extends WebApplicationException {
 
 	@Override
 	public String getMessage() {
-		StringBuilder message = new StringBuilder();
-		for (int i = 0; i < uuids.length; i++) {
-			message.append(uuids[i]).append(" ");
-		}
+		String message = String.join(", ",
+				Arrays.asList(uuids).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()));
 
-		return String.format("Documents not found for uuids: %s", message.toString());
+		return String.format("Documents not found for uuids: %s", message);
 	}
 
 	@Override

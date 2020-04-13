@@ -1,5 +1,6 @@
 package com.ft.universalpublishing.documentstore.service;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -36,15 +37,22 @@ public class PublicConcordancesApiServiceImplTest {
 
     @Test
     public void healthcheckIsOK() {
-        String message = "{\"ok\": \"true\"}";
-
         final Response response = mock(Response.class);
         when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(response.readEntity(eq(String.class))).thenReturn(message);
 
         when(publicConcordancesApiClientMock.getHealthcheck()).thenReturn(response);
         boolean isHealthcheckOK = publicConcordancesApiService.isHealthcheckOK();
         assertTrue(isHealthcheckOK);
+    }
+
+    @Test
+    public void healthcheckIsNotOK() {
+        final Response response = mock(Response.class);
+        when(response.getStatus()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+
+        when(publicConcordancesApiClientMock.getHealthcheck()).thenReturn(response);
+        boolean isHealthcheckOK = publicConcordancesApiService.isHealthcheckOK();
+        assertFalse(isHealthcheckOK);
     }
 
     @Test

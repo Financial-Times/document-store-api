@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class Concordance {
-    // note: the concepts returned from public-concept-api do not have the "uuid"
+    // the concepts returned from public-concordances-api do not have the "uuid"
     // and "prefLabel" props - they will be empty
     Concept concept;
     Identifier identifier;

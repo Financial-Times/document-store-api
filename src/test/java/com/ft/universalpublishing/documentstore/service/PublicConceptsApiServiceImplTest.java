@@ -36,11 +36,8 @@ public class PublicConceptsApiServiceImplTest {
 
     @Test
     public void healthcheckIsOK() {
-        String message = "{\"ok\": true}";
-
         final Response response = mock(Response.class);
         when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(response.readEntity(eq(String.class))).thenReturn(message);
 
         when(publicConceptsApiClientMock.getHealthcheck()).thenReturn(response);
         boolean isHealthcheckOK = publicConceptApiService.isHealthcheckOK();
@@ -49,11 +46,8 @@ public class PublicConceptsApiServiceImplTest {
 
     @Test
     public void healthcheckIsNotOK() {
-        String message = "{\"ok\": false}";
-
         final Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(response.readEntity(eq(String.class))).thenReturn(message);
+        when(response.getStatus()).thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         when(publicConceptsApiClientMock.getHealthcheck()).thenReturn(response);
         boolean isHealthcheckOK = publicConceptApiService.isHealthcheckOK();

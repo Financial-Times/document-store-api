@@ -9,7 +9,6 @@ import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.universalpublishing.documentstore.clients.PublicConceptsApiClient;
 import com.ft.universalpublishing.documentstore.health.HealthcheckService;
@@ -27,20 +26,7 @@ public class PublicConceptsApiServiceImpl implements PublicConceptsApiService, H
     @Override
     public boolean isHealthcheckOK() {
         final Response response = publicConceptsApiClient.getHealthcheck();
-
-        Boolean isOK = null;
-
-        if (Response.Status.OK.getStatusCode() == response.getStatus()) {
-            final String payload = response.readEntity(String.class);
-            JsonNode jsonNode;
-            try {
-                jsonNode = new ObjectMapper().readValue(payload, JsonNode.class);
-                isOK = jsonNode.at("/ok").asBoolean();
-            } catch (final JsonProcessingException e) {
-                isOK = false;
-            }
-        }
-        return isOK;
+        return response.getStatus() == Response.Status.OK.getStatusCode() ? true : false;
     }
 
     @Override

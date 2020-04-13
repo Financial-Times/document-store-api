@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -216,16 +217,30 @@ public class MongoDocumentStoreServiceListTest {
                 final Document concept = (new Document()).append("uuid", CONCEPT_UUIDS[0].toString())
                                 .append("prefLabel", CONCEPT_LABEL);
 
+                final String newestDate = "2020-10-18T10:05:55.607Z";
+
                 final Document toInsert = new Document().append("uuid", uuid.toString())
                                 .append("publishReference", "tid_concept_and_type").append("concept", concept)
-                                .append("listType", LIST_TYPE).append("items", items);
+                                .append("listType", LIST_TYPE).append("items", items)
+                                .append("publishedDate", newestDate);
 
-                collection.insertOne(toInsert);
+                final Document toInsert2 = new Document().append("uuid", UUID.randomUUID())
+                                .append("publishReference", "tid_concept_and_type").append("concept", concept)
+                                .append("listType", LIST_TYPE).append("items", items)
+                                .append("publishedDate", "2020-10-18T10:05:55.606Z");
+
+                final Document toInsert3 = new Document().append("uuid", UUID.randomUUID())
+                                .append("publishReference", "tid_concept_and_type").append("concept", concept)
+                                .append("listType", LIST_TYPE).append("items", items)
+                                .append("publishedDate", "2020-09-18T10:05:55.607Z");
+
+                collection.insertMany(Arrays.asList(toInsert, toInsert2, toInsert3));
 
                 Map<String, Object> actual = mongoDocumentStoreService.findByConceptAndType(DB_COLLECTION,
                                 CONCEPT_UUIDS, LIST_TYPE);
 
                 assertThat(actual.get("uuid"), is((Object) uuid.toString()));
+                assertEquals(newestDate, actual.get("publishedDate"), "sorting by publishedDate is incorrect");
         }
 
         @Test

@@ -1,5 +1,8 @@
 package com.ft.universalpublishing.documentstore.resources;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -137,7 +140,7 @@ public class DocumentContentResourceEndpointTest {
     @Test
     public void shouldReturn201ForNewDocument() {
         Response clientResponse = writeDocument(contentPath, document);
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(201)));
+        assertThat("response", clientResponse, hasProperty("status", Matchers.equalTo(201)));
         verify(documentStoreService).write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class));
     }
 
@@ -147,7 +150,7 @@ public class DocumentContentResourceEndpointTest {
                 .thenReturn(DocumentWritten.updated(document));
 
         Response clientResponse = writeDocument(contentPath, document);
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
 
     @Test
@@ -274,22 +277,22 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").queryParam("uuid", id1).queryParam("uuid", id2).request()
                 .get();
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         @SuppressWarnings("unchecked")
         final List<Map<String, Object>> actual = clientResponse.readEntity(List.class);
-        assertThat("documents", actual.size(), Matchers.equalTo(2));
+        assertThat("documents", actual.size(), equalTo(2));
 
         List<String> actualIds = actual.stream().map(m -> (String) m.get("uuid")).collect(Collectors.toList());
 
-        assertThat("document list", actualIds, Matchers.contains(id1, id2));
+        assertThat("document list", actualIds, contains(id1, id2));
     }
 
     @Test
     public void thatMultipleUUIDRequestWithEmptyParamatersReturns400() {
         Response clientResponse = resources.target("/content").request().get();
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(400)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
     @Test
@@ -311,15 +314,15 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").queryParam("uuid", id1).queryParam("uuid", id2).request()
                 .get();
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         @SuppressWarnings("unchecked")
         final List<Map<String, Object>> actual = clientResponse.readEntity(List.class);
-        assertThat("documents", actual.size(), Matchers.equalTo(1));
+        assertThat("documents", actual.size(), equalTo(1));
 
         List<String> actualIds = actual.stream().map(m -> (String) m.get("uuid")).collect(Collectors.toList());
 
-        assertThat("document list", actualIds, Matchers.equalTo(Collections.singletonList(id2)));
+        assertThat("document list", actualIds, equalTo(Collections.singletonList(id2)));
     }
 
     @Test
@@ -335,11 +338,11 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").queryParam("uuid", id1).queryParam("uuid", id2).request()
                 .get();
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         @SuppressWarnings("rawtypes")
         final List actual = clientResponse.readEntity(List.class);
-        assertThat("documents", actual.size(), Matchers.equalTo(0));
+        assertThat("documents", actual.size(), equalTo(0));
     }
 
     @Test
@@ -361,14 +364,14 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").queryParam("mget", true).request()
                 .post(Entity.entity(uuidList, MediaType.APPLICATION_JSON));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         @SuppressWarnings("unchecked")
         final List<Map<String, Object>> actual = clientResponse.readEntity(List.class);
-        assertThat("documents", actual.size(), Matchers.equalTo(2));
+        assertThat("documents", actual.size(), equalTo(2));
 
         List<String> actualIds = actual.stream().map(m -> (String) m.get("uuid")).collect(Collectors.toList());
-        assertThat("document list", actualIds, Matchers.contains(uuidString1, uuidString2));
+        assertThat("document list", actualIds, contains(uuidString1, uuidString2));
     }
 
     @Test
@@ -376,7 +379,7 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").queryParam("mget", true).request()
                 .post(Entity.entity(Collections.emptyList(), MediaType.APPLICATION_JSON));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     }
 
     @Test
@@ -395,14 +398,14 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").queryParam("mget", true).request()
                 .post(Entity.entity(uuidList, MediaType.APPLICATION_JSON));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(200)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         @SuppressWarnings("unchecked")
         final List<Map<String, Object>> actual = clientResponse.readEntity(List.class);
-        assertThat("documents", actual.size(), Matchers.equalTo(1));
+        assertThat("documents", actual.size(), equalTo(1));
 
         List<String> actualIds = actual.stream().map(m -> (String) m.get("uuid")).collect(Collectors.toList());
-        assertThat("document list", actualIds, Matchers.equalTo(Collections.singletonList(id2)));
+        assertThat("document list", actualIds, equalTo(Collections.singletonList(id2)));
     }
 
     @Test
@@ -410,7 +413,7 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content").request()
                 .post(Entity.entity(Collections.emptyList(), MediaType.APPLICATION_JSON));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(400)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
     @Test
@@ -418,7 +421,7 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content?mget=true").request()
                 .post(Entity.entity("", MediaType.APPLICATION_JSON));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(400)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
     @Test
@@ -426,7 +429,7 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content?mget=true").request()
                 .post(Entity.entity("{}", MediaType.APPLICATION_JSON));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(400)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
     @Test
@@ -434,7 +437,7 @@ public class DocumentContentResourceEndpointTest {
         Response clientResponse = resources.target("/content?mget=true").request()
                 .post(Entity.entity("", MediaType.TEXT_PLAIN));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(415)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(415)));
     }
 
     @Test
@@ -444,7 +447,7 @@ public class DocumentContentResourceEndpointTest {
 
         Response clientResponse = resources.target(contentPath).request().get(Response.class);
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(404)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
         validateErrorMessage("Requested item does not exist", clientResponse);
     }
 
@@ -453,7 +456,7 @@ public class DocumentContentResourceEndpointTest {
         doThrow(new ValidationException("Invalid Uuid")).when(uuidValidator).validate(anyString(), anyString());
         Response clientResponse = resources.target(contentPath).request().get(Response.class);
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(400)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
         validateErrorMessage("Invalid Uuid", clientResponse);
     }
 
@@ -464,7 +467,7 @@ public class DocumentContentResourceEndpointTest {
 
         Response clientResponse = resources.target(contentPath).request().get(Response.class);
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(503)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
     }
 
     // OTHER
@@ -472,7 +475,7 @@ public class DocumentContentResourceEndpointTest {
     public void shouldReturn405ForPost() {
         Response clientResponse = resources.target(contentPath).request().post(Entity.json(null));
 
-        assertThat("response", clientResponse, Matchers.hasProperty("status", Matchers.equalTo(405)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
     }
 
     private Response writeDocument(String writePath, Document document) {
@@ -481,7 +484,6 @@ public class DocumentContentResourceEndpointTest {
 
     private void validateErrorMessage(String expectedErrorMessage, Response clientResponse) {
         final ErrorEntity responseBodyMessage = clientResponse.readEntity(ErrorEntity.class);
-        assertThat("message", responseBodyMessage,
-                Matchers.hasProperty("message", Matchers.equalTo(expectedErrorMessage)));
+        assertThat("message", responseBodyMessage, hasProperty("message", equalTo(expectedErrorMessage)));
     }
 }

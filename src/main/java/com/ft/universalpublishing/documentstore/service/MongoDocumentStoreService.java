@@ -229,7 +229,7 @@ public class MongoDocumentStoreService {
 
             // sorting the results by lastModified so we always return the most recently
             // modified list
-            found = dbCollection.find(filter).sort(new BasicDBObject("lastModified", -1)).limit(1).first();
+            found = dbCollection.find(filter).sort(new BasicDBObject("publishedDate", -1)).limit(1).first();
 
             return found;
         } catch (MongoException e) {

@@ -150,7 +150,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 Handler findListByUuidHandler = new FindListByUuidHandler(documentStoreService);
                 Handler findListByConceptAndTypeHandler = new FindListByConceptAndTypeHandler(documentStoreService);
                 Handler getConcordedConceptsHandler = new GetConcordedConceptsHandler(publicConcordancesApiService);
-                FindMultipleResourcesByUuidsHandler findMultipleResourcesByUuidsHandler = new FindMultipleResourcesByUuidsHandler(
+                Handler findMultipleResourcesByUuidsHandler = new FindMultipleResourcesByUuidsHandler(
                                 documentStoreService);
                 Handler getSearchResultsHandler = new FilterListsHandler(documentStoreService);
                 Target findResourceByUuid = new FindResourceByUuidTarget(documentStoreService);

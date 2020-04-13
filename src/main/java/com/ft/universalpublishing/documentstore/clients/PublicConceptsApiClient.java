@@ -16,7 +16,7 @@ public class PublicConceptsApiClient {
     Client client;
 
     public Response getHealthcheck() {
-        return client.target(String.format("http://%s/__health", host)).request(MediaType.APPLICATION_JSON).get();
+        return client.target(String.format("http://%s/__gtg", host)).request(MediaType.APPLICATION_JSON).get();
     }
 
     public Response getConcept(String conceptUUID) {

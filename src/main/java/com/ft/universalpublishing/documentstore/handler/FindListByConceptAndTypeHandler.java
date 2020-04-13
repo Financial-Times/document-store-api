@@ -1,6 +1,7 @@
 package com.ft.universalpublishing.documentstore.handler;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.ft.universalpublishing.documentstore.exception.DocumentsNotFoundException;
@@ -19,11 +20,10 @@ public class FindListByConceptAndTypeHandler implements Handler {
         final UUID[] conceptUUIDs = (UUID[]) context.getParameter("conceptUUIDs");
         final String listType = (String) context.getParameter("listType");
 
-        final Map<String, Object> result = documentStoreService.findByConceptAndType(context.getCollection(),
-                conceptUUIDs, listType);
-        if (result == null) {
-            throw new DocumentsNotFoundException(conceptUUIDs);
-        }
+        final Map<String, Object> result = Optional
+                .ofNullable(documentStoreService.findByConceptAndType(context.getCollection(), conceptUUIDs, listType))
+                .orElseThrow(() -> new DocumentsNotFoundException(conceptUUIDs));
+
         context.setContentMap(result);
     }
 }
