@@ -25,16 +25,20 @@ public class GetConcordedConceptsHandler implements Handler {
     public void handle(final Context context) {
         final String conceptUUID = context.getConceptUUID();
 
+        if (conceptUUID == null) {
+            return;
+        }
+
         try {
             final List<Concordance> uppConcordances = publicConcordancesApiService.getUPPConcordances(conceptUUID);
-            UUID[] conceptUUIDs = uppConcordances.stream().map(concordance -> {
-                String[] splitted = concordance.getIdentifier().getIdentifierValue().split("/");
-                return UUID.fromString(splitted[splitted.length - 1]);
-            }).toArray(UUID[]::new);
+            UUID[] conceptUUIDs = uppConcordances.stream()
+                    .map(concordance -> UUID.fromString(concordance.getIdentifier().getIdentifierValue()))
+                    .toArray(UUID[]::new);
 
             if (conceptUUIDs.length == 0) {
                 conceptUUIDs = new UUID[] { UUID.fromString(conceptUUID) };
             }
+
             context.addParameter("conceptUUIDs", conceptUUIDs);
         } catch (final JsonProcessingException e) {
             throw ClientError.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).error(e.getMessage()).exception();

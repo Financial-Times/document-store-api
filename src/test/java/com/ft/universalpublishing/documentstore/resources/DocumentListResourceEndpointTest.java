@@ -376,6 +376,7 @@ public class DocumentListResourceEndpointTest {
         Response clientResponse = resources.client().target("/lists").queryParam(typeParam, CONCEPT_UUID.toString())
                 .request().get();
 
+        verify(documentStoreService).findByConceptAndType(eq(RESOURCE_TYPE), eq(CONCEPT_UUIDS), eq(type));
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
     }
 

@@ -1,6 +1,5 @@
 package com.ft.universalpublishing.documentstore.target;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +40,7 @@ public class ApplyConcordedConceptsToListsTarget implements Target {
         });
         String[] conceptUuids = new String[] {};
         conceptUuids = conceptUuidSet.toArray(conceptUuids);
-        System.out.println(Arrays.toString(conceptUuids));
+
         try {
             final List<Concept> conceptsFound = publicConceptsApiService.searchConcepts(conceptUuids);
             final Map<String, Concept> originalUUIDForConcepts = new HashMap<>();

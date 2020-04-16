@@ -5,15 +5,19 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 
 public class ConceptUuidValidationHandler implements Handler {
 
-    private UuidValidator validator;
+    private final UuidValidator validator;
 
-    public ConceptUuidValidationHandler(UuidValidator validator) {
+    public ConceptUuidValidationHandler(final UuidValidator validator) {
         this.validator = validator;
     }
 
     @Override
-    public void handle(Context context) {
-        validator.validate(context.getConceptUUID(), "conceptUUID");
+    public void handle(final Context context) {
+        final String conceptUUID = context.getConceptUUID();
+
+        if (conceptUUID != null && !conceptUUID.isEmpty()) {
+            validator.validate(context.getConceptUUID(), "conceptUUID");
+        }
     }
 
 }
