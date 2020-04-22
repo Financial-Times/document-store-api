@@ -4,7 +4,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -270,14 +270,9 @@ public class DocumentSearchListResourceEndpointTest {
 
     private List<Concept> createClonedConceptsListFromContentList(final List<ContentList> contentLists)
             throws JsonProcessingException {
-        return contentLists.stream().map(contentList -> {
-            try {
-                return objectMapper.readValue(objectMapper.writeValueAsString(contentList.getConcept()), Concept.class);
-            } catch (final JsonProcessingException e) {
-                fail();
-                return null;
-            }
-        }).collect(Collectors.toList());
+        return contentLists.stream()
+                .map(contentList -> assertDoesNotThrow(() -> objectMapper
+                        .readValue(objectMapper.writeValueAsString(contentList.getConcept()), Concept.class)))
+                .collect(Collectors.toList());
     }
-
 }
