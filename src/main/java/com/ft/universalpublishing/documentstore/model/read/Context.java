@@ -1,11 +1,19 @@
 package com.ft.universalpublishing.documentstore.model.read;
 
-import lombok.Data;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
+
+import org.bson.Document;
+
+import lombok.Data;
 
 @Data
 public class Context {
@@ -28,9 +36,19 @@ public class Context {
     private String listType;
     private String searchTerm;
 
+    private List<Document> documents;
+
     public Context() {
         uuids = new ArrayList<>();
         map = new HashMap<>();
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<Document> documents) {
+        this.documents = documents;
     }
 
     public String getUuid() {
@@ -57,11 +75,27 @@ public class Context {
         return map.get(key);
     }
 
-    public void setConceptUUID(String conceptUUID) { this.conceptUUID = conceptUUID; }
-    public void setListType(String listType) { this.listType = listType; }
-    public void setSearchTerm(String searchTerm) { this.searchTerm = searchTerm; }
+    public void setConceptUUID(String conceptUUID) {
+        this.conceptUUID = conceptUUID;
+    }
 
-    public String getConceptUUID() { return this.conceptUUID; }
-    public String getListType() { return this.listType; }
-    public String getSearchTerm() { return this.searchTerm; }
+    public void setListType(String listType) {
+        this.listType = listType;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+    }
+
+    public String getConceptUUID() {
+        return this.conceptUUID;
+    }
+
+    public String getListType() {
+        return this.listType;
+    }
+
+    public String getSearchTerm() {
+        return this.searchTerm;
+    }
 }

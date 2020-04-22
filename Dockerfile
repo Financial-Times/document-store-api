@@ -39,11 +39,13 @@ RUN apk --update add git maven curl \
 EXPOSE 8080 8081
 
 CMD exec java $JAVA_OPTS \
-         -Ddw.server.applicationConnectors[0].port=8080 \
-         -Ddw.server.adminConnectors[0].port=8081 \
-         -Ddw.mongo.addresses=$MONGO_ADDRESSES \
-         -Ddw.cacheTtl=$CACHE_TTL \
-		 -Ddw.apiHost=$API_HOST \
-		 -Ddw.logging.appenders[0].logFormat="%m%n" \
-		 -DgitTag=$TAG \
-		 -jar document-store-api.jar server config.yaml
+  -Ddw.server.applicationConnectors[0].port=8080 \
+  -Ddw.server.adminConnectors[0].port=8081 \
+  -Ddw.mongo.addresses=$MONGO_ADDRESSES \
+  -Ddw.publicConcordancesApi.host=$PUBLIC_CONCORDANCES_API_HOST \
+  -Ddw.publicConceptsApi.host=$PUBLIC_CONCEPTS_API_HOST \
+  -Ddw.cacheTtl=$CACHE_TTL \
+  -Ddw.apiHost=$API_HOST \
+  -Ddw.logging.appenders[0].logFormat="%m%n" \
+  -DgitTag=$TAG \
+  -jar document-store-api.jar server config.yaml

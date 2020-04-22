@@ -7,14 +7,13 @@ public class UuidValidationHandler implements Handler {
 
     private UuidValidator validator;
 
-    public UuidValidationHandler(
-            UuidValidator validator) {
+    public UuidValidationHandler(UuidValidator validator) {
         this.validator = validator;
     }
 
     @Override
     public void handle(Context context) {
-        validator.validate(context.getUuid());
+        validator.validate(context.getUuid(), "uuid");
     }
 
 }

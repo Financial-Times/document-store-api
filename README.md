@@ -12,6 +12,8 @@ These two endpoints should be separated into two independent applications, all o
 
 Operations on lists DOES NOT share the same logic, their read/writes are separate from this mechanism.
 
+The endpoints which retrieve /lists invoke the **public-concepts-api** and **public-concordances-api** services in order to display the lists with their most up-to-date concepts.
+
 ## Running locally
 
 To compile and build jar
@@ -29,14 +31,34 @@ To run all tests:
 
 ```
 # Run local instance of MongoDB needed for some tests.
-docker-compose up mongodb -d
+docker-compose up -d mongodb
 
 # Execute all tests.
 MONGO_TEST_URL=localhost:27017 -Djava.net.preferIPv4Stack=true mvn clean package
 ```
 
-To run locally, run:
+To run locally:
 
+1. port-forward **public-concepts-api** (by default the local config looks for the sevice at port 8081) from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
+```sh
+kubectl port-forward <public-concepts-api-pod-name> 8081:8080
+```
+
+1. port-forward **public-concordances-api** (by default the local config looks for the sevice at port 8082) from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
+```sh
+kubectl port-forward <public-concordances-api-pod-name> 8082:8080
+```
+
+1. **either** port-forward **mongodb** from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
+```sh
+kubectl port-forward <mongodb-pod-name> 27017:27017
+```
+**or** use `docker-compose` to spin it up locally in a container:
+```sh
+docker-compose up -d mongodb
+```
+
+1. execute the following to run the application:
 ```sh
 java -jar target/document-store-api-0.0.1-SNAPSHOT.jar server config-local.yml
 ```
@@ -196,6 +218,8 @@ Handler and Targets can be reused in multiple chains.
 There are healthchecks for
 - connection to MongoDB
 - index state of MongoDB collections
+- `/__gtg` of `public-concepts-api` service
+- `/__gtg` of `public-concordances-api` service
 
 Only the connection healthcheck influences GTG responses. Whenever a change is detected in the connection state, the application may move between states in the following state chart.
 ![state chart](https://www.lucidchart.com/publicSegments/view/773931fc-d21d-44c2-a84f-b89d8508d930/image.jpeg)

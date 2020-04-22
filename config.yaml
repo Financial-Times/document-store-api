@@ -4,6 +4,24 @@ mongo:
   port: 27017
   db: upp-store
 
+publicConceptsApi:
+  host: ""
+  healthcheckParameters:
+    name: "Public Concepts API health"
+    severity: 1
+    businessImpact: "Document Store API would not be able to forward any incoming request"
+    technicalSummary: "Tests that the Public Concepts API is running and responding to /__gtg requests"
+    panicGuideUrl: "https://runbooks.in.ft.com/public-concepts-api"
+
+publicConcordancesApi:
+  host: ""
+  healthcheckParameters:
+    name: "Public Concordances API health"
+    severity: 1
+    businessImpact: "Document Store API would not be able to forward any incoming request"
+    technicalSummary: "Tests that the Public Concordances API is running and responding to /__gtg requests"
+    panicGuideUrl: "https://runbooks.in.ft.com/public-concordances-api"
+
 apiHost: "http://apipath.replaceme"
 cacheTtl: 30
 
@@ -22,7 +40,6 @@ indexHealthcheckParameters:
   panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 server:
-
   applicationConnectors:
     - type: http
       port: 14180
@@ -32,12 +49,10 @@ server:
       port: 14181
 
   requestLog:
-
     appenders:
-
       - type: console
         # Add transaction_id to the end of Dropwizard's default format, which is itself based on the "combined" log format
-        logFormat: "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" %D transaction_id=%i{X-Request-Id}"
+        logFormat: '%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" %D transaction_id=%i{X-Request-Id}'
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
@@ -49,7 +64,6 @@ swagger:
   contact: UPP Team
 
 logging:
-
   level: INFO
 
   loggers:
@@ -57,7 +71,6 @@ logging:
     com.ft.api.util.transactionid.TransactionIdFilter: WARN
 
   appenders:
-
     - type: console
 
 appInfo:
