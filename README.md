@@ -40,28 +40,28 @@ MONGO_TEST_URL=localhost:27017 -Djava.net.preferIPv4Stack=true mvn clean package
 To run locally:
 
 1. port-forward **public-concepts-api** (by default the local config looks for the sevice at port 8081) from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
-```sh
-kubectl port-forward <public-concepts-api-pod-name> 8081:8080
-```
+    ```sh
+    kubectl port-forward <public-concepts-api-pod-name> 8081:8080
+    ```
 
 1. port-forward **public-concordances-api** (by default the local config looks for the sevice at port 8082) from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
-```sh
-kubectl port-forward <public-concordances-api-pod-name> 8082:8080
-```
+    ```sh
+    kubectl port-forward <public-concordances-api-pod-name> 8082:8080
+    ```
 
 1. **either** port-forward **mongodb** from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
-```sh
-kubectl port-forward <mongodb-pod-name> 27017:27017
-```
-**or** use `docker-compose` to spin it up locally in a container:
-```sh
-docker-compose up -d mongodb
-```
+    ```sh
+    kubectl port-forward <mongodb-pod-name> 27017:27017
+    ```
+    **or** use `docker-compose` to spin it up locally in a container:
+    ```sh
+    docker-compose up -d mongodb
+    ```
 
 1. execute the following to run the application:
-```sh
-java -jar target/document-store-api-0.0.1-SNAPSHOT.jar server config-local.yml
-```
+    ```sh
+    java -jar target/document-store-api-0.0.1-SNAPSHOT.jar server config-local.yml
+    ```
 
 ## Building/Deploying
 
