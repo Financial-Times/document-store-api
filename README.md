@@ -2,17 +2,11 @@
 
 # Document Store API
 
-Document Store API is a Dropwizard application which allows writes to and reads from MongoDB.
+Document Store API is a Dropwizard application which allows **writes to** and **reads from** MongoDB.
 
-Reading content by API users should be done via the /content-read/{uuid} endpoint. This makes sure the format of the response obeys the contract that our API was designed by.
+The `/content/{uuid}` endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
 
-The /content/{uuid} endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
-
-These two endpoints should be separated into two independent applications, all of them using the name /content, one reading, one formatting, but that was scheduled to be later, for now both layers are in the same app.
-
-Operations on lists DOES NOT share the same logic, their read/writes are separate from this mechanism.
-
-The endpoints which retrieve /lists invoke the **public-concepts-api** and **public-concordances-api** services in order to display the lists with their most up-to-date concepts.
+Operations on lists DOES NOT share the same logic, their read/writes are separate from this mechanism. New endpoints were added for lists: `/lists`, they call `public-concepts-api` and `public-concordances-api` services in order to return lists with their most up-to-date concepts.
 
 ## Running locally
 
