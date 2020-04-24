@@ -2,6 +2,10 @@
 
 The Document Store API writes to and reads from Document Store (MongoDB) in the Delivery cluster.
 
+## Code
+
+document-store-api
+
 ## Primary URL
 
 https://upp-prod-delivery-glb.upp.ft.com/__document-store-api/
