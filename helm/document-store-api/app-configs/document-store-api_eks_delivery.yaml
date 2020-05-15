@@ -1,0 +1,5 @@
+replicaCount: 2
+
+service:
+  name: document-store-api
+eksCluster: true
