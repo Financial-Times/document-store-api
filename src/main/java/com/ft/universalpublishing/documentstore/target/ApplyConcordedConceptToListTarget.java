@@ -9,7 +9,6 @@ import com.ft.universalpublishing.documentstore.model.read.Concept;
 import com.ft.universalpublishing.documentstore.model.read.ContentList;
 import com.ft.universalpublishing.documentstore.model.read.Context;
 import com.ft.universalpublishing.documentstore.service.PublicConceptsApiService;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,29 +17,30 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ApplyConcordedConceptToListTarget implements Target {
 
-    PublicConceptsApiService publicConceptsApiService;
-    String apiPath;
+  PublicConceptsApiService publicConceptsApiService;
+  String apiPath;
 
-    @Override
-    public Object execute(Context context) {
-        try {
-            ContentList contentList = new ObjectMapper().convertValue(context.getContentMap(), ContentList.class);
-            Concept concept = contentList.getConcept();
-            String conceptUUID = null;
+  @Override
+  public Object execute(Context context) {
+    try {
+      ContentList contentList =
+          new ObjectMapper().convertValue(context.getContentMap(), ContentList.class);
+      Concept concept = contentList.getConcept();
+      String conceptUUID = null;
 
-            if (concept != null) {
-                conceptUUID = concept.extractConceptUuid();
-            }
+      if (concept != null) {
+        conceptUUID = concept.extractConceptUuid();
+      }
 
-            Concept concordedConcept = publicConceptsApiService.getUpToDateConcept(conceptUUID);
-            contentList.setConcept(concordedConcept);
-            contentList.addIds();
-            contentList.addApiUrls(apiPath);
-            contentList.removePrivateFields();
+      Concept concordedConcept = publicConceptsApiService.getUpToDateConcept(conceptUUID);
+      contentList.setConcept(concordedConcept);
+      contentList.addIds();
+      contentList.addApiUrls(apiPath);
+      contentList.removePrivateFields();
 
-            return contentList;
-        } catch (IllegalArgumentException | JsonProcessingException e) {
-            throw ClientError.status(SC_INTERNAL_SERVER_ERROR).error(e.getMessage()).exception();
-        }
+      return contentList;
+    } catch (IllegalArgumentException | JsonProcessingException e) {
+      throw ClientError.status(SC_INTERNAL_SERVER_ERROR).error(e.getMessage()).exception();
     }
+  }
 }
