@@ -5,15 +5,14 @@ import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 
 public class UuidValidationHandler implements Handler {
 
-    private UuidValidator validator;
+  private UuidValidator validator;
 
-    public UuidValidationHandler(UuidValidator validator) {
-        this.validator = validator;
-    }
+  public UuidValidationHandler(UuidValidator validator) {
+    this.validator = validator;
+  }
 
-    @Override
-    public void handle(Context context) {
-        validator.validate(context.getUuid(), "uuid");
-    }
-
+  @Override
+  public void handle(Context context) {
+    validator.validate(context.getUuid(), "uuid");
+  }
 }

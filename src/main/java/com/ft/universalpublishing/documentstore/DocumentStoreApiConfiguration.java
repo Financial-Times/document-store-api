@@ -6,77 +6,80 @@ import com.ft.platform.dropwizard.ConfigWithAppInfo;
 import com.ft.platform.dropwizard.ConfigWithGTG;
 import com.ft.platform.dropwizard.GTGConfig;
 import com.ft.universalpublishing.documentstore.health.HealthcheckParameters;
-
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-public class DocumentStoreApiConfiguration extends Configuration implements ConfigWithAppInfo, ConfigWithGTG {
-    @JsonProperty
-    private AppInfo appInfo = new AppInfo();
-    @JsonProperty
-    private GTGConfig gtgConfig = new GTGConfig();
-    @JsonProperty("swagger")
-    public SwaggerBundleConfiguration swaggerBundleConfiguration;
-    private final String apiHost;
-    private final MongoConfig mongo;
-    private final PublicConceptsApiConfig publicConceptsApiConfig;
-    private final PublicConcordancesApiConfig publicConcordancesApiConfig;
-    private final String cacheTtl;
-    private HealthcheckParameters connectionHealthcheckParameters;
-    private HealthcheckParameters indexHealthcheckParameters;
+public class DocumentStoreApiConfiguration extends Configuration
+    implements ConfigWithAppInfo, ConfigWithGTG {
+  @JsonProperty private AppInfo appInfo = new AppInfo();
+  @JsonProperty private GTGConfig gtgConfig = new GTGConfig();
 
-    public DocumentStoreApiConfiguration(@JsonProperty("mongo") MongoConfig mongo,
-            @JsonProperty("publicConceptsApi") PublicConceptsApiConfig publicConceptsApi,
-            @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApi,
-            @JsonProperty("apiHost") String apiHost, @JsonProperty("cacheTtl") String cacheTtl,
-            @JsonProperty("connectionHealthcheckParameters") HealthcheckParameters connectionHealthcheckParameters,
-            @JsonProperty("indexHealthcheckParameters") HealthcheckParameters indexHealthcheckParameters) {
-        super();
-        this.mongo = mongo;
-        this.publicConceptsApiConfig = publicConceptsApi;
-        this.publicConcordancesApiConfig = publicConcordancesApi;
-        this.apiHost = apiHost;
-        this.cacheTtl = cacheTtl;
-        this.connectionHealthcheckParameters = connectionHealthcheckParameters;
-        this.indexHealthcheckParameters = indexHealthcheckParameters;
-    }
+  @JsonProperty("swagger")
+  public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
-    public PublicConcordancesApiConfig getPublicConcordancesApiConfig() {
-        return publicConcordancesApiConfig;
-    }
+  private final String apiHost;
+  private final MongoConfig mongo;
+  private final PublicConceptsApiConfig publicConceptsApiConfig;
+  private final PublicConcordancesApiConfig publicConcordancesApiConfig;
+  private final String cacheTtl;
+  private HealthcheckParameters connectionHealthcheckParameters;
+  private HealthcheckParameters indexHealthcheckParameters;
 
-    public PublicConceptsApiConfig getPublicConceptsApiConfig() {
-        return publicConceptsApiConfig;
-    }
+  public DocumentStoreApiConfiguration(
+      @JsonProperty("mongo") MongoConfig mongo,
+      @JsonProperty("publicConceptsApi") PublicConceptsApiConfig publicConceptsApi,
+      @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApi,
+      @JsonProperty("apiHost") String apiHost,
+      @JsonProperty("cacheTtl") String cacheTtl,
+      @JsonProperty("connectionHealthcheckParameters")
+          HealthcheckParameters connectionHealthcheckParameters,
+      @JsonProperty("indexHealthcheckParameters")
+          HealthcheckParameters indexHealthcheckParameters) {
+    super();
+    this.mongo = mongo;
+    this.publicConceptsApiConfig = publicConceptsApi;
+    this.publicConcordancesApiConfig = publicConcordancesApi;
+    this.apiHost = apiHost;
+    this.cacheTtl = cacheTtl;
+    this.connectionHealthcheckParameters = connectionHealthcheckParameters;
+    this.indexHealthcheckParameters = indexHealthcheckParameters;
+  }
 
-    public MongoConfig getMongo() {
-        return mongo;
-    }
+  public PublicConcordancesApiConfig getPublicConcordancesApiConfig() {
+    return publicConcordancesApiConfig;
+  }
 
-    public String getApiHost() {
-        return apiHost;
-    }
+  public PublicConceptsApiConfig getPublicConceptsApiConfig() {
+    return publicConceptsApiConfig;
+  }
 
-    public String getCacheTtl() {
-        return cacheTtl;
-    }
+  public MongoConfig getMongo() {
+    return mongo;
+  }
 
-    public HealthcheckParameters getConnectionHealthcheckParameters() {
-        return connectionHealthcheckParameters;
-    }
+  public String getApiHost() {
+    return apiHost;
+  }
 
-    public HealthcheckParameters getIndexHealthcheckParameters() {
-        return indexHealthcheckParameters;
-    }
+  public String getCacheTtl() {
+    return cacheTtl;
+  }
 
-    @Override
-    public AppInfo getAppInfo() {
-        return appInfo;
-    }
+  public HealthcheckParameters getConnectionHealthcheckParameters() {
+    return connectionHealthcheckParameters;
+  }
 
-    @Override
-    public GTGConfig getGtg() {
-        return gtgConfig;
-    }
+  public HealthcheckParameters getIndexHealthcheckParameters() {
+    return indexHealthcheckParameters;
+  }
 
+  @Override
+  public AppInfo getAppInfo() {
+    return appInfo;
+  }
+
+  @Override
+  public GTGConfig getGtg() {
+    return gtgConfig;
+  }
 }

@@ -1,10 +1,10 @@
 package com.ft.universalpublishing.documentstore.exception;
 
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 public class ExternalSystemUnavailableException extends WebApplicationException {
 
@@ -20,6 +20,9 @@ public class ExternalSystemUnavailableException extends WebApplicationException 
 
   @Override
   public Response getResponse() {
-    return Response.status(SC_SERVICE_UNAVAILABLE).type(MediaType.APPLICATION_JSON).entity(MESSAGE).build();
+    return Response.status(SC_SERVICE_UNAVAILABLE)
+        .type(MediaType.APPLICATION_JSON)
+        .entity(MESSAGE)
+        .build();
   }
 }
