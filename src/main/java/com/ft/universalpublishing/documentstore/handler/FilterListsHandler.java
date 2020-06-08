@@ -16,8 +16,13 @@ public class FilterListsHandler implements Handler {
   public void handle(Context context) {
     UUID[] conceptUUIDs = (UUID[]) context.getParameter("conceptUUIDs");
     List<Document> listDocuments =
-        documentStoreService.filterLists(
-            context.getCollection(), conceptUUIDs, context.getListType(), context.getSearchTerm());
+        documentStoreService.filterCollection(
+            context.getCollection(),
+            conceptUUIDs,
+            context.getListType(),
+            context.getSearchTerm(),
+            context.getWebUrl(),
+            context.getStandfirst());
 
     context.setDocuments(listDocuments);
   }

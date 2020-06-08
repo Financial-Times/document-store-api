@@ -94,7 +94,8 @@ public class DocumentSearchListResourceEndpointTest {
             .map(concept -> concept.getUuid().toString())
             .collect(Collectors.toSet());
 
-    when(documentStoreService.filterLists(eq(RESOURCE_TYPE), eq(null), eq(null), eq(null)))
+    when(documentStoreService.filterCollection(
+            eq(RESOURCE_TYPE), eq(null), eq(null), eq(null), eq(null), eq(null)))
         .thenReturn(documents);
     when(publicConceptsApiService.searchConcepts(any(String[].class)))
         .thenReturn(searchConceptsResults);
@@ -103,7 +104,8 @@ public class DocumentSearchListResourceEndpointTest {
 
     final ArgumentCaptor<String[]> conceptsCaptor = ArgumentCaptor.forClass(String[].class);
     verify(publicConcordancesApiService, times(0)).getUPPConcordances(anyString());
-    verify(documentStoreService).filterLists(eq(RESOURCE_TYPE), eq(null), eq(null), eq(null));
+    verify(documentStoreService)
+        .filterCollection(eq(RESOURCE_TYPE), eq(null), eq(null), eq(null), eq(null), eq(null));
     verify(publicConceptsApiService).searchConcepts(conceptsCaptor.capture());
 
     final List<String> searchConceptsParam = Arrays.asList(conceptsCaptor.getValue());
@@ -136,7 +138,8 @@ public class DocumentSearchListResourceEndpointTest {
 
     final UUID[] conceptParams = new UUID[] {contentLists.get(listIndex).getConcept().getUuid()};
 
-    when(documentStoreService.filterLists(eq(RESOURCE_TYPE), eq(conceptParams), eq(null), eq(null)))
+    when(documentStoreService.filterCollection(
+            eq(RESOURCE_TYPE), eq(conceptParams), eq(null), eq(null), eq(null), eq(null)))
         .thenReturn(documents);
     when(publicConceptsApiService.searchConcepts(any(String[].class)))
         .thenReturn(searchConceptsResults);
@@ -152,7 +155,8 @@ public class DocumentSearchListResourceEndpointTest {
     final ArgumentCaptor<String[]> conceptsCaptor = ArgumentCaptor.forClass(String[].class);
     verify(publicConcordancesApiService).getUPPConcordances(eq(conceptParams[0].toString()));
     verify(documentStoreService)
-        .filterLists(eq(RESOURCE_TYPE), eq(conceptParams), eq(null), eq(null));
+        .filterCollection(
+            eq(RESOURCE_TYPE), eq(conceptParams), eq(null), eq(null), eq(null), eq(null));
     verify(publicConceptsApiService).searchConcepts(conceptsCaptor.capture());
 
     final List<String> searchConceptsParam = Arrays.asList(conceptsCaptor.getValue());
@@ -202,8 +206,8 @@ public class DocumentSearchListResourceEndpointTest {
     final String title = "New Title";
 
     when(publicConcordancesApiService.getUPPConcordances(eq(conceptUUID))).thenReturn(concordances);
-    when(documentStoreService.filterLists(
-            eq(RESOURCE_TYPE), eq(conceptParams), eq(listType), eq(title)))
+    when(documentStoreService.filterCollection(
+            eq(RESOURCE_TYPE), eq(conceptParams), eq(listType), eq(title), eq(null), eq(null)))
         .thenReturn(documents);
     when(publicConceptsApiService.searchConcepts(any(String[].class)))
         .thenReturn(searchConceptsResults);
@@ -221,7 +225,8 @@ public class DocumentSearchListResourceEndpointTest {
     final ArgumentCaptor<String[]> conceptsCaptor = ArgumentCaptor.forClass(String[].class);
     verify(publicConcordancesApiService).getUPPConcordances(eq(conceptUUID));
     verify(documentStoreService)
-        .filterLists(eq(RESOURCE_TYPE), eq(conceptParams), eq(listType), eq(title));
+        .filterCollection(
+            eq(RESOURCE_TYPE), eq(conceptParams), eq(listType), eq(title), eq(null), eq(null));
     verify(publicConceptsApiService).searchConcepts(conceptsCaptor.capture());
 
     final List<String> searchConceptsParam = Arrays.asList(conceptsCaptor.getValue());

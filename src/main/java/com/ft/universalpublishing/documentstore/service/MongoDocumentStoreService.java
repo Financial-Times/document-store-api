@@ -84,8 +84,13 @@ public class MongoDocumentStoreService {
     return indexed;
   }
 
-  public List<Document> filterLists(
-      String resourceType, UUID[] conceptUUIDs, String listType, String searchTerm) {
+  public List<Document> filterCollection(
+      String collection,
+      UUID[] conceptUUIDs,
+      String listType,
+      String searchTerm,
+      String webUrl,
+      String standfirst) {
 
     List<Bson> queryFilters = new ArrayList<>();
     UUID[] resolvedConceptUUIDs = Optional.ofNullable(conceptUUIDs).orElse(new UUID[] {});
@@ -107,13 +112,25 @@ public class MongoDocumentStoreService {
       Bson filterByTitle = Filters.eq("title", regexSearchTerm);
       queryFilters.add(filterByTitle);
     }
+    if (webUrl != null) {
+      Bson filterByWebUrl = Filters.eq("webUrl", webUrl);
+      queryFilters.add(filterByWebUrl);
+    }
+    if (standfirst != null) {
+      Bson filterBystandfirst = Filters.eq("standfirst", standfirst);
+      queryFilters.add(filterBystandfirst);
+    }
 
     Bson filter = Filters.and(queryFilters);
 
     try {
-      MongoCollection<Document> dbCollection = db.getCollection(resourceType);
+      MongoCollection<Document> dbCollection = db.getCollection(collection);
       Iterable<Document> results;
-      if (conceptUUIDStrings.length == 0 && listType == null && searchTerm == null) {
+      if (conceptUUIDStrings.length == 0
+          && listType == null
+          && searchTerm == null
+          && webUrl == null
+          && standfirst == null) {
         results = dbCollection.find();
       } else {
         results = dbCollection.find(filter);
@@ -132,11 +149,11 @@ public class MongoDocumentStoreService {
     } catch (MongoSocketException | MongoTimeoutException e) {
       LOG.error(
           "MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}",
-          resourceType,
+          collection,
           e);
       throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
     } catch (MongoException e) {
-      LOG.error("Failed to find document(s) in Mongo! Collection {}", resourceType, e);
+      LOG.error("Failed to find document(s) in Mongo! Collection {}", collection, e);
       throw new ExternalSystemInternalServerException(e);
     }
   }

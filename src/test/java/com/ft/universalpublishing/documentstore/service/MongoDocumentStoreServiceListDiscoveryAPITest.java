@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class MongoDocumentStoreServiceListDiscoveryAPITest {
   private static final String DB_NAME = "upp-store";
-  private static final String DB_COLLECTION = "generic-lists";
+  private static final String COLLECTION_NAME = "collection-name";
 
   private static final Map<String, Object> TEST_DATA_All =
       ImmutableMap.<String, Object>builder()
@@ -31,6 +31,8 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
           .put("conceptPrefLabel", "Concept MatchAll")
           .put("title", "Title MatchAll")
           .put("listType", "MatchAll")
+          .put("webUrl", "http://www.ft.com/ig/sites/2014/virgingroup-timeline/")
+          .put("standfirst", "some standfirst")
           .build();
 
   private static final Map<String, Object> TEST_DATA_CONCEPT =
@@ -65,31 +67,35 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
           .append("uuid", TEST_DATA_All.get("conceptUUID").toString())
           .append("prefLabel", TEST_DATA_All.get("conceptPrefLabel"));
 
-  private static final Document LIST0 =
+  private static final Document ENTRY0 =
       new Document()
           .append("uuid", TEST_DATA_All.get("uuid"))
           .append("title", TEST_DATA_All.get("title"))
           .append("concept", TEST_CONCEPT0)
-          .append("listType", TEST_DATA_All.get("listType"));
+          .append("listType", TEST_DATA_All.get("listType"))
+          .append("webUrl", TEST_DATA_All.get("webUrl"))
+          .append("standfirst", TEST_DATA_All.get("standfirst"));
 
   private static final Document TEST_CONCEPT1 =
       new Document()
           .append("uuid", TEST_DATA_CONCEPT.get("conceptUUID").toString())
           .append("prefLabel", TEST_DATA_CONCEPT.get("conceptPrefLabel"));
 
-  private static final Document LIST1 =
+  private static final Document ENTRY1 =
       new Document()
           .append("uuid", TEST_DATA_CONCEPT.get("uuid"))
           .append("title", TEST_DATA_CONCEPT.get("title"))
           .append("concept", TEST_CONCEPT1)
-          .append("listType", TEST_DATA_CONCEPT.get("listType"));
+          .append("listType", TEST_DATA_CONCEPT.get("listType"))
+          .append("webUrl", TEST_DATA_All.get("webUrl"))
+          .append("standfirst", "random");
 
   private static final Document TEST_CONCEPT2 =
       new Document()
           .append("uuid", TEST_DATA_TITLE.get("conceptUUID").toString())
           .append("prefLabel", TEST_DATA_TITLE.get("conceptPrefLabel"));
 
-  private static final Document LIST2 =
+  private static final Document ENTRY2 =
       new Document()
           .append("uuid", TEST_DATA_TITLE.get("uuid"))
           .append("title", TEST_DATA_TITLE.get("title"))
@@ -101,18 +107,18 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
           .append("uuid", TEST_DATA_LIST_TYPE.get("conceptUUID").toString())
           .append("prefLabel", TEST_DATA_LIST_TYPE.get("conceptPrefLabel"));
 
-  private static final Document LIST3 =
+  private static final Document ENTRY3 =
       new Document()
           .append("uuid", TEST_DATA_LIST_TYPE.get("uuid"))
           .append("title", TEST_DATA_LIST_TYPE.get("title"))
           .append("concept", TEST_CONCEPT3)
           .append("listType", TEST_DATA_LIST_TYPE.get("listType"));
 
-  private static final List<Document> TEST_DATA = Arrays.asList(LIST0, LIST1, LIST2, LIST3);
+  private static final List<Document> TEST_DATA = Arrays.asList(ENTRY0, ENTRY1, ENTRY2, ENTRY3);
 
   @RegisterExtension
   static EmbeddedMongoExtension mongo =
-      EmbeddedMongoExtension.builder().dbName(DB_NAME).dbCollection(DB_COLLECTION).build();
+      EmbeddedMongoExtension.builder().dbName(DB_NAME).dbCollection(COLLECTION_NAME).build();
 
   private MongoDocumentStoreService mongoDocumentStoreService;
   private MongoCollection<Document> collection;
@@ -123,48 +129,42 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
     mongoDocumentStoreService =
         new MongoDocumentStoreService(db, Executors.newSingleThreadExecutor());
     mongoDocumentStoreService.applyIndexes();
-    collection = db.getCollection(DB_COLLECTION);
+    collection = db.getCollection(COLLECTION_NAME);
   }
 
   @Test
-  public void searchWithNoParamsAndNoListsShouldReturnEmptyArray() {
+  public void searchWithNoParamsAndNoEntriesShouldReturnEmptyArray() {
     UUID[] tConceptUUID = new UUID[] {};
-    String tListType = null;
-    String tSearchTerm = null;
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUID, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUID, null, null, null, null);
 
-    assertThat(filteredLists.size(), is(0));
+    assertThat(filteredEntries.size(), is(0));
   }
 
   @Test
-  public void searchWithNoParamsShouldReturnAllLists() {
+  public void searchWithNoParamsShouldReturnAllEntries() {
     collection.insertMany(TEST_DATA);
-    UUID[] tConceptUUIDs = null;
-    String tListType = null;
-    String tSearchTerm = null;
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(COLLECTION_NAME, null, null, null, null, null);
 
-    assertThat(filteredLists.size(), is(TEST_DATA.size()));
+    assertThat(filteredEntries.size(), is(TEST_DATA.size()));
   }
 
   @Test
-  public void searchByConceptUUIDReturnsAllListsWithThisConcept() {
+  public void searchByConceptUUIDReturnsAllEntriesWithThisConcept() {
     collection.insertMany(TEST_DATA);
     UUID[] tConceptUUIDs =
         new UUID[] {UUID.fromString(TEST_DATA_CONCEPT.get("conceptUUID").toString())};
-    String tListType = null;
-    String tSearchTerm = null;
 
     Concept concept =
         new Concept(
             (UUID) TEST_DATA_CONCEPT.get("conceptUUID"),
             (String) TEST_DATA_CONCEPT.get("conceptPrefLabel"));
 
-    ContentList expectedList =
+    ContentList expectedEntries =
         new ContentList.Builder()
             .withUuid((UUID) TEST_DATA_CONCEPT.get("uuid"))
             .withTitle((String) TEST_DATA_CONCEPT.get("title"))
@@ -172,12 +172,13 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
             .withListType((String) TEST_DATA_CONCEPT.get("listType"))
             .build();
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, null, null, null, null);
     ContentList retrievedList =
-        new ObjectMapper().convertValue(filteredLists.get(0), ContentList.class);
+        new ObjectMapper().convertValue(filteredEntries.get(0), ContentList.class);
 
-    assertThat(retrievedList, is(expectedList));
+    assertThat(retrievedList, is(expectedEntries));
   }
 
   @Test
@@ -188,15 +189,14 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
           UUID.fromString(TEST_DATA_CONCEPT.get("conceptUUID").toString()),
           UUID.fromString(TEST_DATA_TITLE.get("conceptUUID").toString())
         };
-    String tListType = null;
-    String tSearchTerm = null;
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, null, null, null, null);
     List<UUID> conceptUUIDsList = Arrays.asList(tConceptUUIDs);
 
-    assertThat(filteredLists.size(), is(conceptUUIDsList.size()));
-    filteredLists.forEach(
+    assertThat(filteredEntries.size(), is(conceptUUIDsList.size()));
+    filteredEntries.forEach(
         list -> {
           ContentList retrievedList = new ObjectMapper().convertValue(list, ContentList.class);
           Assert.assertTrue(conceptUUIDsList.contains(retrievedList.getConcept().getUuid()));
@@ -209,22 +209,19 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
     collection.insertMany(TEST_DATA);
 
     UUID[] tConceptUUIDs = new UUID[] {UUID.randomUUID()};
-    String tListType = null;
-    String tSearchTerm = null;
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, null, null, null, null);
 
-    assertThat(filteredLists.size(), is(0));
+    assertThat(filteredEntries.size(), is(0));
   }
 
   @Test
-  public void searchByListTypeReturnsAllListsWithThisListType() {
+  public void searchByListTypeReturnsAllEntriesWithThisListType() {
     collection.insertMany(TEST_DATA);
 
-    UUID[] tConceptUUIDs = null;
     String tListType = TEST_DATA_LIST_TYPE.get("listType").toString();
-    String tSearchTerm = null;
 
     Concept concept =
         new Concept(
@@ -239,10 +236,11 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
             .withListType((String) TEST_DATA_LIST_TYPE.get("listType"))
             .build();
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, null, tListType, null, null, null);
     ContentList retrievedList =
-        new ObjectMapper().convertValue(filteredLists.get(0), ContentList.class);
+        new ObjectMapper().convertValue(filteredEntries.get(0), ContentList.class);
 
     assertThat(retrievedList, is(expectedList));
   }
@@ -253,16 +251,16 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
 
     UUID[] tConceptUUIDs = new UUID[] {};
     String tListType = "NonExistent";
-    String tSearchTerm = null;
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, tListType, null, null, null);
 
-    assertThat(filteredLists.size(), is(0));
+    assertThat(filteredEntries.size(), is(0));
   }
 
   @Test
-  public void searchBySearchTermReturnsAllListsWithThisTermInTitle() {
+  public void searchBySearchTermReturnsAllEntriesWithThisTermInTitle() {
     collection.insertMany(TEST_DATA);
 
     UUID[] tConceptUUIDs = null;
@@ -282,10 +280,11 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
             .withListType((String) TEST_DATA_TITLE.get("listType"))
             .build();
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, tListType, tSearchTerm, null, null);
     ContentList retrievedList =
-        new ObjectMapper().convertValue(filteredLists.get(0), ContentList.class);
+        new ObjectMapper().convertValue(filteredEntries.get(0), ContentList.class);
 
     assertThat(retrievedList, is(expectedList));
   }
@@ -298,10 +297,11 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
     String tListType = null;
     String tSearchTerm = "NonExistent";
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, tListType, tSearchTerm, null, null);
 
-    assertThat(filteredLists.size(), is(0));
+    assertThat(filteredEntries.size(), is(0));
   }
 
   @Test
@@ -326,11 +326,66 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
             .build();
 
     List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, tListType, tSearchTerm, null, null);
     ContentList retrievedList =
         new ObjectMapper().convertValue(filteredLists.get(0), ContentList.class);
 
     assertThat(retrievedList, is(expectedList));
+  }
+
+  @Test
+  public void searchByWebUrlReturnsAllListsWithThisWebUrl() {
+    collection.insertMany(TEST_DATA);
+
+    String webUrl = TEST_DATA_All.get("webUrl").toString();
+
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(COLLECTION_NAME, null, null, null, webUrl, null);
+    filteredEntries.forEach(
+        entry -> {
+          assertThat(entry.get("webUrl"), is(webUrl));
+        });
+
+    assertThat(filteredEntries.size(), is(2));
+  }
+
+  @Test
+  public void searchByStandfirstReturnsAllListsWithThisStandfirst() {
+    collection.insertMany(TEST_DATA);
+
+    String standfirst = TEST_DATA_All.get("standfirst").toString();
+
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, null, null, null, null, standfirst);
+    filteredEntries.forEach(
+        entry -> {
+          assertThat(entry.get("standfirst"), is(standfirst));
+        });
+
+    assertThat(filteredEntries.size(), is(1));
+  }
+
+  @Test
+  public void searchByTitleWebUrlStandfirstReturnsAllListsWithThisTitleWebUrlAndStandfirst() {
+    collection.insertMany(TEST_DATA);
+
+    String webUrl = TEST_DATA_All.get("webUrl").toString();
+    String standfirst = TEST_DATA_All.get("standfirst").toString();
+    String searchTerm = TEST_DATA_All.get("title").toString();
+
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, null, null, searchTerm, webUrl, standfirst);
+    filteredEntries.forEach(
+        entry -> {
+          assertThat(entry.get("title"), is(searchTerm));
+          assertThat(entry.get("webUrl"), is(webUrl));
+          assertThat(entry.get("standfirst"), is(standfirst));
+        });
+
+    assertThat(filteredEntries.size(), is(1));
   }
 
   @Test
@@ -340,10 +395,13 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
     UUID[] tConceptUUIDs = new UUID[] {UUID.randomUUID()};
     String tListType = "NonExistent";
     String tSearchTerm = "NonExistent";
+    String webUrl = "NonExistent";
+    String standfirst = "NonExistent";
 
-    List<Document> filteredLists =
-        mongoDocumentStoreService.filterLists(DB_COLLECTION, tConceptUUIDs, tListType, tSearchTerm);
+    List<Document> filteredEntries =
+        mongoDocumentStoreService.filterCollection(
+            COLLECTION_NAME, tConceptUUIDs, tListType, tSearchTerm, webUrl, standfirst);
 
-    assertThat(filteredLists.size(), is(0));
+    assertThat(filteredEntries.size(), is(0));
   }
 }
