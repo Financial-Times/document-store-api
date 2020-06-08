@@ -1,0 +1,32 @@
+{
+    "alternativeImages": {
+        "promotionalImage": {
+            "id": "8f7b3e6a-327b-11e3-91d2-00144feab7de"
+        }
+    },
+    "alternativeStandfirsts": {
+        "promotionalStandfirst": "Long standfirst here"
+    },
+    "alternativeTitles": {
+        "promotionalTitle": "Test: Generic CPH"
+    },
+    "canBeDistributed": "verify",
+    "canBeSyndicated": "verify",
+    "canonicalWebUrl": "https://www.ft.com/content/f2ba7ff0-1626-40ec-b281-2e3775e854ee",
+    "description": "Description goes here",
+    "identifiers": [
+        {
+            "authority": "http://api.ft.com/system/cct",
+            "identifierValue": "f2ba7ff0-1626-40ec-b281-2e3775e854ee"
+        }
+    ],
+    "lastModified": "2020-06-01T11:47:39.080Z",
+    "mainImage": "27255a90-e4d8-4dd1-bfb4-e72d67683f80",
+    "publishReference": "test_789",
+    "publishedDate": "2020-05-05T01:37:00.000Z",
+    "standfirst": "standfirst here",
+    "title": "Test: Generic Content Placeholder",
+    "type": "Content",
+    "uuid": "16e4a2dd-b4be-440d-b4c1-04f0dc8da366",
+    "webUrl": "http://www.ft.com/ig/sites/2014/virgingroup-timeline/"
+}
