@@ -59,12 +59,17 @@ public class DocumentResource {
       @PathParam("collection") String collection,
       @QueryParam("conceptUUID") String conceptUUID,
       @QueryParam("listType") String listType,
-      @QueryParam("searchTerm") String searchTerm) {
+      @QueryParam("searchTerm") String searchTerm,
+      @QueryParam("webUrl") String webUrl,
+      @QueryParam("standfirst") String standfirst) {
     Context context = new Context();
     context.setCollection(collection);
     context.setConceptUUID(conceptUUID);
     context.setListType(listType);
     context.setSearchTerm(searchTerm);
+    context.setWebUrl(webUrl);
+    context.setStandfirst(standfirst);
+
     HandlerChain handlerChain = getHandlerChain(collection, Operation.SEARCH);
     return handlerChain.execute(context);
   }
