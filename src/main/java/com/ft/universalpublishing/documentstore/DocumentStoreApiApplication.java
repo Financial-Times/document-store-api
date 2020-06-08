@@ -40,6 +40,7 @@ import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilte
 import com.ft.universalpublishing.documentstore.target.ApplyConcordedConceptToListTarget;
 import com.ft.universalpublishing.documentstore.target.ApplyConcordedConceptsToListsTarget;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
+import com.ft.universalpublishing.documentstore.target.FilterContentTarget;
 import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
@@ -185,6 +186,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         new ApplyConcordedConceptToListTarget(publicConceptsApiService, configuration.getApiHost());
     Target applyConcordedConceptsToLists =
         new ApplyConcordedConceptsToListsTarget(publicConceptsApiService);
+    Target filterContentTarget = new FilterContentTarget(documentStoreService);
 
     final Map<Pair<String, Operation>, HandlerChain> collections = new HashMap<>();
     collections.put(
@@ -228,6 +230,9 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
     collections.put(
         new Pair<>("complementarycontent", Operation.REMOVE),
         new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+    collections.put(
+        new Pair<>("complementarycontent", Operation.SEARCH),
+        new HandlerChain().setTarget(filterContentTarget));
 
     collections.put(
         new Pair<>("internalcomponents", Operation.GET_FILTERED),
