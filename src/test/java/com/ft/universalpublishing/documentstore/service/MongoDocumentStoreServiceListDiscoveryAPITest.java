@@ -373,14 +373,15 @@ public class MongoDocumentStoreServiceListDiscoveryAPITest {
 
     String webUrl = TEST_DATA_All.get("webUrl").toString();
     String standfirst = TEST_DATA_All.get("standfirst").toString();
-    String searchTerm = TEST_DATA_All.get("title").toString();
+    String title = TEST_DATA_All.get("title").toString();
+    String searchTerm = title.substring(1, title.length() - 2);
 
     List<Document> filteredEntries =
         mongoDocumentStoreService.filterCollection(
             COLLECTION_NAME, null, null, searchTerm, webUrl, standfirst);
     filteredEntries.forEach(
         entry -> {
-          assertThat(entry.get("title"), is(searchTerm));
+          assertThat(entry.get("title"), is(title));
           assertThat(entry.get("webUrl"), is(webUrl));
           assertThat(entry.get("standfirst"), is(standfirst));
         });
