@@ -105,7 +105,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
                 "/content-query",
                 "/content/*",
                 "/internalcomponents/*",
-                "/complementarycontent/*"));
+                "/complementarycontent/*",
+                "/notifications-log/*"));
     environment
         .servlets()
         .addFilter("transactionIdFilter", new TransactionIdFilter())
@@ -307,6 +308,28 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         new HandlerChain().addHandlers(uuidValidationHandler).setTarget(writeDocument));
     collections.put(
         new Pair<>("generic-lists", Operation.REMOVE),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
+
+    collections.put(
+        new Pair<>("notifications-log", Operation.GET_FILTERED),
+        new HandlerChain()
+            .addHandlers(extractUuidsHandlers, multipleUuidValidationHandler)
+            .setTarget(findMultipleResourcesByUuidsTarget));
+    collections.put(
+        new Pair<>("notifications-log", Operation.GET_MULTIPLE_FILTERED),
+        new HandlerChain()
+            .addHandlers(multipleUuidValidationHandler)
+            .setTarget(findMultipleResourcesByUuidsTarget));
+    collections.put(
+        new Pair<>("notifications-log", Operation.GET_BY_ID),
+        new HandlerChain().addHandlers(uuidValidationHandler).setTarget(findResourceByUuid));
+    collections.put(
+        new Pair<>("notifications-log", Operation.ADD),
+        new HandlerChain()
+            .addHandlers(uuidValidationHandler, preSaveFieldRemovalHandler)
+            .setTarget(writeDocument));
+    collections.put(
+        new Pair<>("notifications-log", Operation.REMOVE),
         new HandlerChain().addHandlers(uuidValidationHandler).setTarget(deleteDocument));
 
     environment.jersey().register(new DocumentResource(collections));
