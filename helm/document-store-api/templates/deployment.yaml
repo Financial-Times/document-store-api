@@ -39,7 +39,7 @@ spec:
                   values:
                   - content-public-read
                   - upp-aggregate-healthcheck
-          topologyKey: "kubernetes.io/hostname"
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: {{ .Values.service.name }}
         image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
