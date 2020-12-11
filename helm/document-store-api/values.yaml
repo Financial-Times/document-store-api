@@ -10,7 +10,7 @@ image:
   pullPolicy: IfNotPresent
 resources:
   requests:
-    memory: 256Mi
+    memory: 430Mi
     cpu: 60m
   limits:
     memory: 768Mi
