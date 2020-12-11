@@ -11,6 +11,7 @@ image:
 resources:
   requests:
     memory: 256Mi
+    cpu: 60m
   limits:
     memory: 768Mi
 publicConcordancesApiHost: public-concordances-api:8080
