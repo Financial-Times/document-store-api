@@ -48,6 +48,7 @@ import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import io.dropwizard.Application;
@@ -378,6 +379,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
       return new MongoClient(mongoServer, builder.build());
     } else {
       // cluster configuration
+      builder.readPreference(ReadPreference.secondaryPreferred());
       return new MongoClient(mongoServers, builder.build());
     }
   }
