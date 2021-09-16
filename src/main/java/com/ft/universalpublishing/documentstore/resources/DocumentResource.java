@@ -50,25 +50,6 @@ public class DocumentResource {
     return handlerChain.execute(context);
   }
 
-  @ApiOperation(value = "Search and filter documents from the specified list collection")
-  @GET
-  @Timed
-  @Path("search/{collection}")
-  @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-  public final Object searchCollection(
-      @PathParam("collection") String collection,
-      @QueryParam("conceptUUID") String conceptUUID,
-      @QueryParam("listType") String listType,
-      @QueryParam("searchTerm") String searchTerm) {
-    Context context = new Context();
-    context.setCollection(collection);
-    context.setConceptUUID(conceptUUID);
-    context.setListType(listType);
-    context.setSearchTerm(searchTerm);
-    HandlerChain handlerChain = getHandlerChain(collection, Operation.SEARCH);
-    return handlerChain.execute(context);
-  }
-
   @GET
   @Timed
   @Path("/{collection}")

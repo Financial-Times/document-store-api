@@ -14,5 +14,3 @@ resources:
     cpu: 60m
   limits:
     memory: 768Mi
-publicConcordancesApiHost: public-concordances-api:8080
-publicConceptsApiHost: public-concepts-api:8080

@@ -1,6 +1,6 @@
 # Scripts for data migration from UCS to COCO
 
-This readme file describes how to migrate lists and content between from UCS to COCO.
+This readme file describes how to migrate content from UCS to COCO.
 The migration scripts assume the following:
 
 * articles can be published, updated, deleted and republished with the same UUID;
@@ -24,7 +24,7 @@ The procedure to migrate data is the following:
     ```
     fleetctl stop deployer.service
     ```
-3.  Stop publish-availability-monitor serice in COCO:
+3.  Stop publish-availability-monitor service in COCO:
 
     ```
     fleetctl stop publish-availability-monitor@1.service
@@ -44,8 +44,6 @@ The procedure to migrate data is the following:
     ```
     fleetctl ssh mongodb@<number-of-primary-instance>.service
     docker exec -ti mongodb-<number-of-primary-instance> mongo upp-store
-    db.lists_archive.drop()
-    db.lists_old.drop()
     db.content_archive.drop()
     db.content_old.drop()
     ```

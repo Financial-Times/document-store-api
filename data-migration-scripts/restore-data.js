@@ -1,9 +1,6 @@
 var SOURCE_CONTENT_COLLECTION = "content_archive";
 var CONTENT_COLLECTION= "content";
 
-var SOURCE_LISTS_COLLECTION = "lists_archive";
-var LISTS_COLLECTION= "lists";
-
 var BACKUP_SUFFIX = "_old";
 
 function getDocumentByUuidFromCollection(uuid,collection){
@@ -45,25 +42,6 @@ function restoreContentFromBackup(){
    	print("Updated content: " + progressStatus);
 }
 
-function getListsFromBackup(){
-	return db.getCollection(LISTS_COLLECTION + BACKUP_SUFFIX).find({},{ _id : 0});
-}
-
-function restoreListsFromBackup(){
-    print("Restoring lists modified in backup");
-   	var lists = getListsFromBackup();
-   	var progressStatus = 0;
-   	lists.forEach(function(list){
-   		dropDocumentWithUuidInCollection(list.uuid,LISTS_COLLECTION);
-   		restoreFromBackup(list.uuid,LISTS_COLLECTION + BACKUP_SUFFIX, LISTS_COLLECTION);
-   		progressStatus++;
-   	    if(progressStatus % 100 == 0) {
-   	        print("Updated lists: " + progressStatus);
-   		}
-   	});
-   	print("Updated lists: " + progressStatus);
-}
-
 function mergeDocuments(sourceCollection, targetCollection){
 	print("Merging documents from '" + sourceCollection + "' to '" + targetCollection + "'");
 	var progressStatus = 0;
@@ -84,22 +62,6 @@ function move(sourceCollection,targetCollection){
 }
 
 function restoreData(){
-
-	print("Existing nr of lists entries: ", db.getCollection(LISTS_COLLECTION).count());
-	print("Archived nr of lists entries: ", db.getCollection(SOURCE_LISTS_COLLECTION).count());
-    // OPERATIONS ON LISTS
-    // Make a backup of the "lists" collection by renaming it as "lists_old"
-	move(LISTS_COLLECTION, LISTS_COLLECTION + BACKUP_SUFFIX);
-
-	// Documents from the archive collection are moved to the "lists" collection
-	mergeDocuments(SOURCE_LISTS_COLLECTION, LISTS_COLLECTION);
-	print("Total nr of lists entries: ", db.getCollection(LISTS_COLLECTION).count());
-
-	if (!PREFER_ARCHIVE) {
-		// The following function restores recent lists copied to "lists_old".
-		restoreListsFromBackup();
-	}
-
 	print("Existing nr of content: ", db.getCollection(CONTENT_COLLECTION).count());
 	print("Archived nr of content: ", db.getCollection(SOURCE_CONTENT_COLLECTION).count());
     // OPERATIONS ON CONTENT

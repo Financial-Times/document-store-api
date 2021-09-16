@@ -6,7 +6,6 @@ import com.ft.universalpublishing.documentstore.exception.ExternalSystemUnavaila
 import com.ft.universalpublishing.documentstore.exception.IDStreamingException;
 import com.ft.universalpublishing.documentstore.exception.QueryResultNotUniqueException;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
-import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
 import com.mongodb.MongoSocketException;
 import com.mongodb.MongoTimeoutException;
@@ -28,11 +27,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -41,12 +38,9 @@ import org.slf4j.LoggerFactory;
 
 public class MongoDocumentStoreService {
 
-  private static final String LISTS_COLLECTION = "lists";
   private static final Logger LOG = LoggerFactory.getLogger(MongoDocumentStoreService.class);
   private static final String IDENT_AUTHORITY = "identifiers.authority";
   private static final String IDENT_VALUE = "identifiers.identifierValue";
-  private static final String CONCEPT_UUID = "concept.uuid";
-  private static final String LIST_TYPE = "listType";
 
   private final MongoDatabase db;
   private ExecutorService exec;
@@ -82,63 +76,6 @@ public class MongoDocumentStoreService {
 
   public boolean isIndexed() {
     return indexed;
-  }
-
-  public List<Document> filterLists(
-      String resourceType, UUID[] conceptUUIDs, String listType, String searchTerm) {
-
-    List<Bson> queryFilters = new ArrayList<>();
-    UUID[] resolvedConceptUUIDs = Optional.ofNullable(conceptUUIDs).orElse(new UUID[] {});
-    String[] conceptUUIDStrings =
-        Arrays.asList(resolvedConceptUUIDs).stream()
-            .map(uuid -> uuid.toString())
-            .toArray(String[]::new);
-
-    if (conceptUUIDStrings.length > 0) {
-      Bson filterByConceptUUID = Filters.in("concept.uuid", conceptUUIDStrings);
-      queryFilters.add(filterByConceptUUID);
-    }
-    if (listType != null) {
-      Bson filterByListType = Filters.eq("listType", listType);
-      queryFilters.add(filterByListType);
-    }
-    if (searchTerm != null) {
-      Pattern regexSearchTerm = Pattern.compile(searchTerm, Pattern.CASE_INSENSITIVE);
-      Bson filterByTitle = Filters.eq("title", regexSearchTerm);
-      queryFilters.add(filterByTitle);
-    }
-
-    Bson filter = Filters.and(queryFilters);
-
-    try {
-      MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-      Iterable<Document> results;
-      if (conceptUUIDStrings.length == 0 && listType == null && searchTerm == null) {
-        results = dbCollection.find();
-      } else {
-        results = dbCollection.find(filter);
-      }
-
-      ArrayList<Document> documents = new ArrayList<>();
-      results.forEach(
-          doc -> {
-            if (doc != null) {
-              doc.remove("_id");
-              documents.add(doc);
-            }
-          });
-      return documents;
-
-    } catch (MongoSocketException | MongoTimeoutException e) {
-      LOG.error(
-          "MongoDB connection timed out or caused a socket exception during delete, please check MongoDB! Collection {}",
-          resourceType,
-          e);
-      throw new ExternalSystemUnavailableException("cannot communicate with mongo", e);
-    } catch (MongoException e) {
-      LOG.error("Failed to find document(s) in Mongo! Collection {}", resourceType, e);
-      throw new ExternalSystemInternalServerException(e);
-    }
   }
 
   public Map<String, Object> findByUuid(String resourceType, UUID uuid) {
@@ -244,35 +181,6 @@ public class MongoDocumentStoreService {
     }
   }
 
-  public Map<String, Object> findByConceptAndType(
-      String resourceType, UUID[] conceptUUIDs, String listType) {
-    String[] conceptUUIDStrings =
-        Arrays.asList(conceptUUIDs).stream().map(uuid -> uuid.toString()).toArray(String[]::new);
-    Bson filter =
-        Filters.and(
-            Filters.in("concept.uuid", conceptUUIDStrings), Filters.eq("listType", listType));
-
-    try {
-      MongoCollection<Document> dbCollection = db.getCollection(resourceType);
-      Document found = null;
-
-      // sorting the results by lastModified so we always return the most recently
-      // modified list
-      found =
-          dbCollection.find(filter).sort(new BasicDBObject("publishedDate", -1)).limit(1).first();
-
-      return found;
-    } catch (MongoException e) {
-      LOG.error(
-          "Failed to find document in Mongo! Collection {}, uuid {}, listType {}",
-          resourceType,
-          conceptUUIDs,
-          listType,
-          e);
-      throw new ExternalSystemInternalServerException(e);
-    }
-  }
-
   public void delete(String resourceType, UUID uuid) {
     try {
       MongoCollection<Document> dbCollection = db.getCollection(resourceType);
@@ -328,17 +236,7 @@ public class MongoDocumentStoreService {
   public void applyIndexes() {
     applyIndexForCollection("content");
     applyIndexForCollection("internalcomponents");
-    applyIndexForListCollection();
     indexed = true;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private void applyIndexForListCollection() {
-    MongoCollection lists = db.getCollection(LISTS_COLLECTION);
-    LOG.info("Creating UUID index on collection [{}]", LISTS_COLLECTION);
-    createUuidIndex(lists);
-    LOG.info("Created UUID index on collection [{}]", LISTS_COLLECTION);
-    createConceptAndListTypeIndex(lists);
   }
 
   @SuppressWarnings("rawtypes")
@@ -360,13 +258,6 @@ public class MongoDocumentStoreService {
     queryByIdentifierIndex.put(IDENT_AUTHORITY, 1);
     queryByIdentifierIndex.put(IDENT_VALUE, 1);
     collection.createIndex(queryByIdentifierIndex);
-  }
-
-  private void createConceptAndListTypeIndex(MongoCollection<?> collection) {
-    Document queryByIdentifierIndex = new Document();
-    queryByIdentifierIndex.put(CONCEPT_UUID, 1);
-    queryByIdentifierIndex.put(LIST_TYPE, 1);
-    collection.createIndex(queryByIdentifierIndex, new IndexOptions().background(true));
   }
 
   public void findUUIDs(String resourceType, boolean includeSource, OutputStream outputStream) {

@@ -127,37 +127,6 @@ paths:
           description: "successful operation"
           schema:
             type: "object"
-  /search/{collection}:
-    get:
-      tags:
-        - "collections"
-      summary: "Search and filter documents from the specified list collection"
-      description: ""
-      operationId: "searchCollection"
-      produces:
-        - "application/json;charset=utf-8"
-      parameters:
-        - name: "collection"
-          in: "path"
-          required: true
-          type: "string"
-        - name: "conceptUUID"
-          in: "query"
-          required: false
-          type: "string"
-        - name: "listType"
-          in: "query"
-          required: false
-          type: "string"
-        - name: "searchTerm"
-          in: "query"
-          required: false
-          type: "string"
-      responses:
-        "200":
-          description: "successful operation"
-          schema:
-            type: "object"
   /{collection}:
     get:
       tags:

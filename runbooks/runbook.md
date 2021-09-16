@@ -28,7 +28,7 @@ AWS
 
 ## Architecture
 
-Document Store API allows writes to and reads from MongoDB. Endpoints: `/content` and `/lists`. If this service is unavailable no publishes nor reads from the APIs will be working as expected.
+Document Store API allows writes to and reads from MongoDB. Endpoints: `/content`, `/internalcomponents`, `/complementarycontent`. If this service is unavailable no publishes nor reads from the APIs will be working as expected.
 
 ## Contains Personal Data
 

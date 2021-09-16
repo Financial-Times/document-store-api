@@ -6,7 +6,9 @@ Document Store API is a Dropwizard application which allows **writes to** and **
 
 The `/content/{uuid}` endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
 
-Operations on lists DOES NOT share the same logic, their read/writes are separate from this mechanism. New endpoints were added for lists: `/lists`, they call `public-concepts-api` and `public-concordances-api` services in order to return lists with their most up-to-date concepts.
+The `/complementarycontent/{uuid}` endpoint is used for reading promotional fields of stored content.
+
+The `/internalcomponents/{uuid}` endpoint is used for reading internal fields of stored content.
 
 ## Running locally
 
@@ -32,17 +34,6 @@ MONGO_TEST_URL=localhost:27017 -Djava.net.preferIPv4Stack=true mvn clean package
 ```
 
 To run locally:
-
-1. port-forward **public-concepts-api** (by default the local config looks for the sevice at port 8081) from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
-    ```sh
-    kubectl port-forward <public-concepts-api-pod-name> 8081:8080
-    ```
-
-1. port-forward **public-concordances-api** (by default the local config looks for the sevice at port 8082) from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
-    ```sh
-    kubectl port-forward <public-concordances-api-pod-name> 8082:8080
-    ```
-
 1. **either** port-forward **mongodb** from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
     ```sh
     kubectl port-forward <mongodb-pod-name> 27017:27017
@@ -150,58 +141,6 @@ The possible HTTP responses are:
 * `404`: No match was found.
 * `500`: Multiple matches were found (this is not expected).
 
-## List PUT
-
-Make a PUT request to `http://localhost:14180/lists/{uuid}` with `Content-Type` set to `application/json`.
-
-Body should look like:
-
-```json
-{
-    "uuid": "3c99c2ba-a6ae-11e2-95b1-00144feabdc0",
-    "title": "Test List",
-    "concept": {
-        "uuid": "78d878ac-6226-47e4-84b1-39a127e3cc11",
-        "prefLabel": "Markets"
-    },
-    "listType": "TopStories",
-    "items" : [
-        {
-            "uuid": "0237b884-d124-11e2-be7b-00144feab7de"
-        },
-        {
-            "uuid": "68340f9f-67c3-33cd-97b1-f07bea7ce714"
-        },
-        {
-            "webUrl": "http://video.ft.com/3887333300001/Thames-tour-shows-changing-London-skyline/life-and-arts"
-        }
-    ]
-}
-```
-
-Any fields that aren't supported will be ignored. NB: this response body is the same as the response for a GET to a list transformer.
-
-`concept` and `listType` are optional. If `concept` is supplied, both `uuid` and `prefLabel` fields must be supplied.
-
-As business requirement, multiple lists with same `concept` and `listType` are not allowed in the data store.
-A Splunk alert will be triggered when multiple lists are detected.
-
-## List GET
-
-Make a GET request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
-
-## List GET by Concept and Type
-
-Make a GET request to http://localhost:14180/lists?curatedTopStoriesFor={concept-uuid} with Content-Type set to application/json.
-
-The query parameter varies according to the type of the list, for example, the following is also supported: curatedOpinionAndAnalysisFor
-
-You should get a single result back. If there was more than one match, one will be returned and an error will be logged.
-
-## List DELETE
-
-Make a DELETE request to http://localhost:14180/lists/{uuid} with Content-Type set to application/json.
-
 ## Adding support for a new resource type
 
 If you need to add a new resource, add in DocumentStoreApiApplication a new chain handler for the wanted operations.
@@ -212,8 +151,6 @@ Handler and Targets can be reused in multiple chains.
 There are healthchecks for
 - connection to MongoDB
 - index state of MongoDB collections
-- `/__gtg` of `public-concepts-api` service
-- `/__gtg` of `public-concordances-api` service
 
 Only the connection healthcheck influences GTG responses. Whenever a change is detected in the connection state, the application may move between states in the following state chart.
 ![state chart](https://www.lucidchart.com/publicSegments/view/773931fc-d21d-44c2-a84f-b89d8508d930/image.jpeg)
