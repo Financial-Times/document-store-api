@@ -24,7 +24,6 @@ function backupFromUcs {
     echo "db.fsyncLock()" | mongo $UCS_MONGODB_HOST/test
 
     # Dump of the collections
-    mongodump -h $UCS_MONGODB_HOST -d upp-store -c lists
     mongodump -h $UCS_MONGODB_HOST -d upp-store -c content
 
     # Unlock the db

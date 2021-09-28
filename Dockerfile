@@ -31,7 +31,6 @@ RUN apk --update add git maven curl \
   # Move resources to root directory in docker container
   && mv config.yaml /config.yaml \
   && mv data-migration-scripts* /data-migration-scripts \
-  && mv scripts* /scripts \
   # Clean up unnecessary dependencies and binaries
   && apk del go git maven \
   && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
@@ -42,8 +41,6 @@ CMD exec java $JAVA_OPTS \
   -Ddw.server.applicationConnectors[0].port=8080 \
   -Ddw.server.adminConnectors[0].port=8081 \
   -Ddw.mongo.addresses=$MONGO_ADDRESSES \
-  -Ddw.publicConcordancesApi.host=$PUBLIC_CONCORDANCES_API_HOST \
-  -Ddw.publicConceptsApi.host=$PUBLIC_CONCEPTS_API_HOST \
   -Ddw.cacheTtl=$CACHE_TTL \
   -Ddw.apiHost=$API_HOST \
   -Ddw.logging.appenders[0].logFormat="%m%n" \

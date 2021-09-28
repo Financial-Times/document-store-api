@@ -2,25 +2,7 @@ mongo:
   hosts: ["localhost"]
   port: 98765
   db: upp-store
-  serverSelectorTimeout: 100ms
-
-publicConceptsApi:
-  host: "localhost:98766"
-  healthcheckParameters:
-    name: "Public Concepts API health"
-    severity: 1
-    businessImpact: "Document Store API would not be able to forward any incoming request"
-    technicalSummary: "Tests that the Public Concepts API is running and responding to /__health requests"
-    panicGuideUrl: "https://runbooks.in.ft.com/public-concepts-api"
-
-publicConcordancesApi:
-  host: "localhost:98767"
-  healthcheckParameters:
-    name: "Public Concordances API health"
-    severity: 1
-    businessImpact: "Document Store API would not be able to forward any incoming request"
-    technicalSummary: "Tests that the Public Concordances API is running and responding to /__health requests"
-    panicGuideUrl: "https://runbooks.in.ft.com/public-concordances-api"
+  serverSelectorTimeout: 100m
 
 apiHost: localhost
 cacheTtl: 30

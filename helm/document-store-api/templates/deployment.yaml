@@ -49,10 +49,6 @@ spec:
             configMapKeyRef:
               name: global-config
               key: mongo.addresses
-        - name: PUBLIC_CONCORDANCES_API_HOST
-          value: {{ .Values.publicConcordancesApiHost }}
-        - name: PUBLIC_CONCEPTS_API_HOST
-          value: {{ .Values.publicConceptsApiHost }}
         - name: JAVA_OPTS
           value: "-Xms256m -Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -server"
         - name: CACHE_TTL

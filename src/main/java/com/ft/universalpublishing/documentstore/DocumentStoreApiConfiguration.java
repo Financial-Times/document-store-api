@@ -19,16 +19,12 @@ public class DocumentStoreApiConfiguration extends Configuration
 
   private final String apiHost;
   private final MongoConfig mongo;
-  private final PublicConceptsApiConfig publicConceptsApiConfig;
-  private final PublicConcordancesApiConfig publicConcordancesApiConfig;
   private final String cacheTtl;
   private HealthcheckParameters connectionHealthcheckParameters;
   private HealthcheckParameters indexHealthcheckParameters;
 
   public DocumentStoreApiConfiguration(
       @JsonProperty("mongo") MongoConfig mongo,
-      @JsonProperty("publicConceptsApi") PublicConceptsApiConfig publicConceptsApi,
-      @JsonProperty("publicConcordancesApi") PublicConcordancesApiConfig publicConcordancesApi,
       @JsonProperty("apiHost") String apiHost,
       @JsonProperty("cacheTtl") String cacheTtl,
       @JsonProperty("connectionHealthcheckParameters")
@@ -37,20 +33,10 @@ public class DocumentStoreApiConfiguration extends Configuration
           HealthcheckParameters indexHealthcheckParameters) {
     super();
     this.mongo = mongo;
-    this.publicConceptsApiConfig = publicConceptsApi;
-    this.publicConcordancesApiConfig = publicConcordancesApi;
     this.apiHost = apiHost;
     this.cacheTtl = cacheTtl;
     this.connectionHealthcheckParameters = connectionHealthcheckParameters;
     this.indexHealthcheckParameters = indexHealthcheckParameters;
-  }
-
-  public PublicConcordancesApiConfig getPublicConcordancesApiConfig() {
-    return publicConcordancesApiConfig;
-  }
-
-  public PublicConceptsApiConfig getPublicConceptsApiConfig() {
-    return publicConceptsApiConfig;
   }
 
   public MongoConfig getMongo() {

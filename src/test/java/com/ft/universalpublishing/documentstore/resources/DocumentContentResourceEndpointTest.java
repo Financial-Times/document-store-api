@@ -33,7 +33,6 @@ import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUu
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
-import com.ft.universalpublishing.documentstore.validators.ContentListValidator;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
 import com.ft.universalpublishing.documentstore.write.DocumentWritten;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -71,8 +70,6 @@ public class DocumentContentResourceEndpointTest {
 
   private static MongoDocumentStoreService documentStoreService =
       mock(MongoDocumentStoreService.class);
-
-  private static ContentListValidator contentListValidator = mock(ContentListValidator.class);
 
   private static UuidValidator uuidValidator = mock(UuidValidator.class);
 
@@ -139,7 +136,6 @@ public class DocumentContentResourceEndpointTest {
   @BeforeEach
   public void setup() {
     reset(documentStoreService);
-    reset(contentListValidator);
     reset(uuidValidator);
     when(documentStoreService.write(eq(RESOURCE_TYPE), anyMapOf(String.class, Object.class)))
         .thenReturn(DocumentWritten.created(document));
