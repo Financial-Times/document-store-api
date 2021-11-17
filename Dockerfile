@@ -35,6 +35,10 @@ RUN apk --update add git maven curl \
   && apk del go git maven \
   && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
 
+FROM openjdk:8u212-jdk-alpine3.9
+COPY --from=0 /document-store-api.jar /document-store-api.jar
+COPY --from=0 /config.yaml /config.yaml
+
 EXPOSE 8080 8081
 
 CMD exec java $JAVA_OPTS \
