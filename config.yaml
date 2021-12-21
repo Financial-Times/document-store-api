@@ -51,6 +51,7 @@ logging:
   loggers:
     io.dropwizard: WARN
     com.ft.api.util.transactionid.TransactionIdFilter: WARN
+    com.ft.platform.dropwizard.HealthCheckPageData: "OFF"
 
   appenders:
     - type: console
