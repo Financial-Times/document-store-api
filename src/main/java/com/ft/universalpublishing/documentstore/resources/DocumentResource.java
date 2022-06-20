@@ -58,6 +58,7 @@ public class DocumentResource {
       @javax.ws.rs.core.Context HttpHeaders httpHeaders,
       @javax.ws.rs.core.Context UriInfo uriInfo,
       @PathParam("collection") String collection) {
+    LOGGER.info().message("find UUIDs API call detected");
     Context context = new Context();
     context.setUriInfo(uriInfo);
     context.setHttpHeaders(httpHeaders);

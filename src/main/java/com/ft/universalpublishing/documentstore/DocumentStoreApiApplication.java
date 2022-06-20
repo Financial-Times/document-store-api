@@ -20,7 +20,6 @@ import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
 import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
@@ -97,14 +96,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         new MongoDocumentStoreService(
             database, environment.lifecycle().executorService("reindexer").build());
 
-    registerHealthChecks(
-        configuration,
-        environment,
-        documentStoreService);
-    registerResources(
-        configuration,
-        environment,
-        documentStoreService);
+    registerHealthChecks(configuration, environment, documentStoreService);
+    registerResources(configuration, environment, documentStoreService);
   }
 
   private void registerResources(

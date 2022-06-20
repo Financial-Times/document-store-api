@@ -1,6 +1,8 @@
 package com.ft.universalpublishing.documentstore.resources;
 
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
+import com.savoirtech.logging.slf4j.json.LoggerFactory;
+import com.savoirtech.logging.slf4j.json.logger.Logger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.*;
@@ -13,6 +15,8 @@ import javax.ws.rs.core.StreamingOutput;
 public class DocumentIDResource {
 
   private final MongoDocumentStoreService documentStoreService;
+
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentIDResource.class);
 
   public DocumentIDResource(MongoDocumentStoreService documentStoreService) {
     this.documentStoreService = documentStoreService;
@@ -27,6 +31,7 @@ public class DocumentIDResource {
   public final Response getIDsForCollectionAndAuthority(
       @PathParam("collection") String collection,
       @QueryParam("includeSource") boolean includeSource) {
+    LOG.info().message("Collection streaming API call detected");
     StreamingOutput streamingOutput =
         outputStream -> documentStoreService.findUUIDs(collection, includeSource, outputStream);
     return Response.ok().entity(streamingOutput).build();

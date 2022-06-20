@@ -7,6 +7,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 import com.google.common.base.Strings;
 import com.google.common.net.HostAndPort;
+import com.savoirtech.logging.slf4j.json.LoggerFactory;
+import com.savoirtech.logging.slf4j.json.logger.Logger;
 import io.swagger.annotations.Api;
 import java.net.URI;
 import java.util.Collections;
@@ -26,6 +28,7 @@ public class DocumentQueryResource {
 
   private final MongoDocumentStoreService documentStoreService;
   private final HostAndPort apiHost;
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentQueryResource.class);
 
   public DocumentQueryResource(MongoDocumentStoreService documentStoreService, String apiHost) {
     this.documentStoreService = documentStoreService;
@@ -37,6 +40,7 @@ public class DocumentQueryResource {
   public final Response findContentByIdentifier(
       @QueryParam("identifierAuthority") String authority,
       @QueryParam("identifierValue") String identifierValue) {
+    LOG.info().message("findContentByIdentifier API call detected");
     if (Strings.isNullOrEmpty(authority) || Strings.isNullOrEmpty(identifierValue)) {
       return Response.status(SC_BAD_REQUEST)
           .entity(
