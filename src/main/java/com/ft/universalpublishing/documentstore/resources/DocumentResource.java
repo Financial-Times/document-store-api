@@ -130,6 +130,8 @@ public class DocumentResource {
           .field("monitoring_event", "true")
           .field("service_name", appName)
           .field("content_type", contentMap.get("type"))
+          .field("uri_info", uriInfo.toString())
+          .field("content_map", contentMap.toString())
           .field("uuid", uuidString)
           .message("Successfully saved")
           .log();
