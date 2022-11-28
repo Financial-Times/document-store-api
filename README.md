@@ -1,4 +1,5 @@
-[![CircleCI](https://circleci.com/gh/Financial-Times/document-store-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/document-store-api) [![Coverage Status](https://coveralls.io/repos/github/Financial-Times/document-store-api/badge.svg)](https://coveralls.io/github/Financial-Times/document-store-api)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Financial-Times/document-store-api/tree/master.svg?style=svg&circle-token=50fd48d00c0ff0bc1ed767a61331f7b3d5f8fadf)](https://dl.circleci.com/status-badge/redirect/gh/Financial-Times/document-store-api/tree/master)
+[![Coverage Status](https://coveralls.io/repos/github/Financial-Times/document-store-api/badge.svg)](https://coveralls.io/github/Financial-Times/document-store-api)
 
 # Document Store API
 
