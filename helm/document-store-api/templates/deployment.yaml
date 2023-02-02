@@ -44,11 +44,21 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
-        - name: MONGO_ADDRESSES
+        - name: DOCDB_CLUSTER_ADDRESS
           valueFrom:
             configMapKeyRef:
               name: global-config
-              key: mongo.addresses
+              key: aws.documentdb.cluster.address
+        - name: DOCDB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: global-secrets
+              key: aws.doc-db.username
+        - name: DOCDB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: global-secrets
+              key: aws.doc-db.password
         - name: JAVA_OPTS
           value: "-Xms256m -Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -server"
         - name: CACHE_TTL

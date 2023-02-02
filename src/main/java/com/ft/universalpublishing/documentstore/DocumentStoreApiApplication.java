@@ -20,16 +20,15 @@ import com.ft.universalpublishing.documentstore.resources.DocumentIDResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentQueryResource;
 import com.ft.universalpublishing.documentstore.resources.DocumentResource;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
-import com.ft.universalpublishing.documentstore.service.filter.CacheControlFilter;
 import com.ft.universalpublishing.documentstore.target.DeleteDocumentTarget;
 import com.ft.universalpublishing.documentstore.target.FindMultipleResourcesByUuidsTarget;
 import com.ft.universalpublishing.documentstore.target.FindResourceByUuidTarget;
 import com.ft.universalpublishing.documentstore.target.Target;
 import com.ft.universalpublishing.documentstore.target.WriteDocumentTarget;
 import com.ft.universalpublishing.documentstore.validators.UuidValidator;
-import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
-import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -39,13 +38,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import javax.servlet.DispatcherType;
 
 @SwaggerDefinition(
@@ -97,14 +90,8 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         new MongoDocumentStoreService(
             database, environment.lifecycle().executorService("reindexer").build());
 
-    registerHealthChecks(
-        configuration,
-        environment,
-        documentStoreService);
-    registerResources(
-        configuration,
-        environment,
-        documentStoreService);
+    registerHealthChecks(configuration, environment, documentStoreService);
+    registerResources(configuration, environment, documentStoreService);
   }
 
   private void registerResources(
@@ -220,6 +207,7 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         Optional.ofNullable(config.getIdleTimeout()).orElse(Duration.minutes(10));
     int idleTimeout = (int) idleTimeoutDuration.toMilliseconds();
     builder.maxConnectionIdleTime(idleTimeout);
+    builder.retryWrites(false);
 
     Optional.ofNullable(config.getServerSelectorTimeout())
         .ifPresent(
@@ -228,14 +216,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
               builder.serverSelectionTimeout(serverSelectorTimeout);
             });
 
-    List<ServerAddress> mongoServers = config.toServerAddresses();
-    if (mongoServers.size() == 1) {
-      // singleton configuration
-      ServerAddress mongoServer = mongoServers.get(0);
-      return new MongoClient(mongoServer, builder.build());
-    } else {
-      // cluster configuration
-      return new MongoClient(mongoServers, builder.build());
-    }
+    return MongoClients.create(config.serverURI());
   }
 }
