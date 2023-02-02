@@ -37,10 +37,12 @@ jobs:
           name: Build Docker image
           command: |
             source ${BASH_ENV}
+            TRUST_STORE_PASSWORD=$(echo $RANDOM | md5sum | head -c 20;)
             docker build \
             --build-arg SONATYPE_USER=${SONATYPE_USER} \
             --build-arg SONATYPE_PASSWORD=${SONATYPE_PASSWORD} \
             --build-arg GIT_TAG=${DOCKER_TAG} \
+            --build-arg TRUST_STORE_PASSWORD=${TRUST_STORE_PASSWORD} \
             --tag nexus.in.ft.com:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
       - deploy:
           name: Push Docker image
