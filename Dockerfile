@@ -11,7 +11,11 @@ ARG GIT_TAG
 ENV MAVEN_HOME=/root/.m2
 ENV TAG=$GIT_TAG
 
-RUN apk --update add git maven curl \
+RUN apk --update add git maven curl perl openssl \
+  # create random password for the keystore
+  && echo $RANDOM | md5sum | head -c 20 > /tmp/secret.txt \
+  # create trust store for DocumentDB SSL
+  && sh /document-store-api/buildTrustStore.sh \
   # Set Nexus credentials in settings.xml file
   && mkdir $MAVEN_HOME \
   && curl -v -o $MAVEN_HOME/settings.xml "https://raw.githubusercontent.com/Financial-Times/nexus-settings/master/public-settings.xml" \
@@ -37,6 +41,8 @@ RUN apk --update add git maven curl \
 
 FROM eclipse-temurin:8u345-b01-jre
 COPY --from=0 /document-store-api.jar /document-store-api.jar
+COPY --from=0 /tmp/rds-truststore.jks /rds-truststore.jks
+COPY --from=0 /tmp/secret.txt /secret.txt
 COPY --from=0 /config.yaml /config.yaml
 
 EXPOSE 8080 8081
@@ -44,7 +50,11 @@ EXPOSE 8080 8081
 CMD exec java $JAVA_OPTS \
   -Ddw.server.applicationConnectors[0].port=8080 \
   -Ddw.server.adminConnectors[0].port=8081 \
-  -Ddw.mongo.addresses=$MONGO_ADDRESSES \
+  -Ddw.documentdb.address=$DOCDB_CLUSTER_ADDRESS \
+  -Ddw.documentdb.username=$DOCDB_USERNAME \
+  -Ddw.documentdb.password=$DOCDB_PASSWORD \
+  -Djavax.net.ssl.trustStore="/rds-truststore.jks" \
+  -Djavax.net.ssl.trustStorePassword=$(cat /secret.txt) \
   -Ddw.cacheTtl=$CACHE_TTL \
   -Ddw.apiHost=$API_HOST \
   -Ddw.logging.appenders[0].logFormat="%m%n" \

@@ -1,7 +1,7 @@
-mongo:
-  addresses: []
-  hosts: []
-  port: 27017
+documentdb:
+  address: ~
+  username: ~
+  password: ~
   db: upp-store
 
 apiHost: "http://apipath.replaceme"
