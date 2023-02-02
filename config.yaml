@@ -1,24 +1,24 @@
-mongo:
-  addresses: []
-  hosts: []
-  port: 27017
+documentdb:
+  address: ~
+  username: ~
+  password: ~
   db: upp-store
 
 apiHost: "http://apipath.replaceme"
 cacheTtl: 30
 
 connectionHealthcheckParameters:
-  name: "Connectivity to MongoDB"
+  name: "Connectivity to DocumentDB"
   severity: 1
   businessImpact: "Content won't be available for API consumers, including ft.com."
-  technicalSummary: "Cannot connect to the MongoDB content store. This will result in failure to retrieve articles from the content platform and affect a variety of products."
+  technicalSummary: "Cannot connect to the DocumentDB instance. This will result in failure to retrieve articles from the content platform and affect a variety of products."
   panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 indexHealthcheckParameters:
-  name: "MongoDB index health"
+  name: "Document index health"
   severity: 2
   businessImpact: "Some API consumers may experience slow performance for content requests."
-  technicalSummary: "The application indexes for the MongoDB content store may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
+  technicalSummary: "The application indexes for the DocumentDB instance may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
   panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 server:
