@@ -4,7 +4,7 @@
 -->
 # UPP - Document Store API
 
-The Document Store API writes to and reads from Document Store (DocumentDB) in the Delivery cluster.
+The Document Store API writes to and reads from Document Store (DocumentDB).
 
 ## Code
 
