@@ -2,7 +2,7 @@
 
 output_dir='/tmp'
 truststore=${output_dir}/rds-truststore.jks
-storepassword=$(cat /tmp/secret.txt)
+storepassword=$(cat /tmp/phrase.txt)
 
 curl -sS "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem" > ${output_dir}/rds-combined-ca-bundle.pem
 awk 'split_after == 1 {n++;split_after=0} /-----END CERTIFICATE-----/ {split_after=1}{print > "rds-ca-" n ".pem"}' < ${output_dir}/rds-combined-ca-bundle.pem
