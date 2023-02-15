@@ -5,7 +5,7 @@ import com.ft.platform.dropwizard.AdvancedResult;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 
 public class DocumentStoreIndexHealthCheck extends AdvancedHealthCheck {
-  private static final String MESSAGE = "MongoDB indexes may not be up-to-date";
+  private static final String MESSAGE = "DocumentDB indexes may not be up-to-date";
 
   private final MongoDocumentStoreService service;
   private final HealthcheckParameters healthcheckParameters;
