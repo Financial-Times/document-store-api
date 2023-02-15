@@ -8,7 +8,7 @@ info:
     name: "UPP Team"
 tags:
   - name: "collections"
-    description: "Operations on document-store MongoDB collections"
+    description: "Operations on document-store DocumentDB collections"
 schemes:
   - "http"
 paths:
