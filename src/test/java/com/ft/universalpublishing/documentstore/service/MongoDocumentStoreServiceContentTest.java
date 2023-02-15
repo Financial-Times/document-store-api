@@ -380,8 +380,8 @@ public class MongoDocumentStoreServiceContentTest {
     assertThat(
         actual.toString(),
         equalTo(
-            "{ \"uuid\" : \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\" }\n"
-                + "{ \"uuid\" : \"8ae3f1dc-f288-11e6-8758-6876151821a6\" }\n"));
+            "{\"uuid\": \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\"}\n"
+                + "{\"uuid\": \"8ae3f1dc-f288-11e6-8758-6876151821a6\"}\n"));
   }
 
   @Test
@@ -419,7 +419,7 @@ public class MongoDocumentStoreServiceContentTest {
     assertThat(
         actual.toString(),
         equalTo(
-            "{ \"uuid\" : \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\", \"identifiers\" : { \"authority\" : \"http://api.ft.com/system/FT-LABS-WP-1-335\" } }\n"
-                + "{ \"uuid\" : \"8ae3f1dc-f288-11e6-8758-6876151821a6\", \"identifiers\" : { \"authority\" : \"http://api.ft.com/system/FTCOM-METHODE\" } }\n"));
+            "{\"uuid\": \"d08ef814-f295-11e6-a94b-0e7d0412f5a5\", \"identifiers\": {\"authority\": \"http://api.ft.com/system/FT-LABS-WP-1-335\"}}\n"
+                + "{\"uuid\": \"8ae3f1dc-f288-11e6-8758-6876151821a6\", \"identifiers\": {\"authority\": \"http://api.ft.com/system/FTCOM-METHODE\"}}\n"));
   }
 }

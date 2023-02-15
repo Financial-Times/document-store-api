@@ -51,8 +51,8 @@ public class DocumentIDResourceTest {
     assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
     StringWriter writer = new StringWriter();
     IOUtils.copy((InputStream) clientResponse.getEntity(), writer, "UTF-8");
-    assertTrue(writer.toString().contains("{ \"uuid\" : \"" + firstUUID + "\" }"));
-    assertTrue(writer.toString().contains("{ \"uuid\" : \"" + secondUUID + "\" }"));
+    assertTrue(writer.toString().contains("{\"uuid\": \"" + firstUUID + "\"}"));
+    assertTrue(writer.toString().contains("{\"uuid\": \"" + secondUUID + "\"}"));
   }
 
   @Test

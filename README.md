@@ -3,9 +3,9 @@
 
 # Document Store API
 
-Document Store API is a Dropwizard application which allows **writes to** and **reads from** MongoDB.
+Document Store API is a Dropwizard application which allows **writes to** and **reads from** DocumentDB.
 
-The `/content/{uuid}` endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in mongoDB.
+The `/content/{uuid}` endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in DocumentDB.
 
 The `/complementarycontent/{uuid}` endpoint is used for reading promotional fields of stored content.
 
@@ -35,11 +35,7 @@ MONGO_TEST_URL=localhost:27017 -Djava.net.preferIPv4Stack=true mvn clean package
 ```
 
 To run locally:
-1. **either** port-forward **mongodb** from **UPP Dev Delivery** or **UPP Staging Delivery EU/US** using:
-    ```sh
-    kubectl port-forward <mongodb-pod-name> 27017:27017
-    ```
-    **or** use `docker-compose` to spin it up locally in a container:
+1. Use `docker-compose` to spin it up locally in a container:
     ```sh
     docker-compose up -d mongodb
     ```
@@ -150,8 +146,8 @@ Handler and Targets can be reused in multiple chains.
 ## Healthchecks and GTG
 
 There are healthchecks for
-- connection to MongoDB
-- index state of MongoDB collections
+- connection to DocumentDB
+- index state of DocumentDB collections
 
 Only the connection healthcheck influences GTG responses. Whenever a change is detected in the connection state, the application may move between states in the following state chart.
 ![state chart](https://www.lucidchart.com/publicSegments/view/773931fc-d21d-44c2-a84f-b89d8508d930/image.jpeg)
