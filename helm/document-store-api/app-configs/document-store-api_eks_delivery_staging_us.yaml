@@ -1,0 +1,14 @@
+replicaCount: 2
+
+service:
+  name: document-store-api
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+              - us-east-1a
