@@ -34,7 +34,7 @@ server:
     appenders:
       - type: console
         # Add transaction_id to the end of Dropwizard's default format, which is itself based on the "combined" log format
-        logFormat: '%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" %D transaction_id=%i{X-Request-Id}'
+        logFormat: '%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" response_time=%D transaction_id=%i{X-Request-Id}'
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
