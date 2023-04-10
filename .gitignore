@@ -9,3 +9,4 @@
 
 # MongoDB local test dir
 data/db
+.factorypath

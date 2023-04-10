@@ -85,7 +85,7 @@ public class MongoDocumentStoreServiceConnectionTest {
     // but on the next attempt
     reset(db);
     when(db.runCommand(any(Bson.class))).thenReturn(CONNECTED);
-    when(db.getCollection(anyString())).thenReturn(collection);
+    lenient().when(db.getCollection(anyString())).thenReturn(collection);
 
     assertTrue(service.isConnected());
     assertIsIndexed();
