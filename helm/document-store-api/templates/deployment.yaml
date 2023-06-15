@@ -52,13 +52,13 @@ spec:
         - name: DOCDB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: global-secrets
-              key: aws.doc-db.username
+              name: doppler-global-secrets
+              key: AWS_DOC_DB_USERNAME
         - name: DOCDB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: global-secrets
-              key: aws.doc-db.password
+              name: doppler-global-secrets
+              key: AWS_DOC_DB_PASSWORD
         - name: JAVA_OPTS
           value: "-Xms256m -Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -server"
         - name: CACHE_TTL
