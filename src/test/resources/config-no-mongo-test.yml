@@ -1,5 +1,5 @@
-documentdb:
-  address: "upp-docdb-cluster.cluster-ci7tuksazqti.eu-west-1.docdb.amazonaws.com:27017"
+mongodb:
+  address: "cm-document-store-dev-e.znfgu.mongodb.net"
   username: ~
   password: ~
   db: upp-store
