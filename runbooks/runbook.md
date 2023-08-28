@@ -4,7 +4,7 @@
 -->
 # UPP - Document Store API
 
-The Document Store API writes to and reads from Document Store (DocumentDB).
+The Document Store API writes to and reads from Document Store ().
 
 ## Code
 
@@ -28,7 +28,7 @@ AWS
 
 ## Architecture
 
-Document Store API allows writes to and reads from DocumentDB. Endpoints: `/content`, `/internalcomponents`, `/complementarycontent`. If this service is unavailable no publishes nor reads from the APIs will be working as expected.
+Document Store API allows writes to and reads from Atlas MongoDB. Endpoints: `/content`, `/internalcomponents`, `/complementarycontent`. If this service is unavailable no publishes nor reads from the APIs will be working as expected.
 
 ## Contains Personal Data
 
