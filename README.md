@@ -3,9 +3,9 @@
 
 # Document Store API
 
-Document Store API is a Dropwizard application which allows **writes to** and **reads from** DocumentDB.
+Document Store API is a Dropwizard application which allows **writes to** and **reads from** Atlas MongoDB.
 
-The `/content/{uuid}` endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in DocumentDB.
+The `/content/{uuid}` endpoint is for reading from mongo without any other restriction, no formatting, no hard-coded layout or classes. It's a pure document representation of what is stored in Atlas MongoDB.
 
 The `/complementarycontent/{uuid}` endpoint is used for reading promotional fields of stored content.
 
@@ -146,8 +146,8 @@ Handler and Targets can be reused in multiple chains.
 ## Healthchecks and GTG
 
 There are healthchecks for
-- connection to DocumentDB
-- index state of DocumentDB collections
+- connection to Atlas MongoDB
+- index state of Atlas MongoDB collections
 
 Only the connection healthcheck influences GTG responses. Whenever a change is detected in the connection state, the application may move between states in the following state chart.
 ![state chart](https://www.lucidchart.com/publicSegments/view/773931fc-d21d-44c2-a84f-b89d8508d930/image.jpeg)

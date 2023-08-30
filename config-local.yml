@@ -1,5 +1,5 @@
-documentdb:
-  address: "upp-docdb-cluster.cluster-ci7tuksazqti.eu-west-1.docdb.amazonaws.com:27017"
+mongodb:
+  address: "cm-document-store-dev-e.znfgu.mongodb.net"
   username: ~
   password: ~
   db: upp-store
@@ -8,17 +8,17 @@ apiHost: localhost
 cacheTtl: 30
 
 connectionHealthcheckParameters:
-  name: "Connectivity to DocumentDB"
+  name: "Connectivity to Atlas MongoDB"
   severity: 1
   businessImpact: "Content won't be available for API consumers, including ft.com."
-  technicalSummary: "Cannot connect to the DocumentDB instance. This will result in failure to retrieve articles from the content platform and affect a variety of products."
+  technicalSummary: "Cannot connect to the Atlas MongoDB instance. This will result in failure to retrieve articles from the content platform and affect a variety of products."
   panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 indexHealthcheckParameters:
-  name: "DocumentDB index health"
+  name: "Atlas MongoDB index health"
   severity: 2
   businessImpact: "Some API consumers may experience slow performance for content requests."
-  technicalSummary: "The application indexes for the DocumentDB instance may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
+  technicalSummary: "The application indexes for the Atlas MongoDB instance may not be up-to-date (indexing may be in progress). This will result in degraded performance from the content platform and affect a variety of products."
   panicGuideUrl: "https://dewey.ft.com/document-store-api.html"
 
 server:

@@ -16,7 +16,7 @@ public class MongoConfigTest {
 
   @Test
   public void shouldFormatParameters() {
-    config.setAddress("document-db-address:27017");
+    config.setAddress("mongo-atlas-db:27017");
     config.setDb("database");
     config.setUsername("username");
     config.setPassword("password");
@@ -24,6 +24,6 @@ public class MongoConfigTest {
     assertThat(
         config.serverURI(),
         is(
-            "mongodb://username:password@document-db-address:27017/database?ssl=true&replicaSet=rs0&readpreference=secondaryPreferred&retryWrites=False"));
+            "mongodb+srv://username:password@mongo-atlas-db:27017/database?retryWrite=true&w=majority"));
   }
 }
