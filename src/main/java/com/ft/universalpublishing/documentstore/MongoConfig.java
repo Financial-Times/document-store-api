@@ -11,10 +11,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class MongoConfig {
+public class
+MongoConfig {
 
-  private static final String TEMPLATE =
-      "mongodb://%s:%s@%s/%s?ssl=true&replicaSet=rs0&readpreference=secondaryPreferred&retryWrites=False";
+  private static final String TEMPLATE = "mongodb+srv://%s:%s@%s/%s?retryWrite=true&w=majority";
 
   public MongoConfig() {}
 

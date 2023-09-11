@@ -44,21 +44,21 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
-        - name: DOCDB_CLUSTER_ADDRESS
+        - name: DB_CLUSTER_ADDRESS
           valueFrom:
             configMapKeyRef:
               name: global-config
-              key: aws.documentdb.cluster.address
-        - name: DOCDB_USERNAME
+              key: documentstore.cluster.address
+        - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
               name: doppler-global-secrets
-              key: AWS_DOC_DB_USERNAME
-        - name: DOCDB_PASSWORD
+              key: DOCUMENT_STORE_CLUSTER_USERNAME
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: doppler-global-secrets
-              key: AWS_DOC_DB_PASSWORD
+              key: DOCUMENT_STORE_CLUSTER_PASSWORD
         - name: JAVA_OPTS
           value: "-Xms256m -Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -server"
         - name: CACHE_TTL

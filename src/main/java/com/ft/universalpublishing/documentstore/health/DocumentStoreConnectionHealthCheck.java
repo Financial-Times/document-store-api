@@ -5,7 +5,7 @@ import com.ft.platform.dropwizard.AdvancedResult;
 import com.ft.universalpublishing.documentstore.service.MongoDocumentStoreService;
 
 public class DocumentStoreConnectionHealthCheck extends AdvancedHealthCheck {
-  private static final String MESSAGE = "Cannot connect to DocumentDB";
+  private static final String MESSAGE = "Cannot connect to Atlas MongoDB";
 
   private final MongoDocumentStoreService service;
   private final HealthcheckParameters healthcheckParameters;

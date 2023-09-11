@@ -24,7 +24,7 @@ public class DocumentStoreApiConfiguration extends Configuration
   private HealthcheckParameters indexHealthcheckParameters;
 
   public DocumentStoreApiConfiguration(
-      @JsonProperty("documentdb") MongoConfig mongo,
+      @JsonProperty("mongodb") MongoConfig mongo,
       @JsonProperty("apiHost") String apiHost,
       @JsonProperty("cacheTtl") String cacheTtl,
       @JsonProperty("connectionHealthcheckParameters")

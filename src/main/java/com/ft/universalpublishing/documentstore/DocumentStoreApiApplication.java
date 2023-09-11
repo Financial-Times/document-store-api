@@ -207,7 +207,6 @@ public class DocumentStoreApiApplication extends Application<DocumentStoreApiCon
         Optional.ofNullable(config.getIdleTimeout()).orElse(Duration.minutes(10));
     int idleTimeout = (int) idleTimeoutDuration.toMilliseconds();
     builder.maxConnectionIdleTime(idleTimeout);
-    builder.retryWrites(false);
 
     Optional.ofNullable(config.getServerSelectorTimeout())
         .ifPresent(

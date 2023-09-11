@@ -25,7 +25,7 @@ public class DocumentStoreConnectionGoodToGoCheckerTest {
   private HealthCheck documentStoreConnectionHealthCheck() {
     HealthcheckParameters healthcheckParameters =
         new HealthcheckParameters(
-            "Connectivity to DocumentDB",
+            "Connectivity to MongoDB",
             1,
             "business impact message",
             "technical summary message",
@@ -36,7 +36,7 @@ public class DocumentStoreConnectionGoodToGoCheckerTest {
   private HealthCheck documentStoreIndexHealthCheck() {
     HealthcheckParameters healthcheckParameters =
         new HealthcheckParameters(
-            "DocumentDB index",
+            "MongoDB index",
             1,
             "business impact message",
             "technical summary message",
