@@ -4,6 +4,9 @@ workflows:
   build-docker-image:
     jobs:
       - build:
+          context:
+            - cm-cloudsmith
+            - cm-team-github
           filters:
             tags:
               only: /.*/
@@ -20,7 +23,7 @@ jobs:
           command: |
             export MONGO_TEST_URL=localhost:27017
             mkdir ~/.m2/
-            curl -v -o ~/.m2/settings.xml "https://raw.githubusercontent.com/Financial-Times/nexus-settings/master/public-settings.xml"
+            curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" -o /root/.m2/settings.xml -L "https://raw.githubusercontent.com/Financial-Times/cloudsmith-settings/main/public-settings.xml"
             mvn clean package -Djava.net.preferIPv4Stack=true
             rm -rf ~/.m2/*     
       - run:
@@ -38,13 +41,15 @@ jobs:
           command: |
             source ${BASH_ENV}
             docker build \
-            --build-arg SONATYPE_USER=${SONATYPE_USER} \
-            --build-arg SONATYPE_PASSWORD=${SONATYPE_PASSWORD} \
+            --build-arg CLOUDSMITH_USER=${CLOUDSMITH_USER} \
+            --build-arg CLOUDSMITH_PASSWORD=${CLOUDSMITH_PASSWORD} \
             --build-arg GIT_TAG=${DOCKER_TAG} \
-            --tag nexus.in.ft.com:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
+            --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} \
+            --tag coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
+#            --tag nexus.in.ft.com:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
       - deploy:
           name: Push Docker image
           command: |
             source ${BASH_ENV}
-            docker login nexus.in.ft.com:5000 -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-            docker push nexus.in.ft.com:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG}
+            docker coco:5000 -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+            docker push coco:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG}
