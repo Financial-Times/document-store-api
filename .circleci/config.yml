@@ -46,9 +46,3 @@ jobs:
             --build-arg GIT_TAG=${DOCKER_TAG} \
             --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} \
             --tag coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
-      - deploy:
-          name: Push Docker image
-          command: |
-            source ${BASH_ENV}
-            echo "$DOCKER_PASSWORD" | docker login coco -u $DOCKER_USER --password-stdin            
-            docker push coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG}
