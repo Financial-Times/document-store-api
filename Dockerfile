@@ -36,7 +36,7 @@ RUN apk --update add git maven curl \
   && apk del go git maven \
   && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
 
-FROM openjdk:8-jdk-alpine3.8
+FROM eclipse-temurin:8u345-b01-jre
 COPY --from=0 /document-store-api.jar /document-store-api.jar
 COPY --from=0 /config.yaml /config.yaml
 

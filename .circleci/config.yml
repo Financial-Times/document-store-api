@@ -46,10 +46,9 @@ jobs:
             --build-arg GIT_TAG=${DOCKER_TAG} \
             --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} \
             --tag coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
-#            --tag nexus.in.ft.com:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG} .
       - deploy:
           name: Push Docker image
           command: |
             source ${BASH_ENV}
-            docker coco:5000 -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+            docker login coco:5000 -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
             docker push coco:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG}
