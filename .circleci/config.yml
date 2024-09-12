@@ -23,7 +23,7 @@ jobs:
           command: |
             export MONGO_TEST_URL=localhost:27017
             mkdir ~/.m2/
-            curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" -o /root/.m2/settings.xml -L "https://raw.githubusercontent.com/Financial-Times/cloudsmith-settings/main/public-settings.xml"
+            curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" -v -o ~/.m2/settings.xml -L "https://raw.githubusercontent.com/Financial-Times/cloudsmith-settings/main/public-settings.xml"
             mvn clean package -Djava.net.preferIPv4Stack=true
             rm -rf ~/.m2/*     
       - run:
