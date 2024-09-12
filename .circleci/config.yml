@@ -50,5 +50,5 @@ jobs:
           name: Push Docker image
           command: |
             source ${BASH_ENV}
-            docker login coco:5000 -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+            echo "$DOCKER_PASSWORD" | docker login coco:5000 -u $DOCKER_USER --password-stdin            
             docker push coco:5000/coco/${CIRCLE_PROJECT_REPONAME}:${DOCKER_TAG}
