@@ -1,20 +1,21 @@
-FROM eclipse-temurin:8u345-b01-jdk-alpine
+FROM amazoncorretto:8u412-alpine3.16
 
 ADD .git/ /.git/
 ADD . /document-store-api/
 ADD pom.xml /
 
-ARG SONATYPE_USER
-ARG SONATYPE_PASSWORD
+ARG CLOUDSMITH_USER
+ARG CLOUDSMITH_PASSWORD
 ARG GIT_TAG
+ARG GITHUB_TOKEN
 
 ENV MAVEN_HOME=/root/.m2
 ENV TAG=$GIT_TAG
 
 RUN apk --update add git maven curl \
-  # Set Nexus credentials in settings.xml file
+  # Set Cloudsmith credentials in settings.xml file
   && mkdir $MAVEN_HOME \
-  && curl -v -o $MAVEN_HOME/settings.xml "https://raw.githubusercontent.com/Financial-Times/nexus-settings/master/public-settings.xml" \
+  && curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" -o "$MAVEN_HOME/settings.xml" -L "https://raw.githubusercontent.com/Financial-Times/cloudsmith-settings/main/public-settings.xml" \
   # Generate docker tag
   && cd /document-store-api \
   && HASH=$(git log -1 --pretty=format:%H) \
@@ -23,7 +24,7 @@ RUN apk --update add git maven curl \
   # Set Maven artifact version
   && mvn clean versions:set -DnewVersion=$VERSION \
   # Build project without tests
-  && mvn clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true -DskipTests \
+  && mvn -e clean package -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true -DskipTests \
   # Remove sources jar
   && rm target/document-store-api-*-sources.jar \
   # Remove version from executable jar name

@@ -13,7 +13,6 @@
     <url>http://www.ft.com</url>
     <inceptionYear>2015</inceptionYear>
 
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <target-jdk>1.8</target-jdk>
@@ -54,25 +53,6 @@
         <ft-build-info-maven-plugin.version>1.0.2</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>http://repo1.maven.org/maven2</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>ft-plugin-releases</id>
-            <url>https://jitpack.io</url>
-        </pluginRepository>
-    </pluginRepositories>
-
 
     <dependencyManagement>
         <dependencies>

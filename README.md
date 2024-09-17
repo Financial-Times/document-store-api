@@ -49,9 +49,10 @@ To run locally:
 
 **N.B.** As of 18-10-2016, there should be no further deployments to **UCS**.
 
-To build the Docker image locally, you now need to pass build arguments to authenticate against our Nexus server:
+To build the Docker image locally, you now need to pass build arguments to authenticate against our Cloudsmith server:
 
-    docker build -t coco/document-store-api --build-arg SONATYPE_USER=upp-nexus --build-arg SONATYPE_PASSWORD=AvailableInLastPass .
+docker build -t coco/document-store-api --build-arg CLOUDSMITH_USER=content-programme-read-write --build-arg CLOUDSMITH_PASSWORD=AvailableIn1Pass .
+
 
 ## Content PUT
 
