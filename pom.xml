@@ -309,7 +309,6 @@
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <forkCount>0</forkCount>
-                    <argLine>-Xmx512m</argLine>
                 </configuration>
                 <version>${surefire.reportplugin.version}</version>
             </plugin>
