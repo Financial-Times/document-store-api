@@ -50,7 +50,7 @@
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <ft-build-info-maven-plugin.version>1.0.2</ft-build-info-maven-plugin.version>
+        <ft-build-info-maven-plugin.version>1.1.0</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
     </properties>
 
