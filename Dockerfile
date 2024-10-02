@@ -1,4 +1,4 @@
-FROM amazoncorretto:8u412-alpine3.16
+FROM amazoncorretto:11-alpine3.20
 
 ADD .git/ /.git/
 ADD . /document-store-api/
@@ -36,7 +36,7 @@ RUN apk --update add git maven curl \
   && apk del go git maven \
   && rm -rf /var/cache/apk/* /document-store-api/target* /root/.m2/* /tmp/*.apk
 
-FROM eclipse-temurin:8u345-b01-jre
+FROM eclipse-temurin:11-jre
 COPY --from=0 /document-store-api.jar /document-store-api.jar
 COPY --from=0 /config.yaml /config.yaml
 
