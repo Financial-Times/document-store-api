@@ -308,7 +308,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <forkCount>0</forkCount>
                 </configuration>
                 <version>${surefire.reportplugin.version}</version>
             </plugin>
